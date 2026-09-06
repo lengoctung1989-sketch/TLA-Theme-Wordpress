@@ -33,7 +33,7 @@
 | `CP2.2` | Khối động trang chủ — `home-categories` (6 product_cat), `home-products` (best=total_sales \| sale), `home-blog` (3 bài mới) | ✅ |
 | `CP2.3` | Customizer — section `cp_home`: hero (nhãn/tiêu đề `<em>`/mô tả/ảnh) + CTA (tiêu đề/mô tả). `front-page.php` đọc `get_theme_mod` fallback default i18n | ✅ |
 | `CP3.1` | Trang danh mục / cửa hàng — hook `woocommerce_before/after_main_content` dựng pagehero + layout 2 cột (sidebar `product_cat` + lưới). Loop item bọc `.cp-card` qua hook. Nút loop → "Xem chi tiết". KHÔNG copy template WooCommerce | ✅ |
-| `CP3.2` | Chi tiết sản phẩm — gallery + tabs + related theo `product-detail.html` | ⏳ chưa làm |
+| `CP3.2` | Chi tiết sản phẩm — pagehero + `.cp-single` 2 cột (gallery WC \| summary), nhãn danh mục trên tiêu đề, nút "Gọi ngay" cạnh add-to-cart, dải CTA cuối. Tabs + related reskin qua CSS. Related dùng `.cp-card` (hook loop item chạy cả khi `is_product()`). KHÔNG copy template | ✅ |
 
 ## Quy trình / DoD
 
