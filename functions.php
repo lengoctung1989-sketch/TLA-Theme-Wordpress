@@ -72,6 +72,69 @@ add_filter(
 );
 
 /**
+ * Customizer: mục "Trang chủ Cao Phát" — chữ + ảnh volatile của hero/CTA.
+ * Layout và khối động vẫn ở front-page.php.
+ */
+add_action(
+	'customize_register',
+	static function ( \WP_Customize_Manager $wp_customize ): void {
+		$wp_customize->add_section(
+			'cp_home',
+			array(
+				'title'    => __( 'Trang chủ Cao Phát', 'tungleads-theme' ),
+				'priority' => 30,
+			)
+		);
+
+		$fields = array(
+			'cp_hero_badge' => array( __( 'Hero — nhãn nhỏ', 'tungleads-theme' ), 'text' ),
+			'cp_hero_title' => array( __( 'Hero — tiêu đề (cho phép thẻ <em>)', 'tungleads-theme' ), 'textarea' ),
+			'cp_hero_desc'  => array( __( 'Hero — mô tả', 'tungleads-theme' ), 'textarea' ),
+			'cp_cta_title'  => array( __( 'CTA — tiêu đề', 'tungleads-theme' ), 'text' ),
+			'cp_cta_desc'   => array( __( 'CTA — mô tả', 'tungleads-theme' ), 'textarea' ),
+		);
+
+		foreach ( $fields as $id => $field ) {
+			$wp_customize->add_setting(
+				$id,
+				array(
+					'default'           => '',
+					'transport'         => 'refresh',
+					'sanitize_callback' => 'cp_hero_title' === $id ? 'wp_kses_post' : ( 'textarea' === $field[1] ? 'sanitize_textarea_field' : 'sanitize_text_field' ),
+				)
+			);
+			$wp_customize->add_control(
+				$id,
+				array(
+					'section' => 'cp_home',
+					'label'   => $field[0],
+					'type'    => $field[1],
+				)
+			);
+		}
+
+		$wp_customize->add_setting(
+			'cp_hero_image',
+			array(
+				'default'           => '',
+				'transport'         => 'refresh',
+				'sanitize_callback' => 'esc_url_raw',
+			)
+		);
+		$wp_customize->add_control(
+			new \WP_Customize_Image_Control(
+				$wp_customize,
+				'cp_hero_image',
+				array(
+					'section' => 'cp_home',
+					'label'   => __( 'Hero — ảnh', 'tungleads-theme' ),
+				)
+			)
+		);
+	}
+);
+
+/**
  * In 1 card sản phẩm theo markup .cp-card. Dùng ở các khối trang chủ.
  */
 function cp_product_card( \WC_Product $product ): void {

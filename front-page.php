@@ -17,6 +17,14 @@ $cp_tel  = cp_hotline_tel();
 $cp_disp = cp_hotline_display();
 $cp_img  = get_stylesheet_directory_uri() . '/assets/images';
 $cp_shop = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
+
+// Chữ + ảnh sửa được trong Appearance → Customize → "Trang chủ Cao Phát"; rỗng thì dùng mặc định.
+$cp_hero_badge = get_theme_mod( 'cp_hero_badge' ) ?: __( 'Thương hiệu cửa uy tín tại TP.HCM', 'tungleads-theme' );
+$cp_hero_title = get_theme_mod( 'cp_hero_title' ) ?: __( 'Thế giới <em>Cửa gỗ công nghiệp</em>, cửa nhựa giả gỗ &amp; cửa chống cháy', 'tungleads-theme' );
+$cp_hero_desc  = get_theme_mod( 'cp_hero_desc' ) ?: __( 'Cao Phát Door mang đến sản phẩm cửa chất lượng cao, đa dạng mẫu mã và kiểu dáng — tiện nghi, an toàn và thẩm mỹ cho mọi không gian sống.', 'tungleads-theme' );
+$cp_hero_img   = get_theme_mod( 'cp_hero_image' ) ?: $cp_img . '/hero.png';
+$cp_cta_title  = get_theme_mod( 'cp_cta_title' ) ?: __( 'Cần tư vấn chọn cửa phù hợp?', 'tungleads-theme' );
+$cp_cta_desc   = get_theme_mod( 'cp_cta_desc' ) ?: __( 'Đội ngũ Cao Phát Door hỗ trợ đo đạc, báo giá và thi công tận nơi tại TP.HCM.', 'tungleads-theme' );
 ?>
 <main id="main">
 
@@ -26,17 +34,17 @@ $cp_shop = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( '
 			<div class="cp-hero-copy">
 				<span class="cp-hero-badge">
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15 8l6 .9-4.5 4.3 1 6.1L12 16.5 6.5 19.3l1-6.1L3 8.9 9 8z"/></svg>
-					<?php esc_html_e( 'Thương hiệu cửa uy tín tại TP.HCM', 'tungleads-theme' ); ?>
+					<?php echo esc_html( $cp_hero_badge ); ?>
 				</span>
-				<h1><?php echo wp_kses_post( __( 'Thế giới <em>Cửa gỗ công nghiệp</em>, cửa nhựa giả gỗ &amp; cửa chống cháy', 'tungleads-theme' ) ); ?></h1>
-				<p><?php esc_html_e( 'Cao Phát Door mang đến sản phẩm cửa chất lượng cao, đa dạng mẫu mã và kiểu dáng — tiện nghi, an toàn và thẩm mỹ cho mọi không gian sống.', 'tungleads-theme' ); ?></p>
+				<h1><?php echo wp_kses_post( $cp_hero_title ); ?></h1>
+				<p><?php echo esc_html( $cp_hero_desc ); ?></p>
 				<div class="cp-hero-actions">
 					<a class="cp-btn cp-btn-primary" href="<?php echo esc_url( $cp_shop ); ?>"><?php esc_html_e( 'Xem sản phẩm', 'tungleads-theme' ); ?></a>
 					<a class="cp-btn cp-btn-ghost" href="tel:<?php echo esc_attr( $cp_tel ); ?>"><?php esc_html_e( 'Nhận báo giá 24/7', 'tungleads-theme' ); ?></a>
 				</div>
 			</div>
 			<div class="cp-hero-media">
-				<img src="<?php echo esc_url( $cp_img . '/hero.png' ); ?>" alt="<?php esc_attr_e( 'Showroom cửa gỗ công nghiệp Cao Phát Door', 'tungleads-theme' ); ?>" width="1024" height="1024">
+				<img src="<?php echo esc_url( $cp_hero_img ); ?>" alt="<?php esc_attr_e( 'Showroom cửa gỗ công nghiệp Cao Phát Door', 'tungleads-theme' ); ?>">
 				<div class="cp-hero-float">
 					<div><b>10+ <?php esc_html_e( 'năm', 'tungleads-theme' ); ?></b><small><?php esc_html_e( 'Kinh nghiệm thi công', 'tungleads-theme' ); ?></small></div>
 					<div><b>5.000+</b><small><?php esc_html_e( 'Công trình hoàn thiện', 'tungleads-theme' ); ?></small></div>
@@ -99,8 +107,8 @@ $cp_shop = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( '
 		<div class="cp-container">
 			<div class="cp-cta">
 				<div>
-					<h3><?php esc_html_e( 'Cần tư vấn chọn cửa phù hợp?', 'tungleads-theme' ); ?></h3>
-					<p><?php esc_html_e( 'Đội ngũ Cao Phát Door hỗ trợ đo đạc, báo giá và thi công tận nơi tại TP.HCM.', 'tungleads-theme' ); ?></p>
+					<h3><?php echo esc_html( $cp_cta_title ); ?></h3>
+					<p><?php echo esc_html( $cp_cta_desc ); ?></p>
 				</div>
 				<a class="cp-btn cp-btn-accent" href="tel:<?php echo esc_attr( $cp_tel ); ?>"><?php echo esc_html( sprintf( /* translators: %s: số hotline */ __( 'Gọi ngay %s', 'tungleads-theme' ), $cp_disp ) ); ?></a>
 			</div>
