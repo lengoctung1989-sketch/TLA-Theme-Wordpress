@@ -5,9 +5,11 @@ import { resolve } from 'node:path';
 // Nguồn asset và đích build. base khớp đường dẫn theme trong WordPress.
 const src = resolve(import.meta.dirname, 'assets/src');
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     root: src,
-    base: '/wp-content/themes/tungleads-theme/assets/dist/',
+    // Dev server phục vụ từ gốc (Enqueue.php nạp http://127.0.0.1:5173/main.js);
+    // bản build dùng đường dẫn theme thật để trỏ vào assets/dist.
+    base: command === 'serve' ? '/' : '/wp-content/themes/tungleads-theme/assets/dist/',
     build: {
         manifest: true,
         outDir: resolve(import.meta.dirname, 'assets/dist'),
@@ -26,4 +28,4 @@ export default defineConfig({
         strictPort: true,
         cors: true,
     },
-});
+}));
