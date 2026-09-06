@@ -1,0 +1,3 @@
+# Child theme skin — CSS tĩnh, không có build step / dependency.
+.DS_Store
+*.log

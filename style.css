@@ -1,0 +1,15 @@
+/*
+Theme Name: TLA Theme — Cao Phát Door
+Theme URI: https://caophat.vn/
+Template: tungleads-theme
+Author: Tung Le Ads
+Author URI: https://www.tungleads.com/
+Description: Child theme của TLA Theme — giao diện Cao Phát Door (cửa gỗ công nghiệp, cửa nhựa, cửa chống cháy). Chỉ chứa phần skin riêng của site này.
+Version: 0.1.0
+Requires at least: 6.5
+Requires PHP: 8.2
+License: GNU General Public License v2 or later
+Text Domain: tungleads-theme
+*/
+
+/* CSS thật nằm ở assets/caophat.css (enqueue trong functions.php). File này chỉ giữ header child theme. */
