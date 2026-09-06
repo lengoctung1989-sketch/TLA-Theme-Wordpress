@@ -1,0 +1,274 @@
+# Copyright (C) 2026 Tung Le Ads
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: TLA Theme 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/tungleads-theme\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-06T05:58:51+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: tungleads-theme\n"
+
+#. Theme Name of the theme
+#: style.css
+#: src/Features/Admin.php:35
+msgid "TLA Theme"
+msgstr ""
+
+#. Theme URI of the theme
+#. Author URI of the theme
+#: style.css
+msgid "https://www.tungleads.com/"
+msgstr ""
+
+#. Description of the theme
+#: style.css
+msgid "WordPress classic + theme.json hybrid base theme. Feature Registry + Site Mode, WooCommerce Blocks-first. Nhân bản qua Composer package."
+msgstr ""
+
+#. Author of the theme
+#: style.css
+msgid "Tung Le Ads"
+msgstr ""
+
+#: archive-dichvu.php:32
+msgid "Chưa có dịch vụ nào."
+msgstr ""
+
+#: archive.php:32
+#: index.php:32
+msgid "Không tìm thấy nội dung."
+msgstr ""
+
+#. translators: %s: số lượng bình luận.
+#: comments.php:22
+#, php-format
+msgid "%s bình luận"
+msgid_plural "%s bình luận"
+msgstr[0] ""
+msgstr[1] ""
+
+#: comments.php:43
+msgid "Điều hướng bình luận"
+msgstr ""
+
+#: comments.php:49
+msgid "Đã đóng bình luận."
+msgstr ""
+
+#: functions.php:27
+msgid "TLA Theme: chưa có autoloader. Chạy \"composer install\" trong thư mục theme."
+msgstr ""
+
+#: header.php:19
+msgid "Bỏ qua tới nội dung"
+msgstr ""
+
+#: header.php:26
+msgid "Menu chính"
+msgstr ""
+
+#: home.php:29
+msgid "Chưa có bài viết nào."
+msgstr ""
+
+#: patterns/service/services-list.php
+msgctxt "Pattern title"
+msgid "Lưới 3 dịch vụ"
+msgstr ""
+
+#: patterns/service/services-list.php
+msgctxt "Pattern description"
+msgid "Lưới 3 cột giới thiệu dịch vụ. Dành cho site mode service/hybrid."
+msgstr ""
+
+#: patterns/service/services-list.php:16
+msgid "Dịch vụ 1"
+msgstr ""
+
+#: patterns/service/services-list.php:17
+msgid "Dịch vụ 2"
+msgstr ""
+
+#: patterns/service/services-list.php:18
+msgid "Dịch vụ 3"
+msgstr ""
+
+#: patterns/service/services-list.php:24
+msgid "Dịch vụ của chúng tôi"
+msgstr ""
+
+#: patterns/service/services-list.php:36
+msgid "Mô tả ngắn gọn về dịch vụ này."
+msgstr ""
+
+#: patterns/shared/cta.php
+msgctxt "Pattern title"
+msgid "Dải kêu gọi hành động (CTA)"
+msgstr ""
+
+#: patterns/shared/cta.php
+msgctxt "Pattern description"
+msgid "Dải CTA dùng chung: tiêu đề ngắn + mô tả + nút. Dùng token màu/spacing của theme."
+msgstr ""
+
+#: patterns/shared/cta.php:18
+msgid "Sẵn sàng bắt đầu?"
+msgstr ""
+
+#: patterns/shared/cta.php:22
+msgid "Liên hệ để được tư vấn giải pháp phù hợp với nhu cầu của bạn."
+msgstr ""
+
+#: patterns/shared/cta.php:28
+msgid "Liên hệ ngay"
+msgstr ""
+
+#: patterns/shop/promo-banner.php
+msgctxt "Pattern title"
+msgid "Banner khuyến mãi cửa hàng"
+msgstr ""
+
+#: patterns/shop/promo-banner.php
+msgctxt "Pattern description"
+msgid "Banner dẫn tới trang cửa hàng. Dành cho site mode ecommerce/hybrid."
+msgstr ""
+
+#: patterns/shop/promo-banner.php:20
+msgid "Ưu đãi đang diễn ra"
+msgstr ""
+
+#: patterns/shop/promo-banner.php:24
+msgid "Khám phá các sản phẩm nổi bật với giá tốt nhất."
+msgstr ""
+
+#: patterns/shop/promo-banner.php:30
+msgid "Mua sắm ngay"
+msgstr ""
+
+#: single.php:44
+#: single.php:45
+msgid "Điều hướng bài viết"
+msgstr ""
+
+#: src/Features/Setup.php:47
+msgid "Primary Menu"
+msgstr ""
+
+#: src/Features/Setup.php:48
+msgid "Footer Menu"
+msgstr ""
+
+#: template-parts/content-dichvu.php:29
+msgid "Xem chi tiết"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Base"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Surface"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Contrast"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Muted"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Border"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Primary"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Primary hover"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Accent"
+msgstr ""
+
+#: theme.json
+msgctxt "Font family name"
+msgid "System"
+msgstr ""
+
+#: theme.json
+msgctxt "Font family name"
+msgid "Mono"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Small"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Medium"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Large"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "XL"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "2XL"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "1"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "2"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "3"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "4"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "5"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "6"
+msgstr ""

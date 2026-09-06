@@ -1,0 +1,16 @@
+/*
+Theme Name: TLA Theme
+Theme URI: https://www.tungleads.com/
+Author: Tung Le Ads
+Author URI: https://www.tungleads.com/
+Description: WordPress classic + theme.json hybrid base theme. Feature Registry + Site Mode, WooCommerce Blocks-first. Nhân bản qua Composer package.
+Version: 0.1.0
+Requires at least: 6.5
+Tested up to: 6.7
+Requires PHP: 8.2
+License: GNU General Public License v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: tungleads-theme
+*/
+
+/* Runtime CSS được build bằng Vite và enqueue từ assets/dist. File này chỉ giữ header theme. */

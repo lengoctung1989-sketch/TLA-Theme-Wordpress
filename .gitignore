@@ -1,0 +1,6 @@
+/vendor/
+/node_modules/
+/assets/dist/
+/languages/*.mo
+*.log
+.DS_Store

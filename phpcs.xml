@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<ruleset name="TLA Theme">
+	<description>WordPress-Extra cho TLA Theme (PSR-4 OOP trong src/).</description>
+
+	<file>.</file>
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+	<exclude-pattern>/assets/dist/*</exclude-pattern>
+	<exclude-pattern>/languages/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+	<arg name="parallel" value="8"/>
+
+	<config name="testVersion" value="8.2-"/>
+	<config name="minimum_wp_version" value="6.5"/>
+
+	<rule ref="WordPress-Extra"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="tungleads-theme"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="tl_theme"/>
+				<element value="TL_THEME"/>
+				<element value="TL\Theme"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- src/ theo PSR-4 + OOP camelCase: không áp quy ước tên file/hàm kiểu WP core. -->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.NamingConventions.ValidFunctionName">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<!-- File pattern là template PHP: biến cục bộ trong include, không phải global thật. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<exclude-pattern>/patterns/*</exclude-pattern>
+	</rule>
+</ruleset>
