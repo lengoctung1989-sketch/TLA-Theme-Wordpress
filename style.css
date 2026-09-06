@@ -12,4 +12,4 @@ License: GNU General Public License v2 or later
 Text Domain: tungleads-theme
 */
 
-/* CSS thật nằm ở assets/caophat.css (enqueue trong functions.php). File này chỉ giữ header child theme. */
+/* CP4.1 css — file thật; header child theme ở style.css. */

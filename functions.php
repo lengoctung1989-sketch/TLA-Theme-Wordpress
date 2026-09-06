@@ -1,11 +1,16 @@
 <?php
 /**
- * Child theme Cao Phát Door — chỉ phần skin riêng của site.
+ * Child theme Cao Phát Door — bootstrap + helper dùng chung.
+ *
+ * CP1.1 bootstrap
  *
  * @package TL\Theme\CP
  */
 
 defined( 'ABSPATH' ) || exit;
+
+// CP3.1 — skin trang cửa hàng / danh mục sản phẩm (hook, không copy template).
+require get_stylesheet_directory() . '/inc/woocommerce.php';
 
 /**
  * Hotline hiển thị + số gọi (tel:). Dùng ở header, footer, FAB, pattern.

@@ -2,6 +2,8 @@
 /**
  * 3 bài viết mới nhất trên trang chủ.
  *
+ * CP2.2 home-blocks
+ *
  * @package TL\Theme\CP
  */
 

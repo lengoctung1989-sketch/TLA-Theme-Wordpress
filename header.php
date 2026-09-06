@@ -2,6 +2,8 @@
 /**
  * Header Cao Phát Door: topbar + header sticky (logo + menu + hotline).
  *
+ * CP1.2 header
+ *
  * @package TL\Theme\CP
  */
 

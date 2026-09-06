@@ -2,6 +2,8 @@
 /**
  * Trang chủ Cao Phát Door.
  *
+ * CP2.1 front-page
+ *
  * Khối tĩnh (hero / feature / CTA) đang để chuỗi trong PHP cho nhanh + đúng bản mockup.
  * ponytail: chuyển sang block pattern khi client cần tự sửa nội dung.
  * Khối động (danh mục / sản phẩm / blog) lấy từ dữ liệu WordPress/WooCommerce.

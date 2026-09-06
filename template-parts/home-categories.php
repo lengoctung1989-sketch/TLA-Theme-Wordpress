@@ -2,6 +2,8 @@
 /**
  * Lưới danh mục sản phẩm trên trang chủ (product_cat).
  *
+ * CP2.2 home-blocks
+ *
  * @package TL\Theme\CP
  */
 

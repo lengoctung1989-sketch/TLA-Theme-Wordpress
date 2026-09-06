@@ -1,3 +1,4 @@
+/* CP4.1 css — giao diện Cao Phát Door (.cp-*). */
 /* ==========================================================================
    Cao Phat Door - style.css
    Bộ giao diện HTML/CSS thuần để tích hợp vào theme Flatsome (WordPress)
@@ -558,3 +559,82 @@ body.cp main#main { padding-block: 0; }
   height: 1px; width: 1px; margin: -1px; padding: 0; overflow: hidden;
   position: absolute !important; word-wrap: normal !important;
 }
+
+/* ==========================================================================
+   CP3.1 — Trang cửa hàng / danh mục (skin qua hook, markup WooCommerce)
+   ========================================================================== */
+.cp-shop-main { min-width: 0; }
+
+/* Sidebar: wp_list_categories xuất <li class="cat-item"><a>..</a> <span class="count">(n)</span> */
+.cp-sidebar ul { list-style: none; margin: 0; padding: 0; }
+.cp-sidebar .cat-item {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--cp-line);
+  font-size: 14.5px;
+}
+.cp-sidebar .cat-item:last-child { border-bottom: 0; }
+.cp-sidebar .cat-item a { color: var(--cp-text); }
+.cp-sidebar .cat-item a:hover { color: var(--cp-primary); }
+.cp-sidebar .cat-item .count { color: var(--cp-muted); font-size: 13px; }
+.cp-sidebar .children { padding-left: 12px; }
+
+/* Lưới sản phẩm: dùng .cp-card đã có, chỉ reset markup WooCommerce */
+.cp-shop-main ul.products {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+}
+.woocommerce .cp-shop-main ul.products li.product,
+.cp-shop-main ul.products li.product {
+  float: none; width: auto; margin: 0; padding: 0;
+  background: #fff; border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius); overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.cp-shop-main ul.products li.product:hover { transform: translateY(-4px); box-shadow: var(--cp-shadow-lg); }
+.cp-shop-main li.product .cp-card-media { display: block; }
+.cp-shop-main li.product .cp-card-media a { display: block; height: 100%; }
+.cp-shop-main li.product .woocommerce-loop-product__title,
+.cp-shop-main li.product .cp-card-title { font-size: 15.5px; font-weight: 600; margin: 0; line-height: 1.4; }
+.cp-shop-main li.product .price { margin-top: auto; }
+.cp-shop-main li.product .price { color: var(--cp-accent); font-weight: 700; font-size: 17px; }
+.cp-shop-main li.product .price del { color: var(--cp-muted); font-weight: 400; font-size: 13px; }
+.cp-shop-main li.product .star-rating { font-size: 13px; margin: 2px 0; }
+
+/* Phân trang WooCommerce */
+.cp-shop-main .woocommerce-pagination { margin-top: 32px; }
+.cp-shop-main .woocommerce-pagination ul {
+  display: flex; gap: 6px; list-style: none; padding: 0; border: 0;
+}
+.cp-shop-main .woocommerce-pagination a,
+.cp-shop-main .woocommerce-pagination span {
+  display: inline-flex; min-width: 40px; height: 40px; align-items: center; justify-content: center;
+  border: 1px solid var(--cp-line); border-radius: 10px; padding: 0 8px;
+}
+.cp-shop-main .woocommerce-pagination .current {
+  background: var(--cp-primary); color: #fff; border-color: var(--cp-primary);
+}
+
+/* Thanh "kết quả / sắp xếp" của WooCommerce */
+.cp-shop-main .woocommerce-result-count { color: var(--cp-muted); font-size: 14px; margin-bottom: 8px; }
+.cp-shop-main .woocommerce-ordering select {
+  padding: 8px 12px; border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+  background: #fff; font-family: inherit;
+}
+
+@media (max-width: 1024px) {
+  .cp-shop-main ul.products { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .cp-shop-main ul.products { grid-template-columns: 1fr 1fr; }
+}
+
+/* CP3.1 fix: badge sale về góc trái-trên như mockup; nút chi tiết full width */
+.cp-shop-main li.product { position: relative; }
+.cp-shop-main li.product .onsale,
+.cp-shop-main li.product .cp-badge {
+  position: absolute; top: 12px; left: 12px; right: auto; margin: 0;
+  background: var(--cp-accent); color: #fff; border-radius: 999px;
+  font-size: 12px; font-weight: 700; padding: 4px 10px; min-height: 0; line-height: 1.4;
+}
+.cp-shop-main li.product .cp-card-btn { display: block; text-align: center; margin-top: 8px; }

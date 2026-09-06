@@ -2,6 +2,8 @@
 /**
  * Footer Cao Phát Door: footer tối 4 cột + nút hotline nổi (FAB).
  *
+ * CP1.3 footer
+ *
  * @package TL\Theme\CP
  */
 

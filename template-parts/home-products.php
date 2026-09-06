@@ -2,6 +2,8 @@
 /**
  * Lưới sản phẩm trang chủ. $args['type'] = 'best' (bán chạy) | 'sale' (đang giảm).
  *
+ * CP2.2 home-blocks
+ *
  * @package TL\Theme\CP
  */
 
