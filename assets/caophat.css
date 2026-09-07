@@ -811,33 +811,6 @@ body.cp main#main { padding-block: 0; }
 }
 
 /* ==========================================================================
-   CP3.2 — Chuẩn hoá nội dung sản phẩm (font / canh chữ / ảnh)
-   ========================================================================== */
-.woocommerce div.product .woocommerce-Tabs-panel,
-.woocommerce div.product .woocommerce-product-details__short-description {
-  font-family: var(--cp-font);
-  text-align: justify;
-}
-.woocommerce div.product .woocommerce-Tabs-panel *,
-.woocommerce div.product .woocommerce-product-details__short-description * {
-  font-family: var(--cp-font) !important;   /* đè inline cũ nếu còn sót */
-}
-.woocommerce div.product .woocommerce-product-details__short-description,
-.woocommerce div.product .woocommerce-product-details__short-description * {
-  font-size: 12px !important;
-  line-height: 1.7;
-}
-.woocommerce div.product .woocommerce-Tabs-panel img,
-.woocommerce div.product .woocommerce-product-details__short-description img {
-  display: block;
-  width: 800px;
-  max-width: 100%;
-  height: auto;
-  margin: 16px auto;
-  border-radius: var(--cp-radius-sm);
-}
-
-/* ==========================================================================
    Đồng bộ thumb toàn site
    ========================================================================== */
 /* Gallery thumbs trang chi tiết: crop vuông, không méo */
