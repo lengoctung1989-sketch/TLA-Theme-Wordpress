@@ -597,6 +597,18 @@ body.cp main#main { padding-block: 0; }
 .cp-shop-main ul.products li.product:hover { transform: translateY(-4px); box-shadow: var(--cp-shadow-lg); }
 .cp-shop-main li.product .cp-card-media { display: block; }
 .cp-shop-main li.product .cp-card-media a { display: block; height: 100%; }
+
+/* Ảnh thumb lấp đầy khung 4/5 — ghi đè WooCommerce (a img { height:auto; margin:0 0 1em }) */
+.woocommerce ul.products li.product .cp-card-media a,
+.woocommerce ul.products li.product .cp-card-media a img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.woocommerce ul.products li.product .cp-card-media a img {
+  margin: 0;
+  object-fit: cover;
+}
 .cp-shop-main li.product .woocommerce-loop-product__title,
 .cp-shop-main li.product .cp-card-title { font-size: 15.5px; font-weight: 600; margin: 0; line-height: 1.4; }
 .cp-shop-main li.product .price { margin-top: auto; }
