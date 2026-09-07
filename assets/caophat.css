@@ -650,6 +650,10 @@ body.cp main#main { padding-block: 0; }
     display: grid; grid-template-columns: 1fr 1fr;
     column-gap: 44px; align-items: start;
   }
+  /* Ghi đè float/width 48% mặc định của WooCommerce — để 2 cột grid lấp đầy đều nhau.
+     .cp.woocommerce (đều là class trên <body>) để thắng specificity woocommerce-layout.css. */
+  .cp.woocommerce div.product > .woocommerce-product-gallery,
+  .cp.woocommerce div.product > .summary { width: 100%; float: none; margin: 0; }
   .woocommerce div.product > .woocommerce-product-gallery { grid-column: 1; }
   .woocommerce div.product > .summary { grid-column: 2; }
   .woocommerce div.product > .woocommerce-tabs,

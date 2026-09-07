@@ -34,11 +34,12 @@ add_action(
 			array(),
 			null
 		);
+		$cp_style_path = get_stylesheet_directory() . '/assets/caophat.css';
 		wp_enqueue_style(
 			'cp-style',
 			get_stylesheet_directory_uri() . '/assets/caophat.css',
 			array( 'cp-fonts' ),
-			wp_get_theme()->get( 'Version' )
+			file_exists( $cp_style_path ) ? (string) filemtime( $cp_style_path ) : wp_get_theme()->get( 'Version' )
 		);
 	},
 	20
