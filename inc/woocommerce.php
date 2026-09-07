@@ -10,9 +10,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/** Trang shop + lưu trữ taxonomy sản phẩm. */
+/** Trang shop + lưu trữ taxonomy sản phẩm + kết quả tìm kiếm sản phẩm. */
 function cp_is_shop_archive(): bool {
-	return function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() );
+	if ( ! function_exists( 'is_shop' ) ) {
+		return false;
+	}
+	$product_search = is_search() && 'product' === get_query_var( 'post_type' );
+	return is_shop() || is_product_taxonomy() || $product_search;
 }
 
 /** Trang chi tiết 1 sản phẩm. */
