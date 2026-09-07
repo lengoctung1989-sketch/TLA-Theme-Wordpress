@@ -583,6 +583,9 @@ body.cp main#main { padding-block: 0; }
   list-style: none; margin: 0; padding: 0;
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
 }
+/* WooCommerce thêm ::before/::after clearfix — trong grid chúng thành ô rỗng, phải tắt */
+.cp-shop-main ul.products::before,
+.cp-shop-main ul.products::after { content: none; display: none; }
 .woocommerce .cp-shop-main ul.products li.product,
 .cp-shop-main ul.products li.product {
   float: none; width: auto; margin: 0; padding: 0;
@@ -767,6 +770,10 @@ body.cp main#main { padding-block: 0; }
   list-style: none; margin: 0; padding: 0;
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
 }
+.woocommerce div.product .related ul.products::before,
+.woocommerce div.product .related ul.products::after,
+.woocommerce div.product .upsells ul.products::before,
+.woocommerce div.product .upsells ul.products::after { content: none; display: none; }
 .woocommerce div.product .related ul.products li.product,
 .woocommerce div.product .upsells ul.products li.product {
   float: none; width: auto; margin: 0; padding: 0;
