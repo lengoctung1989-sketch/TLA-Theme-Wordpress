@@ -148,8 +148,13 @@ function cp_product_card( \WC_Product $product ): void {
 	?>
 	<article class="cp-card">
 		<div class="cp-card-media">
-			<?php if ( $product->is_on_sale() ) : ?>
-				<span class="cp-badge"><?php esc_html_e( 'Giảm giá', 'tungleads-theme' ); ?></span>
+			<?php
+			$cp_off = function_exists( 'cp_sale_percent' ) ? cp_sale_percent( $product ) : 0;
+			if ( $cp_off > 0 ) :
+				?>
+				<span class="cp-badge">-<?php echo esc_html( (string) $cp_off ); ?>%</span>
+			<?php elseif ( $product->is_on_sale() ) : ?>
+				<span class="cp-badge"><?php esc_html_e( 'SALE', 'tungleads-theme' ); ?></span>
 			<?php endif; ?>
 			<a href="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>">
 				<?php echo $product->get_image( 'woocommerce_thumbnail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

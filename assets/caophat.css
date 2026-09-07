@@ -14,16 +14,18 @@
   --cp-muted: #6f6a63;
   --cp-line: #e5e0d9;
 
-  --cp-primary: #8a5a2b;        /* nâu gỗ */
-  --cp-primary-dark: #6d451f;
-  --cp-accent: #c8471f;         /* cam đất - nhấn khuyến mãi/hotline */
+  --cp-primary: #fbaf02;        /* vàng nghệ - tông chủ đạo */
+  --cp-primary-dark: #c88a00;
+  --cp-on-primary: #241d05;     /* chữ tối đặt trên nền primary */
+  --cp-accent: #c8471f;         /* cam đất - nhấn CTA/hotline (tương phản với primary) */
+  --cp-sale: #e30613;           /* đỏ tươi - badge giảm giá trên ảnh */
   --cp-accent-dark: #a63817;
 
   --cp-radius: 14px;
   --cp-radius-sm: 10px;
   --cp-shadow: 0 6px 24px rgba(38, 34, 30, 0.08);
   --cp-shadow-lg: 0 16px 48px rgba(38, 34, 30, 0.14);
-  --cp-container: 1200px;
+  --cp-container: 1440px;
   --cp-font: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
@@ -68,17 +70,25 @@ body.cp {
   white-space: nowrap;
 }
 .cp-btn:hover { transform: translateY(-1px); }
-.cp-btn-primary { background: var(--cp-primary); color: #fff; }
+.cp-btn-primary { background: var(--cp-primary); color: var(--cp-on-primary); }
 .cp-btn-primary:hover { background: var(--cp-primary-dark); }
 .cp-btn-accent { background: var(--cp-accent); color: #fff; }
 .cp-btn-accent:hover { background: var(--cp-accent-dark); }
 .cp-btn-ghost { background: transparent; color: var(--cp-text); border-color: var(--cp-line); }
 .cp-btn-ghost:hover { border-color: var(--cp-primary); color: var(--cp-primary); }
 
+/* Link có class nút riêng phải thắng ".cp a { color: inherit }" (nếu không sẽ ăn màu chữ của khối cha) */
+.cp a.cp-btn-primary { color: var(--cp-on-primary); }
+.cp a.cp-btn-accent,
+.cp a.cp-buynow,
+.cp a.cp-single-hotline { color: #fff; }
+.cp a.cp-card-btn:hover { color: var(--cp-on-primary); }
+.cp a.cp-side-support-tel { color: var(--cp-accent); }
+
 /* ---------- Topbar ---------- */
 .cp-topbar {
   background: var(--cp-primary-dark);
-  color: #f3e7d9;
+  color: var(--cp-on-primary);
   font-size: 13.5px;
 }
 .cp-topbar .cp-container {
@@ -292,10 +302,13 @@ body.cp {
 .cp-card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
 .cp-card:hover .cp-card-media img { transform: scale(1.04); }
 .cp-badge {
-  position: absolute; top: 12px; left: 12px;
-  background: var(--cp-accent); color: #fff;
-  font-size: 12px; font-weight: 700;
-  padding: 4px 10px; border-radius: 999px;
+  position: absolute; top: 0; left: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 7px 14px;
+  background: var(--cp-sale); color: #fff;
+  font-size: 15px; font-weight: 800; line-height: 1.1; letter-spacing: .5px;
+  border: 0; border-radius: 0 0 14px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
 }
 .cp-card-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .cp-card-cat { font-size: 12px; color: var(--cp-muted); text-transform: uppercase; letter-spacing: 1px; }
@@ -310,12 +323,12 @@ body.cp {
   padding: 9px; font-weight: 600; font-size: 14px; color: var(--cp-primary);
   transition: background .2s ease, color .2s ease;
 }
-.cp-card-btn:hover { background: var(--cp-primary); color: #fff; }
+.cp-card-btn:hover { background: var(--cp-primary); color: var(--cp-on-primary); }
 
 /* ---------- CTA band ---------- */
 .cp-cta {
   background: linear-gradient(120deg, var(--cp-primary-dark), var(--cp-primary));
-  color: #fff;
+  color: var(--cp-on-primary);
   border-radius: 20px;
   padding: 44px;
   display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
@@ -357,7 +370,7 @@ body.cp {
 /* ---------- Page hero (products/contact) ---------- */
 .cp-pagehero {
   background: linear-gradient(120deg, var(--cp-primary-dark), var(--cp-primary));
-  color: #fff; padding: 54px 0;
+  color: var(--cp-on-primary); padding: 54px 0;
 }
 .cp-pagehero h1 { font-size: clamp(28px, 4vw, 40px); margin: 0 0 8px; font-weight: 800; }
 .cp-breadcrumb { font-size: 14px; opacity: .85; }
@@ -536,7 +549,7 @@ body.cp {
 .cp-nav .sub-menu { display: none; }
 
 /* custom-logo */
-.cp-logo .custom-logo { height: 48px; width: auto; display: block; }
+.cp-logo .custom-logo { width: 200px; max-width: 100%; height: auto; display: block; }
 
 /* skip-link (kế thừa a11y từ theme cha) */
 .cp-header .skip-link,
@@ -583,6 +596,11 @@ body.cp main#main { padding-block: 0; }
   list-style: none; margin: 0; padding: 0;
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
 }
+/* WooCommerce chèn ::before/::after (clearfix) — trong grid/flex chúng chiếm 1 ô → ô đầu bị trống */
+.cp-shop-main ul.products::before,
+.cp-shop-main ul.products::after,
+.woocommerce .cp-related-band ul.products::before,
+.woocommerce .cp-related-band ul.products::after { content: none; display: none; }
 .woocommerce .cp-shop-main ul.products li.product,
 .cp-shop-main ul.products li.product {
   float: none; width: auto; margin: 0; padding: 0;
@@ -612,7 +630,7 @@ body.cp main#main { padding-block: 0; }
   border: 1px solid var(--cp-line); border-radius: 10px; padding: 0 8px;
 }
 .cp-shop-main .woocommerce-pagination .current {
-  background: var(--cp-primary); color: #fff; border-color: var(--cp-primary);
+  background: var(--cp-primary); color: var(--cp-on-primary); border-color: var(--cp-primary);
 }
 
 /* Thanh "kết quả / sắp xếp" của WooCommerce */
@@ -633,164 +651,329 @@ body.cp main#main { padding-block: 0; }
 .cp-shop-main li.product { position: relative; }
 .cp-shop-main li.product .onsale,
 .cp-shop-main li.product .cp-badge {
-  position: absolute; top: 12px; left: 12px; right: auto; margin: 0;
-  background: var(--cp-accent); color: #fff; border-radius: 999px;
-  font-size: 12px; font-weight: 700; padding: 4px 10px; min-height: 0; line-height: 1.4;
+  position: absolute; top: 0; left: 0; right: auto; margin: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 7px 14px;
+  background: var(--cp-sale); color: #fff; border-radius: 0 0 14px 0;
+  font-size: 15px; font-weight: 800; min-height: 0; line-height: 1.1; letter-spacing: .5px;
+  border: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
 }
 .cp-shop-main li.product .cp-card-btn { display: block; text-align: center; margin-top: 8px; }
 
-/* ==========================================================================
-   CP3.2 — Trang chi tiết sản phẩm (skin WooCommerce single qua CSS)
-   ========================================================================== */
-.woocommerce div.product { position: relative; }
+/* Ghi đè vị trí của WooCommerce (.woocommerce ul.products li.product .onsale { top:0; right:0 })
+   để tag giảm giá dính sát góc trái-trên ảnh. */
+.woocommerce .cp-shop-main ul.products li.product .onsale,
+.woocommerce .cp-shop-main ul.products li.product .cp-badge,
+.woocommerce .cp-related-band ul.products li.product .onsale {
+  top: 0; left: 0; right: auto; margin: 0; /* huỷ margin-top:-.5em của WooCommerce */
+}
 
-/* Layout 2 cột: gallery | summary; tabs + related full width */
+/* Ảnh thumb phải lấp đầy ô 4/5 (WooCommerce ép img height:auto → dư/thiếu khoảng trắng) */
+.woocommerce .cp-shop-main ul.products li.product .cp-card-media img,
+.woocommerce .cp-related-band ul.products li.product .cp-card-media img {
+  width: 100%; height: 100%; object-fit: cover; display: block; margin: 0;
+}
+
+/* ==========================================================================
+   CP3.2 — Trang chi tiết sản phẩm (skin WooCommerce single qua hook + CSS)
+   Bố cục theo demo: thẻ trắng nội dung + sidebar phải 9/3, hộp giá có badge %,
+   2 nút mua lớn, tabs trong thẻ, "sản phẩm liên quan" carousel nền xám.
+   ========================================================================== */
+.cp-single-section { padding: 28px 0 0; }
+
+/* Breadcrumb dạng thanh mảnh (không còn hero gradient) */
+.cp-breadcrumb--bar {
+  font-size: 13.5px; color: var(--cp-muted); opacity: 1; margin-bottom: 18px;
+}
+.cp-breadcrumb--bar a { color: var(--cp-muted); }
+.cp-breadcrumb--bar a:hover { color: var(--cp-primary); text-decoration: underline; }
+
+/* ---- Lưới 9/3: .cp-single-main (cột chính) | .cp-single-side ---- */
+.cp-single-layout {
+  display: grid; grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 32px; align-items: start;
+}
+.cp-single-main { display: grid; gap: 24px; min-width: 0; }
+/* grid item không được phình quá track (min-width:auto mặc định làm ảnh/gallery đẩy tràn) */
+.cp-single-main > * { min-width: 0; }
+.woocommerce .cp-single-main > div.product { overflow: hidden; }
+.cp-single-main > .woocommerce-notices-wrapper:empty { display: none; }
+
+/* Thẻ trắng dùng chung cho thẻ sản phẩm + ô tabs */
+.woocommerce .cp-single-main > div.product,
+.cp-single-tabs.cp-card {
+  background: #fff; border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius); box-shadow: var(--cp-shadow);
+  padding: 28px; position: relative; margin: 0;
+}
+
+/* gallery | summary bên trong thẻ sản phẩm */
 @media (min-width: 769px) {
-  .woocommerce div.product {
-    display: grid; grid-template-columns: 1fr 1fr;
-    column-gap: 44px; align-items: start;
+  .woocommerce .cp-single-main > div.product {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 40px; align-items: start;
   }
-  /* Ghi đè float/width 48% mặc định của WooCommerce — để 2 cột grid lấp đầy đều nhau.
-     .cp.woocommerce (đều là class trên <body>) để thắng specificity woocommerce-layout.css. */
   .cp.woocommerce div.product > .woocommerce-product-gallery,
   .cp.woocommerce div.product > .summary { width: 100%; float: none; margin: 0; }
   .woocommerce div.product > .woocommerce-product-gallery { grid-column: 1; }
   .woocommerce div.product > .summary { grid-column: 2; }
-  .woocommerce div.product > .woocommerce-tabs,
   .woocommerce div.product > .upsells,
-  .woocommerce div.product > .related,
   .woocommerce div.product > .woocommerce-product-rating { grid-column: 1 / -1; }
 }
-.woocommerce div.product > .woocommerce-tabs { margin-top: 48px; }
-.woocommerce div.product > .related,
-.woocommerce div.product > .upsells { margin-top: 48px; }
+.woocommerce div.product > .upsells { margin-top: 40px; }
 
-/* Sale flash → badge góc trái ảnh */
+/* Sale flash → cờ "-N%" góc trái-trên ảnh */
 .woocommerce div.product > span.onsale {
-  position: absolute; top: 16px; left: 16px; right: auto; z-index: 2; margin: 0;
-  background: var(--cp-accent); color: #fff; border-radius: 999px;
-  font-size: 12px; font-weight: 700; padding: 4px 10px; min-height: 0; line-height: 1.4;
+  position: absolute; top: 0; left: 0; right: auto; z-index: 2; margin: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 20px;
+  background: var(--cp-sale); color: #fff; border-radius: 0 0 18px 0;
+  font-size: 19px; font-weight: 800; min-height: 0; line-height: 1.1; letter-spacing: .5px;
+  border: 0; box-shadow: 0 6px 16px rgba(0, 0, 0, .2);
 }
 
-/* Gallery */
+/* ---- Gallery ---- */
+/* container: block (KHÔNG grid — grid làm flexslider đo sai width → ảnh tràn phải),
+   không viền: ảnh chính và ô thumbnail mỗi phần tự có viền riêng. */
 .woocommerce div.product .woocommerce-product-gallery {
+  position: relative; border: 0; background: none; margin: 0;
+  width: 100%; max-width: 100%; float: none;
+}
+/* ảnh chính = ô riêng, không cho tràn khỏi cột */
+.woocommerce div.product .woocommerce-product-gallery .flex-viewport,
+.woocommerce div.product .woocommerce-product-gallery > .woocommerce-product-gallery__wrapper {
   border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
   overflow: hidden; background: var(--cp-surface);
+  max-width: 100%;
 }
 .woocommerce div.product .woocommerce-product-gallery__wrapper { margin: 0; }
-.woocommerce div.product .flex-control-thumbs {
-  display: flex; flex-wrap: wrap; gap: 10px; list-style: none;
-  margin: 0; padding: 12px;
+.woocommerce div.product .woocommerce-product-gallery__image { max-width: 100%; }
+
+/* ---- Ô thumbnail riêng dưới ảnh chính + nút mũi tên 2 đầu (do single-gallery.js bọc) ---- */
+.cp-thumbs {
+  display: flex; align-items: center; gap: 10px; margin-top: 14px;
+  border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+  padding: 10px; background: #fff;
 }
-.woocommerce div.product .flex-control-thumbs li { width: 64px; margin: 0; }
+.cp-thumbs .flex-control-thumbs {
+  flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: nowrap; gap: 10px;
+  list-style: none; margin: 0; padding: 0;
+  overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none;
+}
+.cp-thumbs .flex-control-thumbs::-webkit-scrollbar { display: none; }
+.cp-thumbs-nav {
+  flex: none; width: 34px; height: 34px; border-radius: 999px;
+  border: 1px solid var(--cp-line); background: #fff; color: var(--cp-text);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease, opacity .15s ease;
+}
+.cp-thumbs-nav:hover:not(:disabled) { background: var(--cp-surface); border-color: var(--cp-primary); color: var(--cp-primary); }
+.cp-thumbs-nav:disabled { opacity: .3; cursor: default; }
+.cp-thumbs-nav svg { width: 15px; height: 15px; }
+
+/* thumbnail (áp dụng cả khi chưa/không bọc bởi JS) */
+.woocommerce div.product .flex-control-thumbs {
+  display: flex; flex-wrap: nowrap; gap: 10px; list-style: none;
+  margin: 0; padding: 0; overflow-x: auto;
+}
+.woocommerce div.product .flex-control-thumbs li { width: 72px; flex: 0 0 72px; margin: 0; }
 .woocommerce div.product .flex-control-thumbs img {
-  border: 2px solid transparent; border-radius: 8px; cursor: pointer;
+  width: 100%; border: 2px solid transparent; border-radius: 8px;
+  cursor: pointer; aspect-ratio: 1; object-fit: cover;
 }
 .woocommerce div.product .flex-control-thumbs img.flex-active,
 .woocommerce div.product .flex-control-thumbs img:hover { border-color: var(--cp-primary); }
 
-/* Summary */
+/* Mũi tên prev/next của flexslider (ảnh chính) */
+.woocommerce div.product .woocommerce-product-gallery .flex-direction-nav {
+  list-style: none; margin: 0; padding: 0;
+}
+.woocommerce div.product .flex-direction-nav a {
+  position: absolute; top: 42%; width: 40px; height: 40px; display: flex;
+  align-items: center; justify-content: center; border-radius: 999px;
+  background: rgba(255, 255, 255, .92); box-shadow: var(--cp-shadow);
+  color: var(--cp-text); font-size: 0; opacity: 0; transition: opacity .2s ease; z-index: 3;
+}
+.woocommerce div.product .woocommerce-product-gallery:hover .flex-direction-nav a { opacity: 1; }
+.woocommerce div.product .flex-direction-nav a.flex-prev { left: 12px; }
+.woocommerce div.product .flex-direction-nav a.flex-next { right: 12px; }
+.woocommerce div.product .flex-direction-nav a::before {
+  font-family: inherit; font-size: 22px; font-weight: 700; line-height: 1;
+}
+.woocommerce div.product .flex-direction-nav a.flex-prev::before { content: "\276E"; }
+.woocommerce div.product .flex-direction-nav a.flex-next::before { content: "\276F"; }
+
+/* ---- Summary ---- */
 .woocommerce div.product .summary { margin: 0; }
-.woocommerce div.product .summary .cp-card-cat { display: block; margin-bottom: 6px; }
+.woocommerce div.product .summary .cp-card-cat { display: block; margin-bottom: 6px; font-size: 12.5px; }
 .woocommerce div.product .summary .product_title {
-  font-size: clamp(24px, 3vw, 32px); font-weight: 800; margin: 6px 0 12px; line-height: 1.25;
+  font-size: clamp(22px, 2.6vw, 30px); font-weight: 800; margin: 4px 0 16px; line-height: 1.3;
 }
 .woocommerce div.product .summary .woocommerce-product-rating { margin: 0 0 16px; font-size: 13.5px; color: var(--cp-muted); }
 .woocommerce div.product .summary .woocommerce-product-rating .star-rating { color: #e2a53a; }
-.woocommerce div.product .summary p.price,
-.woocommerce div.product .summary .price {
-  display: flex; align-items: baseline; gap: 12px; margin: 0 0 20px; padding: 18px 0;
-  border-top: 1px solid var(--cp-line); border-bottom: 1px solid var(--cp-line);
-  font-size: 30px; color: var(--cp-accent); font-weight: 800;
+
+/* Hộp giá + badge % giảm */
+.cp-price-box {
+  background: var(--cp-surface); border-radius: var(--cp-radius);
+  padding: 16px 20px; margin: 0 0 20px;
+  display: flex; flex-direction: row; align-items: center; flex-wrap: nowrap; gap: 12px;
 }
-.woocommerce div.product .summary .price del { font-size: 17px; color: var(--cp-muted); font-weight: 400; opacity: 1; }
-.woocommerce div.product .summary .price ins { text-decoration: none; }
+.woocommerce div.product .summary .cp-price-box .price {
+  flex: 0 1 auto; min-width: 0;
+  margin: 0; padding: 0; border: 0; display: flex; align-items: baseline; flex-wrap: wrap;
+  gap: 4px 12px; font-size: 20px; color: var(--cp-accent); font-weight: 800;
+}
+.woocommerce div.product .summary .cp-price-box .price del { font-size: 14px; color: var(--cp-muted); font-weight: 400; opacity: 1; }
+.woocommerce div.product .summary .cp-price-box .price ins { text-decoration: none; }
+/* Tag "Tiết kiệm <số tiền>" — nằm cùng dòng giá (dồn phải), tự xuống dòng khi hẹp */
+.cp-price-off {
+  flex: none; white-space: nowrap; margin-left: auto;
+  display: inline-flex; align-items: baseline; gap: 4px;
+  background: rgba(200, 71, 31, .1); color: var(--cp-accent);
+  font-weight: 700; font-size: 10px; padding: 5px 10px; border-radius: 999px;
+}
+.cp-price-off .woocommerce-Price-amount { font-weight: 800; }
+
 .woocommerce div.product .summary .woocommerce-product-details__short-description {
-  color: var(--cp-muted); margin-bottom: 22px;
+  color: var(--cp-muted); margin-bottom: 20px;
 }
-
-/* Form thêm giỏ hàng */
-.woocommerce div.product form.cart {
-  display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 0 0 20px;
-}
-.woocommerce div.product form.cart .quantity input.qty {
-  width: 66px; height: 46px; text-align: center; font-weight: 600; font-family: inherit;
-  border: 1px solid var(--cp-line); border-radius: 999px; background: #fff;
-}
-.woocommerce div.product form.cart .single_add_to_cart_button {
-  height: 46px; border-radius: 999px; background: var(--cp-primary); color: #fff;
-  border: 0; padding: 0 22px; font-weight: 600; cursor: pointer; float: none;
-}
-.woocommerce div.product form.cart .single_add_to_cart_button:hover { background: var(--cp-primary-dark); }
-.cp-single-hotline { height: 46px; }
-
-/* Meta */
-.woocommerce div.product .product_meta {
+.woocommerce div.product .summary .product_meta {
   font-size: 13.5px; color: var(--cp-muted); display: grid; gap: 6px;
-  border-top: 1px dashed var(--cp-line); padding-top: 14px;
+  border-top: 1px dashed var(--cp-line); padding-top: 14px; margin-top: 4px;
 }
-.woocommerce div.product .product_meta > span { display: block; }
-.woocommerce div.product .product_meta a { color: var(--cp-text); }
-.woocommerce div.product .product_meta a:hover { color: var(--cp-primary); }
+.woocommerce div.product .summary .product_meta > span { display: block; }
+.woocommerce div.product .summary .product_meta a { color: var(--cp-text); }
+.woocommerce div.product .summary .product_meta a:hover { color: var(--cp-primary); }
+.woocommerce div.product .summary .stock { color: var(--cp-accent); font-weight: 600; margin: 0 0 16px; }
 
-/* Tabs */
-.woocommerce div.product .woocommerce-tabs ul.tabs {
+/* ---- Form mua hàng: 2 nút lớn ---- */
+.cp-single-layout form.cart {
+  display: grid; grid-template-columns: 2fr 1fr; gap: 12px;
+  align-items: stretch; margin: 0 0 4px;
+}
+.cp-single-layout form.cart .quantity { display: none; }
+.cp-buynow {
+  grid-column: 1; display: flex; flex-direction: column; justify-content: center;
+  align-items: center; text-align: center; gap: 2px;
+  background: var(--cp-accent); color: #fff; border-radius: var(--cp-radius-sm);
+  padding: 10px 16px; line-height: 1.3; transition: background .2s ease;
+}
+.cp-buynow:hover { background: var(--cp-accent-dark); color: #fff; }
+.cp-buynow strong { font-size: 15px; text-transform: uppercase; letter-spacing: .4px; }
+.cp-buynow span { font-size: 12px; opacity: .92; font-weight: 400; }
+.woocommerce .cp-single-layout form.cart .single_add_to_cart_button {
+  grid-column: 2; height: auto; min-height: 56px; border-radius: var(--cp-radius-sm);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  background: var(--cp-primary); color: var(--cp-on-primary); border: 0; float: none;
+  font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .3px;
+}
+.woocommerce .cp-single-layout form.cart .single_add_to_cart_button:hover { background: var(--cp-primary-dark); }
+.cp-single-layout form.cart .cp-single-hotline {
+  grid-column: 1 / -1; display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 48px; margin-top: 4px;
+}
+
+/* ---- Sidebar phải ---- */
+.cp-single-side { position: sticky; top: 96px; display: grid; gap: 20px; }
+.cp-side-box {
+  background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+  box-shadow: var(--cp-shadow); padding: 20px;
+}
+.cp-side-box h4 {
+  margin: 0 0 12px; font-size: 16px; padding-bottom: 10px;
+  border-bottom: 2px solid var(--cp-primary);
+}
+.cp-side-cats { list-style: none; margin: 0; padding: 0; }
+.cp-side-cats li { margin: 0; }
+.cp-side-cats a {
+  display: flex; justify-content: space-between; gap: 10px;
+  padding: 9px 0; border-bottom: 1px dashed var(--cp-line);
+  color: var(--cp-text); font-size: 14.5px;
+}
+.cp-side-cats li:last-child a { border-bottom: 0; }
+.cp-side-cats a:hover { color: var(--cp-primary); }
+.cp-side-cats .count { color: var(--cp-muted); font-size: 13px; }
+.cp-side-support-label { margin: 0; font-weight: 600; font-size: 14px; }
+.cp-side-support-tel {
+  display: flex; align-items: center; gap: 8px; margin: 4px 0 8px;
+  font-size: 22px; font-weight: 800; color: var(--cp-accent);
+}
+.cp-side-support-tel .ic { display: inline-flex; }
+.cp-side-support-note { margin: 0; color: var(--cp-muted); font-size: 13px; }
+
+/* ---- Tabs (trong thẻ) ---- */
+.woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs {
   display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0;
   border-bottom: 1px solid var(--cp-line);
 }
-.woocommerce div.product .woocommerce-tabs ul.tabs::before { display: none; }
-.woocommerce div.product .woocommerce-tabs ul.tabs li {
+.woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs::before { display: none; }
+.woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs li {
   background: none; border: 0; border-radius: 0; margin: 0; padding: 0;
 }
-.woocommerce div.product .woocommerce-tabs ul.tabs li::before,
-.woocommerce div.product .woocommerce-tabs ul.tabs li::after { display: none; }
-.woocommerce div.product .woocommerce-tabs ul.tabs li a {
-  display: block; padding: 14px 20px; font-weight: 600; color: var(--cp-muted); position: relative;
+.woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs li::before,
+.woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs li::after { display: none; }
+.woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs li a {
+  display: block; padding: 14px 20px; font-weight: 600; color: var(--cp-muted);
+  position: relative; text-transform: uppercase; font-size: 13.5px; letter-spacing: .3px;
 }
-.woocommerce div.product .woocommerce-tabs ul.tabs li.active a { color: var(--cp-primary); }
-.woocommerce div.product .woocommerce-tabs ul.tabs li.active a::after {
+.woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs li.active a { color: var(--cp-primary); }
+.woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs li.active a::after {
   content: ""; position: absolute; left: 0; bottom: -1px; width: 100%; height: 2px; background: var(--cp-primary);
 }
-.woocommerce div.product .woocommerce-Tabs-panel {
-  padding: 26px 2px; color: var(--cp-muted); line-height: 1.8;
+.woocommerce .cp-single-tabs .woocommerce-Tabs-panel {
+  padding: 24px 2px; color: var(--cp-muted); line-height: 1.8;
 }
-.woocommerce div.product .woocommerce-Tabs-panel > h2,
-.woocommerce div.product .woocommerce-Tabs-panel h3 { color: var(--cp-text); font-size: 18px; margin: 22px 0 10px; }
-.woocommerce div.product .woocommerce-Tabs-panel > h2:first-child { margin-top: 0; }
-.woocommerce div.product table.shop_attributes th { background: var(--cp-surface); color: var(--cp-text); width: 40%; }
-.woocommerce div.product table.shop_attributes th,
-.woocommerce div.product table.shop_attributes td { border: 1px solid var(--cp-line); padding: 11px 14px; }
+.woocommerce .cp-single-tabs .woocommerce-Tabs-panel > h2,
+.woocommerce .cp-single-tabs .woocommerce-Tabs-panel h3 { color: var(--cp-text); font-size: 18px; margin: 22px 0 10px; }
+.woocommerce .cp-single-tabs .woocommerce-Tabs-panel > h2:first-child { margin-top: 0; }
+.woocommerce .cp-single-tabs table.shop_attributes th { background: var(--cp-surface); color: var(--cp-text); width: 40%; }
+.woocommerce .cp-single-tabs table.shop_attributes th,
+.woocommerce .cp-single-tabs table.shop_attributes td { border: 1px solid var(--cp-line); padding: 11px 14px; }
 
-/* Sản phẩm liên quan — dùng .cp-card như lưới shop */
-.woocommerce div.product .related > h2,
-.woocommerce div.product .upsells > h2 {
-  font-size: clamp(22px, 3vw, 28px); font-weight: 800; margin-bottom: 24px;
+/* ---- "Sản phẩm liên quan" — carousel cuộn ngang, nền xám full-width ---- */
+.cp-related-band { background: var(--cp-surface); margin-top: 44px; padding: 40px 0 44px; }
+.cp-related-band .related > h2,
+.cp-related-band .upsells > h2 {
+  font-size: clamp(20px, 2.6vw, 26px); font-weight: 800; margin: 0 0 22px; text-transform: uppercase;
 }
-.woocommerce div.product .related ul.products,
-.woocommerce div.product .upsells ul.products {
-  list-style: none; margin: 0; padding: 0;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
+.woocommerce .cp-related-band .related ul.products,
+.woocommerce .cp-related-band ul.products {
+  list-style: none; margin: 0; padding: 4px 0 12px; display: flex; gap: 20px;
+  overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
 }
-.woocommerce div.product .related ul.products li.product,
-.woocommerce div.product .upsells ul.products li.product {
+.woocommerce .cp-related-band ul.products li.product {
   float: none; width: auto; margin: 0; padding: 0;
+  flex: 0 0 250px; scroll-snap-align: start;
   background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
   overflow: hidden; display: flex; flex-direction: column; position: relative;
   transition: transform .2s ease, box-shadow .2s ease;
 }
-.woocommerce div.product .related ul.products li.product:hover { transform: translateY(-4px); box-shadow: var(--cp-shadow-lg); }
-.woocommerce div.product .related li.product .onsale {
-  position: absolute; top: 12px; left: 12px; right: auto; margin: 0;
-  background: var(--cp-accent); color: #fff; border-radius: 999px;
-  font-size: 12px; font-weight: 700; padding: 4px 10px; min-height: 0; line-height: 1.4;
+.woocommerce .cp-related-band ul.products li.product:hover { transform: translateY(-4px); box-shadow: var(--cp-shadow-lg); }
+.woocommerce .cp-related-band li.product .onsale {
+  position: absolute; top: 0; left: 0; right: auto; margin: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 7px 14px;
+  background: var(--cp-sale); color: #fff; border-radius: 0 0 14px 0;
+  font-size: 15px; font-weight: 800; min-height: 0; line-height: 1.1; letter-spacing: .5px;
+  border: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
 }
-.woocommerce div.product .related li.product .price { color: var(--cp-accent); font-weight: 700; font-size: 17px; margin-top: auto; }
-.woocommerce div.product .related li.product .price del { color: var(--cp-muted); font-weight: 400; font-size: 13px; }
+.woocommerce .cp-related-band li.product .price { color: var(--cp-accent); font-weight: 700; font-size: 17px; margin-top: auto; }
+.woocommerce .cp-related-band li.product .price del { color: var(--cp-muted); font-weight: 400; font-size: 13px; }
 
+/* ---- Responsive ---- */
 @media (max-width: 1024px) {
-  .woocommerce div.product .related ul.products,
-  .woocommerce div.product .upsells ul.products { grid-template-columns: repeat(2, 1fr); }
+  .cp-single-layout { grid-template-columns: 1fr; }
+  .cp-single-side { position: static; grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 768px) {
-  .woocommerce div.product form.cart { gap: 10px; }
+  .woocommerce .cp-single-layout > div.product { padding: 16px; }
+  .woocommerce div.product > span.onsale { font-size: 16px; padding: 8px 14px; top: 0; left: 0; }
+  /* Mobile: cột hẹp -> xếp dọc cho gọn (giá 1 dòng, tag "Tiết kiệm" xuống dòng dưới) */
+  .cp-price-box { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .woocommerce div.product .summary .cp-price-box .price { flex: 0 0 auto; }
+  .cp-price-off { margin-left: 0; }
+  .cp-single-side { grid-template-columns: 1fr; }
+  .cp-single-layout form.cart { grid-template-columns: 1fr; }
+  .cp-buynow, .woocommerce .cp-single-layout form.cart .single_add_to_cart_button { grid-column: 1; }
+  .woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs li a { padding: 12px 14px; font-size: 12.5px; }
 }

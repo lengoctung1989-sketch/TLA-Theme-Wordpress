@@ -5,7 +5,7 @@
 - Không business logic, không build step (CSS tĩnh `assets/caophat.css`).
 - Parent lo: boot, FeatureRegistry, SiteMode, Setup, Enqueue, Performance, Security, SEO, WooCommerce integration, templates blog/archive/page.
 - Child override: `header.php`, `footer.php`, `front-page.php`, `woocommerce.php`/hook shop, `assets/caophat.css`, template-parts trang chủ.
-- Font: Be Vietnam Pro. Palette: nâu gỗ `#8a5a2b` · cam đất `#c8471f` · kem `#f6f4f1` (biến `--cp-*` trong `caophat.css`).
+- Font: Be Vietnam Pro. Palette: **primary vàng nghệ `#fbaf02`** (tông chủ đạo, chữ trên nền primary dùng `--cp-on-primary` `#241d05`) · accent cam đất `#c8471f` (CTA/hotline, tương phản) · kem `#f6f4f1` (biến `--cp-*` trong `caophat.css`). Link có class nút (`.cp-btn-*`, `.cp-buynow`, `.cp-single-hotline`, `.cp-side-support-tel`) cần selector `.cp a.<class>` để thắng `.cp a{color:inherit}`.
 - Hotline mặc định `0834.021.021` — filter `cp_hotline_display` / `cp_hotline_tel`.
 
 ## P-index — quy ước riêng của child: tiền tố **`CP`**
@@ -33,7 +33,7 @@
 | `CP2.2` | Khối động trang chủ — `home-categories` (6 product_cat), `home-products` (best=total_sales \| sale), `home-blog` (3 bài mới) | ✅ |
 | `CP2.3` | Customizer — section `cp_home`: hero (nhãn/tiêu đề `<em>`/mô tả/ảnh) + CTA (tiêu đề/mô tả). `front-page.php` đọc `get_theme_mod` fallback default i18n | ✅ |
 | `CP3.1` | Trang danh mục / cửa hàng — hook `woocommerce_before/after_main_content` dựng pagehero + layout 2 cột (sidebar `product_cat` + lưới). Loop item bọc `.cp-card` qua hook. Nút loop → "Xem chi tiết". KHÔNG copy template WooCommerce | ✅ |
-| `CP3.2` | Chi tiết sản phẩm — pagehero + `.cp-single` 2 cột (gallery WC \| summary), nhãn danh mục trên tiêu đề, nút "Gọi ngay" cạnh add-to-cart, dải CTA cuối. Tabs + related reskin qua CSS. Related dùng `.cp-card` (hook loop item chạy cả khi `is_product()`). KHÔNG copy template | ✅ |
+| `CP3.2` | Chi tiết sản phẩm (layout theo demo moderndoor.vn) — breadcrumb mảnh + lưới 9/3 `.cp-single-layout`: `.cp-single-main` (thẻ trắng `div.product` gallery\|summary + ô tabs riêng `.cp-single-tabs.cp-card`) \| `.cp-single-side` (box "Danh mục sản phẩm" + box "Hỗ trợ trực tuyến"). Hộp giá `.cp-price-box` (cột dọc): giá + tag `.cp-price-off` "Tiết kiệm &lt;số tiền&gt;" (= giá gốc − giá bán). Badge sale trên ảnh (shop / trang chủ / liên quan / chi tiết) đổi qua filter `woocommerce_sale_flash` + helper `cp_sale_percent()` → **tag chữ nhật `-N%`** đỏ tươi (`--cp-sale` `#e30613`), dính sát góc trái-trên ảnh, chỉ bo góc dưới-phải; fallback `SALE` khi không tính được %. Trang chủ: `cp_product_card()` in `.cp-badge` cũng dùng `cp_sale_percent()`. Nút `.cp-buynow` (tel:) cạnh "Thêm vào giỏ", ẩn ô số lượng, nút hotline phụ full-width. Gallery bật mũi tên flexslider (`woocommerce_single_product_carousel_options`); `single-gallery.js` tách dải thumbnail ra ô riêng `.cp-thumbs` dưới ảnh chính + 2 nút mũi tên cuộn. Related tách khỏi `div.product` → dải `.cp-related-band` nền xám, carousel cuộn ngang (scroll-snap). Dải CTA cuối. KHÔNG copy template | ✅ |
 
 ## Quy trình / DoD
 
