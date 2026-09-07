@@ -583,9 +583,6 @@ body.cp main#main { padding-block: 0; }
   list-style: none; margin: 0; padding: 0;
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
 }
-/* WooCommerce thêm ::before/::after clearfix — trong grid chúng thành ô rỗng, phải tắt */
-.cp-shop-main ul.products::before,
-.cp-shop-main ul.products::after { content: none; display: none; }
 .woocommerce .cp-shop-main ul.products li.product,
 .cp-shop-main ul.products li.product {
   float: none; width: auto; margin: 0; padding: 0;
@@ -597,18 +594,6 @@ body.cp main#main { padding-block: 0; }
 .cp-shop-main ul.products li.product:hover { transform: translateY(-4px); box-shadow: var(--cp-shadow-lg); }
 .cp-shop-main li.product .cp-card-media { display: block; }
 .cp-shop-main li.product .cp-card-media a { display: block; height: 100%; }
-
-/* Ảnh thumb lấp đầy khung 4/5 — ghi đè WooCommerce (a img { height:auto; margin:0 0 1em }) */
-.woocommerce ul.products li.product .cp-card-media a,
-.woocommerce ul.products li.product .cp-card-media a img {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.woocommerce ul.products li.product .cp-card-media a img {
-  margin: 0;
-  object-fit: cover;
-}
 .cp-shop-main li.product .woocommerce-loop-product__title,
 .cp-shop-main li.product .cp-card-title { font-size: 15.5px; font-weight: 600; margin: 0; line-height: 1.4; }
 .cp-shop-main li.product .price { margin-top: auto; }
@@ -782,10 +767,6 @@ body.cp main#main { padding-block: 0; }
   list-style: none; margin: 0; padding: 0;
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
 }
-.woocommerce div.product .related ul.products::before,
-.woocommerce div.product .related ul.products::after,
-.woocommerce div.product .upsells ul.products::before,
-.woocommerce div.product .upsells ul.products::after { content: none; display: none; }
 .woocommerce div.product .related ul.products li.product,
 .woocommerce div.product .upsells ul.products li.product {
   float: none; width: auto; margin: 0; padding: 0;
@@ -808,27 +789,4 @@ body.cp main#main { padding-block: 0; }
 }
 @media (max-width: 768px) {
   .woocommerce div.product form.cart { gap: 10px; }
-}
-
-/* ==========================================================================
-   Đồng bộ thumb toàn site
-   ========================================================================== */
-/* Gallery thumbs trang chi tiết: crop vuông, không méo */
-.woocommerce div.product .flex-control-thumbs img { object-fit: cover; aspect-ratio: 1; }
-
-/* Card bài viết / dịch vụ (template theme cha) — khung ảnh cố định 16/10, crop cover */
-.tl-post-card__media,
-.tl-service-card__media {
-  display: block;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  border-radius: calc(var(--cp-radius) - 2px);
-  background: var(--cp-surface);
-}
-.tl-post-card__media img,
-.tl-service-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
 }
