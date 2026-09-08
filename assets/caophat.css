@@ -1,7 +1,7 @@
 /* CP4.1 css — giao diện Cao Phát Door (.cp-*). */
 /* ==========================================================================
-   Cao Phat Door - style.css
-   Bộ giao diện HTML/CSS thuần để tích hợp vào theme Flatsome (WordPress)
+   Cao Phat Door — skin CSS của child theme tungleads-theme-cp (parent: tungleads-theme)
+   CSS tĩnh, enqueue sau bundle của parent. Không build step.
    Font: Be Vietnam Pro (hỗ trợ tiếng Việt tốt)
    ========================================================================== */
 

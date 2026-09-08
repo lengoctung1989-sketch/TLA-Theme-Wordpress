@@ -2,9 +2,11 @@
 
 Child theme của [`tungleads-theme`](../tungleads-theme). Chỉ chứa **skin riêng của site caophat.vn** — không có business logic, không có build step.
 
-- Parent: `tungleads-theme` (khai báo `Template:` trong `style.css`)
-- Font: Be Vietnam Pro (Google Fonts) · Palette: nâu gỗ `#8a5a2b`, cam đất `#c8471f`
+- Parent: `tungleads-theme` (khai báo `Template:` trong `style.css`) · Base: `tungleads-theme@v0.1.0` (git tag)
+- Parent lo: bootstrap, FeatureRegistry, SiteMode, Setup, Enqueue, Performance, Security, SEO, WooCommerce integration, template blog/archive/page
+- Font: Be Vietnam Pro (Google Fonts) · Palette: primary vàng nghệ `#fbaf02` (chữ trên nền primary `#241d05`), accent cam đất `#c8471f`, badge sale đỏ `#e30613`, kem `#f6f4f1` (biến `--cp-*` trong `caophat.css`)
 - CSS: `assets/caophat.css` (tĩnh, enqueue trong `functions.php` sau bundle theme cha)
+- Business logic site-specific (CPT/taxonomy/API) → plugin `tl-site-plugin`, KHÔNG nằm ở child theme này
 
 ## Cấu trúc
 
