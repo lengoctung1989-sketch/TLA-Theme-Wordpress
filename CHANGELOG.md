@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Chốt lại mô hình nhân bản — parent/child thay cho "Composer package"
+- Quyết định: `tungleads-theme` là **parent theme classic**; mỗi site khách = 1 **child theme mỏng** (`Template:` header). Child kế thừa bootstrap/FeatureRegistry/SiteMode/Features/WooCommerce integration của parent qua cơ chế parent/child sẵn có của WordPress — không cần tự viết lại `locate_template` fallback trong `vendor/`.
+- Lý do đổi: mô hình V1 "Composer/Git package, không parent/child" (spec `TL-Base-Theme-Claude-Code-Prompt.md`) chưa từng được triển khai; `vendor/` + `assets/dist/` đã commit sẵn nên Composer/Node không còn cần lúc deploy → Composer thực chất chỉ còn là dev-dep.
+- Composer: giữ cho autoload PSR-4 nội bộ + phpcs/phpstan. **Không** dùng làm cơ chế phân phối, không private Packagist.
+- Version pin: git tag `v0.x.y` trên repo parent; mỗi child ghi `Base: tungleads-theme@vX.Y.Z`. Nâng parent = commit có chủ đích + cập nhật `CHANGELOG.md` → update dòng version ở từng child → test lại.
+- Deploy: phải ship **cả parent + child** (+ `assets/dist/` của parent).
+- Đồng bộ tài liệu: `style.css`, `CLAUDE.md`, `README.md`, `.ai/FEATURE_MAP.md` (P6.2), `composer.json`, root `.gitignore`, và ghi chú "superseded" ở `TL-Base-Theme-Claude-Code-Prompt.md`.
+
 ### Dọn over-engineering (ponytail-review) — ~-70 dòng
 - `Theme` — bỏ accessor `registry()` không ai gọi; `$registry` thành biến cục bộ (bỏ static property + `?FeatureRegistry` import path); `$mode` default `'service'` literal.
 - `Enqueue` — `manifest()` chỉ đọc `.vite/manifest.json` (Vite 5 chỉ sinh path này).

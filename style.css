@@ -3,7 +3,7 @@ Theme Name: TLA Theme
 Theme URI: https://www.tungleads.com/
 Author: Tung Le Ads
 Author URI: https://www.tungleads.com/
-Description: WordPress classic + theme.json hybrid base theme. Feature Registry + Site Mode, WooCommerce Blocks-first. Nhân bản qua Composer package.
+Description: WordPress classic + theme.json hybrid PARENT theme. Feature Registry + Site Mode, WooCommerce Blocks-first. Mỗi site khách dùng 1 child theme mỏng.
 Version: 0.1.0
 Requires at least: 6.5
 Tested up to: 6.7

@@ -1,6 +1,6 @@
 {
     "name": "tungleads/tungleads-theme",
-    "description": "TLA Theme — WordPress classic + theme.json hybrid base theme.",
+    "description": "TLA Theme — WordPress classic + theme.json hybrid PARENT theme (child theme mỏng cho mỗi site khách). Composer chỉ cho autoload PSR-4 + dev tools.",
     "type": "wordpress-theme",
     "license": "GPL-2.0-or-later",
     "version": "0.1.0",

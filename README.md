@@ -6,6 +6,16 @@ WordPress Classic Theme + `theme.json` (hybrid). Feature Registry + Site Mode. W
 - Site mode: `service` | `ecommerce` | `hybrid` — cấu hình ở `config/site-config.php`
 - Text domain: `tungleads-theme`
 
+## Nhân bản cho site khách — parent/child
+
+`tungleads-theme` là **parent theme**. Mỗi site khách = 1 **child theme mỏng** (VD `tungleads-theme-cp` cho caophat.vn):
+
+- Child khai `Template: tungleads-theme` trong `style.css`, chỉ chứa: skin CSS, vài template override, hook site-specific, `config`/theme.json override cấp site.
+- Bootstrap, FeatureRegistry, SiteMode, Features, WooCommerce integration → **parent lo hết** (parent `functions.php` luôn chạy trước child; `vendor/autoload.php` của parent nạp mọi class `TL\Theme\`).
+- Business logic (CPT, taxonomy, API riêng) → **plugin `tl-site-plugin`**, không nằm trong child theme.
+- Version: parent gắn git tag `v0.x.y`; child ghi `Base: tungleads-theme@vX.Y.Z`. Nâng parent là hành động có chủ đích (commit + `CHANGELOG.md` → update child → test).
+- Deploy: ship **cả parent + child** + `assets/dist/` của parent. Composer/Node không cần khi deploy (`vendor/` + `assets/dist/` đã commit).
+
 ## Cài đặt (dev)
 
 ```bash
