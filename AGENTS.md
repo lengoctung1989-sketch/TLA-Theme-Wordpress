@@ -1,4 +1,4 @@
-# tungleads-theme-cp — hướng dẫn dự án cho Claude
+# tungleads-theme-cp — hướng dẫn dự án cho Codex
 
 **Child theme** của `tungleads-theme` (parent, `Template:` trong `style.css`). Skin site-specific cho **caophat.vn** — cửa gỗ công nghiệp / cửa nhựa / cửa chống cháy.
 
