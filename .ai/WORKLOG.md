@@ -3,9 +3,9 @@
 **Repo:** `tungleads-theme` (PARENT theme TLA Theme) · nhánh `main` · không có remote
 **Lưu ý:** đây là repo parent dùng chung cho nhiều site khách — sửa ở đây ảnh hưởng mọi child theme.
 
-> Trạng thái chung cho claude / codex / copilot / deepseek khi làm repo này — **chạy tuần tự, không đồng thời**.
+> Chỉ dùng **2 model: `claude` (Claude Code) và `deepseek` (DeepSeek)** — **chạy tuần tự, không đồng thời**.
 > **Không cần script, không cần cài gì** — chỉ đọc và sửa markdown.
-> Luật chi tiết ở `CLAUDE.md` (Claude) và `AGENTS.md` (Codex/Copilot), mục "Phối hợp giữa các model".
+> Luật chi tiết ở `CLAUDE.md` (Claude Code) và `AGENTS.md` (DeepSeek), mục "Phối hợp giữa các model".
 > P-index của repo này: `P1`–`P7` — bảng nghĩa ở `CLAUDE.md`.
 >
 > 1. **Đầu phiên:** đọc `§1 ĐANG LÀM` + 10 dòng cuối của `§2`.
@@ -17,13 +17,13 @@
 
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
-- **Model:** copilot
-- **Việc:** Thêm cơ chế bàn giao giữa các model cho repo này
-- **File đang chạm:** `.ai/WORKLOG.md`, `CLAUDE.md`, `AGENTS.md`
+- **Model:** deepseek
+- **Việc:** Chốt quy ước nhãn model — chỉ còn `claude` / `deepseek`
+- **File đang chạm:** `CLAUDE.md`, `AGENTS.md`, `.ai/WORKLOG.md` (parent) + 3 file tương ứng ở child `tungleads-theme-cp`
 - **Trạng thái:** XONG
-- **Đã xong:** Tạo `.ai/WORKLOG.md` + mục "Phối hợp giữa các model" trong `CLAUDE.md`/`AGENTS.md`
+- **Đã xong:** Bỏ `codex`/`copilot` khỏi danh sách nhãn; sửa bản ghi `copilot` → `deepseek`; `AGENTS.md` chuyển thành hướng dẫn cho DeepSeek
 - **Việc tiếp theo:** (không) — chờ việc tiếp theo
-- **Cập nhật lúc:** 2026-09-13 19:45
+- **Cập nhật lúc:** 2026-09-13 19:50
 
 ---
 
@@ -31,4 +31,5 @@
 
 | Thời gian | Model | Việc đã làm | File chính | Trạng thái |
 |---|---|---|---|---|
-| 2026-09-13 19:45 | copilot | Tạo worklog bàn giao + luật phối hợp model | `.ai/WORKLOG.md`, `CLAUDE.md`, `AGENTS.md` | xong |
+| 2026-09-13 19:45 | deepseek | Tạo worklog bàn giao + luật phối hợp model | `.ai/WORKLOG.md`, `CLAUDE.md`, `AGENTS.md` | xong |
+| 2026-09-13 19:50 | deepseek | Chốt nhãn model chỉ còn `claude`/`deepseek` (bỏ codex/copilot) | như trên + 3 file child | xong |
