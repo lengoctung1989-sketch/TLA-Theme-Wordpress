@@ -1126,6 +1126,8 @@ body.cp main#main { padding-block: 0; }
   .cp-single-side { grid-template-columns: 1fr; }
   .cp-single-layout form.cart { grid-template-columns: 1fr; }
   .cp-buynow, .woocommerce .cp-single-layout form.cart .single_add_to_cart_button { grid-column: 1; }
+  /* Mobile: nhãn nút gọi chỉ còn "Gọi ngay", ẩn số hotline (số vẫn nằm trong href tel:) */
+  .cp-tel-num { display: none; }
   .woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs li a { padding: 12px 14px; font-size: 12.5px; }
   .cp-spec { padding: 20px; }
   .cp-spec__grid { grid-template-columns: 1fr; }

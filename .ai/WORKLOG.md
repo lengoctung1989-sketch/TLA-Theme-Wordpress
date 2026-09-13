@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** Chỉnh `.cp-short-desc__body` (CP3.2) — chiều cao thu gọn `7.5em` → `15em`
-- **File đang chạm:** `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
+- **Việc:** CP3.2 — nhãn nút mua "Thêm giỏ hàng" (hiển thị "THÊM GIỎ HÀNG") + ẩn số hotline trên mobile
+- **File đang chạm:** `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
 - **Trạng thái:** XONG
-- **Đã xong:** Đổi `max-height` hộp mô tả ngắn trang chi tiết SP; đồng bộ lại 3 lớp tài liệu (nghĩa ở `CLAUDE.md`/`AGENTS.md` + bảng `.ai/FEATURE_MAP.md`). Kiểm chứng trên `localhost:8888`: computed `max-height: 225px` (= 15em × 15px), nút "Xem thêm" vẫn hiện vì nội dung 1532px > 225px; CSS tự cache-bust qua `filemtime`
-- **Việc tiếp theo:** (không) — chờ việc tiếp theo
-- **Cập nhật lúc:** 2026-09-13 20:05
+- **Đã xong:** Thêm filter `woocommerce_product_single_add_to_cart_text` → "Thêm giỏ hàng" (CSS `text-transform: uppercase` sẵn có → "THÊM GIỎ HÀNG"); bọc số hotline trong `.cp-tel-num` ở nút "Gọi ngay" (`.cp-contact-btn--call`) + nút CTA cuối trang, ẩn `≤768px`. Kiểm chứng `localhost:8888`: desktop nút mua hiển thị "THÊM GIỎ HÀNG", nút gọi "Gọi ngay 0834.021.021"; viewport 390px → cả 2 nút chỉ còn "Gọi ngay"; `php -l` sạch
+- **Việc tiếp theo:** (không) — chờ việc tiếp theo. Lưu ý còn sót: nút CTA ở `front-page.php` (CP2.1) vẫn in "Gọi ngay <số>" trên mobile — chưa đụng vì ngoài phạm vi CP3.2
+- **Cập nhật lúc:** 2026-09-13 20:15
 
 ---
 
@@ -34,3 +34,4 @@
 | 2026-09-13 19:45 | deepseek | Tạo worklog bàn giao + luật phối hợp model | `.ai/WORKLOG.md`, `CLAUDE.md`, `AGENTS.md` | xong |
 | 2026-09-13 19:50 | deepseek | Chốt nhãn model chỉ còn `claude`/`deepseek` (bỏ codex/copilot) | như trên + 3 file parent | xong |
 | 2026-09-13 20:05 | deepseek | CP3.2: chiều cao thu gọn mô tả ngắn `7.5em` → `15em` + đồng bộ 3 lớp tài liệu | `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
+| 2026-09-13 20:15 | deepseek | CP3.2: nhãn nút mua → "THÊM GIỎ HÀNG"; ẩn số hotline trên mobile (chỉ còn "Gọi ngay") | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |

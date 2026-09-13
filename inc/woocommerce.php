@@ -376,8 +376,9 @@ function cp_single_close(): void {
 	echo '<section class="cp-section alt"><div class="cp-container"><div class="cp-cta"><div>';
 	echo '<h3>' . esc_html__( 'Cần tư vấn chọn cửa phù hợp?', 'tungleads-theme' ) . '</h3>';
 	echo '<p>' . esc_html__( 'Đội ngũ Cao Phát sẵn sàng đo đạc, tư vấn và báo giá miễn phí tận nơi.', 'tungleads-theme' ) . '</p>';
-	echo '</div><a class="cp-btn cp-btn-accent" href="tel:' . esc_attr( $tel ) . '">'
-		. esc_html( sprintf( /* translators: %s: hotline */ __( 'Gọi ngay %s', 'tungleads-theme' ), $disp ) )
+	echo '</div><a class="cp-btn cp-btn-accent" href="tel:' . esc_attr( $tel ) . '"><span>'
+		. esc_html__( 'Gọi ngay', 'tungleads-theme' )
+		. ' <span class="cp-tel-num">' . esc_html( $disp ) . '</span></span>'
 		. '</a></div></div></section>';
 }
 
@@ -491,10 +492,11 @@ function cp_single_hotline_btn(): void {
 
 	echo '<div class="cp-contact-row">';
 	printf(
-		'<a class="cp-contact-btn cp-contact-btn--call" href="tel:%s"><span class="cp-contact-btn__ic" aria-hidden="true">%s</span><span>%s</span></a>',
+		'<a class="cp-contact-btn cp-contact-btn--call" href="tel:%s"><span class="cp-contact-btn__ic" aria-hidden="true">%s</span><span>%s <span class="cp-tel-num">%s</span></span></a>',
 		esc_attr( $tel ),
 		$ic_phone, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		esc_html( sprintf( /* translators: %s: hotline */ __( 'Gọi ngay %s', 'tungleads-theme' ), $disp ) )
+		esc_html__( 'Gọi ngay', 'tungleads-theme' ),
+		esc_html( $disp )
 	);
 	printf(
 		'<a class="cp-contact-btn cp-contact-btn--zalo" href="%s" target="_blank" rel="nofollow noopener"><span class="cp-contact-btn__ic" aria-hidden="true">%s</span><span>%s</span></a>',
@@ -505,7 +507,19 @@ function cp_single_hotline_btn(): void {
 	echo '</div>';
 }
 
-/** Nút "MUA HÀNG" (gọi điện) — ô lớn cạnh nút "Thêm vào giỏ". */
+/**
+ * CP3.2 — Nhãn nút mua: "Thêm vào giỏ hàng" → "Thêm giỏ hàng".
+ * Chữ hoa ("THÊM GIỎ HÀNG") do CSS `text-transform: uppercase` của
+ * `.single_add_to_cart_button` lo, nên chuỗi i18n giữ dạng thường.
+ */
+add_filter(
+	'woocommerce_product_single_add_to_cart_text',
+	static function () {
+		return __( 'Thêm giỏ hàng', 'tungleads-theme' );
+	}
+);
+
+/** Nút "MUA HÀNG" (gọi điện) — ô lớn cạnh nút "Thêm giỏ hàng". */
 function cp_single_buynow_btn(): void {
 	$ic_bag = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>';
 	printf(
