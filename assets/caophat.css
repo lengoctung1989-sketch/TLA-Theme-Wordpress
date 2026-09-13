@@ -1074,12 +1074,15 @@ body.cp main#main { padding-block: 0; }
   display: grid; place-items: center;
   background: rgba(251, 175, 2, .14); color: var(--cp-primary-dark);
 }
+/* Nhãn + giá trị trên CÙNG 1 dòng ("Kích thước: 1m x 3m") — dùng dòng chảy inline
+   thay vì flex để dấu cách và dấu ":" không phụ thuộc `gap`. */
 .cp-spec__text { min-width: 0; }
 .cp-spec__label {
-  margin: 0; font-size: 12px; font-weight: 600;
+  display: inline; margin: 0; font-size: 12px; font-weight: 600;
   text-transform: uppercase; letter-spacing: .6px; color: var(--cp-muted);
 }
-.cp-spec__value { margin: 3px 0 0; font-size: 15px; font-weight: 600; color: var(--cp-text); line-height: 1.5; }
+.cp-spec__label::after { content: ": "; }
+.cp-spec__value { display: inline; margin: 0; font-size: 15px; font-weight: 600; color: var(--cp-text); line-height: 1.5; }
 
 /* ---- "Sản phẩm liên quan" — carousel cuộn ngang, nền xám full-width ---- */
 .cp-related-band { background: var(--cp-surface); margin-top: 44px; padding: 40px 0 44px; }

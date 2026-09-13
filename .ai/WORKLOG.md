@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** CP3.2 — nhãn nút mua "Thêm giỏ hàng" (hiển thị "THÊM GIỎ HÀNG") + ẩn số hotline trên mobile
-- **File đang chạm:** `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
+- **Việc:** CP3.2 — khối "Thông số kỹ thuật": nhãn + giá trị về CÙNG 1 dòng ("Kích thước: 1m x 3m")
+- **File đang chạm:** `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
 - **Trạng thái:** XONG
-- **Đã xong:** Thêm filter `woocommerce_product_single_add_to_cart_text` → "Thêm giỏ hàng" (CSS `text-transform: uppercase` sẵn có → "THÊM GIỎ HÀNG"); bọc số hotline trong `.cp-tel-num` ở nút "Gọi ngay" (`.cp-contact-btn--call`) + nút CTA cuối trang, ẩn `≤768px`. Kiểm chứng `localhost:8888`: desktop nút mua hiển thị "THÊM GIỎ HÀNG", nút gọi "Gọi ngay 0834.021.021"; viewport 390px → cả 2 nút chỉ còn "Gọi ngay"; `php -l` sạch
-- **Việc tiếp theo:** (không) — chờ việc tiếp theo. Lưu ý còn sót: nút CTA ở `front-page.php` (CP2.1) vẫn in "Gọi ngay <số>" trên mobile — chưa đụng vì ngoài phạm vi CP3.2
-- **Cập nhật lúc:** 2026-09-13 20:15
+- **Đã xong:** `.cp-spec__label` + `.cp-spec__value` chuyển `display:inline`, nhãn thêm `": "` bằng `::after`, bỏ `margin-top` của giá trị (dòng chảy inline, không dùng flex). Kiểm chứng `localhost:8888`: cả 8/8 dòng nhãn + giá trị nằm cùng 1 hàng ở cả desktop và mobile 390px, không tràn ngang
+- **Việc tiếp theo:** (không). Lưu ý: chiều cao mỗi hàng (72px) vẫn do icon 40px + padding 16px quyết định — muốn khối gọn hơn phải giảm icon/padding (chưa làm vì chưa được yêu cầu)
+- **Cập nhật lúc:** 2026-09-13 20:25
 
 ---
 
@@ -35,3 +35,4 @@
 | 2026-09-13 19:50 | deepseek | Chốt nhãn model chỉ còn `claude`/`deepseek` (bỏ codex/copilot) | như trên + 3 file parent | xong |
 | 2026-09-13 20:05 | deepseek | CP3.2: chiều cao thu gọn mô tả ngắn `7.5em` → `15em` + đồng bộ 3 lớp tài liệu | `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:15 | deepseek | CP3.2: nhãn nút mua → "THÊM GIỎ HÀNG"; ẩn số hotline trên mobile (chỉ còn "Gọi ngay") | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
+| 2026-09-13 20:25 | deepseek | CP3.2: thông số kỹ thuật — nhãn + giá trị cùng 1 dòng ("Kích thước: 1m x 3m") | `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
