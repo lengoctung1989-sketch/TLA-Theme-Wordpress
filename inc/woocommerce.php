@@ -674,10 +674,11 @@ function cp_single_support_box(): void {
 		. '<span class="ic" aria-hidden="true">' . $icon . '</span>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		. esc_html( $disp ) . '</a>';
 
-	// Hotline các chi nhánh — thêm/bớt/sửa qua filter `cp_support_branches`.
-	$branches = (array) apply_filters(
-		'cp_support_branches',
-		array(
+	// Nguồn dữ liệu: plugin tl-site-caophat (Settings → Cao Phát). Plugin tắt → dùng danh
+	// sách mặc định tại chỗ để box không trắng; filter `cp_support_branches` vẫn ghi đè được.
+	$branches = function_exists( 'tlcp_support_branches' )
+		? (array) tlcp_support_branches()
+		: array(
 			array(
 				'name' => __( 'CN Quận 7', 'tungleads-theme' ),
 				'tel'  => '0834.484.484',
@@ -694,8 +695,8 @@ function cp_single_support_box(): void {
 				'name' => __( 'Giải đáp thắc mắc', 'tungleads-theme' ),
 				'tel'  => '0834.627.627',
 			),
-		)
-	);
+		);
+	$branches = (array) apply_filters( 'cp_support_branches', $branches );
 	if ( $branches ) {
 		echo '<ul class="cp-side-branches">';
 		foreach ( $branches as $branch ) {

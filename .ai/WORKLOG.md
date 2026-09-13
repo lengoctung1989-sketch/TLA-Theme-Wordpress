@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** CP3.2 — box "Hỗ trợ trực tuyến": thêm icon đầu mỗi dòng hotline + canh trái toàn bộ danh sách
-- **File đang chạm:** `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
+- **Việc:** CP3.2 — hotline chi nhánh: thêm icon + canh trái, và làm **sửa được trong admin** (Settings → Cao Phát ở plugin)
+- **File đang chạm:** `inc/woocommerce.php` + `assets/caophat.css` + 3 file tài liệu (repo child) · `plugins/tl-site-caophat/tl-site-caophat.php` + `README.md` (repo ngoài, thư mục `/wordpress/` không được git track)
 - **Trạng thái:** XONG
-- **Đã xong:** Tách path SVG phone dùng chung cho icon lớn + icon nhỏ `.cp-side-branch__ic` (15px); đổi `justify-content: space-between` → `flex-start` để cả dòng canh trái; nhãn thêm `":"` bằng `::after`. Kiểm chứng `localhost:8888`: 4/4 dòng dạng "icon + tên: số" canh trái, 1 hàng ngang; `php -l` sạch, trang không có Notice/Warning
-- **Việc tiếp theo:** DANG CHỜ Tùng chốt chỗ đặt UI admin cho danh sách hotline chi nhánh (đề xuất: trang Settings trong plugin `tl-site-caophat`; phương án khác: Customizer của child theme)
-- **Cập nhật lúc:** 2026-09-13 20:40
+- **Đã xong:** (1) Icon nhỏ đầu mỗi dòng, cả dòng canh trái. (2) Plugin thêm trang **Settings → Cao Phát** (option `tlcp_support_branches`, mỗi dòng `Tên | Số`, có nonce + `manage_options`), hàm `tlcp_support_branches()` parse dữ liệu; theme đọc qua `function_exists()` và có mảng dự phòng nếu plugin tắt. Backup plugin: `.scratch/backup-tl-site-caophat/tl-site-caophat.php.bak-20260913-2130` (hash khớp bản gốc). Kiểm chứng: menu admin hiện `options-general.php => Cao Phát | slug=tlcp-support | cap=manage_options`; render ra textarea 4 dòng mặc định + nonce + nút Lưu; đổi option → frontend đổi theo, xoá option → về 4 số mặc định; `php -l` cả 2 file sạch
+- **Việc tiếp theo:** (không) — LƯU Ý chưa test bằng mắt trong wp-admin vì phiên browser không có cookie đăng nhập (Tùng tự mở `Settings → Cao Phát` kiểm tra)
+- **Cập nhật lúc:** 2026-09-13 20:45
 
 ---
 
@@ -38,3 +38,4 @@
 | 2026-09-13 20:25 | deepseek | CP3.2: thông số kỹ thuật — nhãn + giá trị cùng 1 dòng ("Kích thước: 1m x 3m") | `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:30 | deepseek | CP3.2: box "Hỗ trợ trực tuyến" thêm 4 hotline chi nhánh (filter `cp_support_branches`) | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:40 | deepseek | CP3.2: box "Hỗ trợ trực tuyến" — icon đầu mỗi dòng + canh trái toàn bộ | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
+| 2026-09-13 20:45 | deepseek | CP3.2: hotline chi nhánh sửa được trong admin (plugin thêm Settings → Cao Phát, option `tlcp_support_branches`) | `plugins/tl-site-caophat/tl-site-caophat.php` (+README), `themes/tungleads-theme-cp/inc/woocommerce.php` | xong |
