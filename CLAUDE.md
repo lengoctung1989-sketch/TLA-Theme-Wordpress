@@ -1,4 +1,4 @@
-# tungleads-theme-cp — hướng dẫn dự án cho Claude
+# tungleads-theme-cp — hướng dẫn dự án cho Claude Code
 
 **Child theme** của `tungleads-theme` (parent, `Template:` trong `style.css`). Skin site-specific cho **caophat.vn** — cửa gỗ công nghiệp / cửa nhựa / cửa chống cháy.
 
@@ -14,7 +14,7 @@
 
 ## Phối hợp giữa các model (BẮT BUỘC)
 
-Repo này có thể do nhiều model cùng làm (claude, codex, copilot, deepseek…) nhưng **chạy tuần tự, không đồng thời**.
+Repo này chỉ dùng **2 model: `claude` (Claude Code) và `deepseek` (DeepSeek)** — **chạy tuần tự, không đồng thời**. Nhãn model chỉ được là 1 trong 2 tên này.
 Trạng thái bàn giao nằm ở `.ai/WORKLOG.md` — không script, không cài thêm gì.
 
 1. **Đầu phiên:** đọc `.ai/WORKLOG.md` (§1 ĐANG LÀM + 10 dòng cuối §2) trước khi làm bất cứ việc gì.
@@ -22,7 +22,7 @@ Trạng thái bàn giao nằm ở `.ai/WORKLOG.md` — không script, không cà
 3. **Hết việc / hết phiên:** cập nhật lại §1 (xong / dang dở + việc tiếp theo) và ghi 1 dòng vào §2 (bảng nhật ký).
 4. §1 **ghi đè** (chỉ giữ khối mới nhất) · §2 **chỉ ghi thêm**, không sửa/xoá dòng cũ.
 5. §1 đang ghi việc **dang dở của model khác** → không tự sửa tiếp file đó, hỏi người dùng trước.
-6. Commit kèm nhãn model: `feat(CP3.2)[<model>]: ...`
+6. Commit kèm nhãn model — chỉ `[claude]` hoặc `[deepseek]`: `feat(CP3.2)[deepseek]: ...`
 
 ## P-index — quy ước riêng của child: tiền tố **`CP`**
 
