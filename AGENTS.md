@@ -1,20 +1,20 @@
-# TLA Theme — hướng dẫn dự án cho Claude
+# TLA Theme — hướng dẫn dự án cho Codex
 
 WordPress **Classic Theme + theme.json** (hybrid, KHÔNG phải FSE/Block Theme).
 
 **Mô hình nhân bản (đã chốt lại): `tungleads-theme` là PARENT theme classic.** Mỗi site khách = 1 **child theme mỏng** (`Template:` trong `style.css`) chỉ chứa skin + vài template override + hook site-specific. Child kế thừa toàn bộ bootstrap/FeatureRegistry/SiteMode/Features/WooCommerce integration của parent qua cơ chế parent/child sẵn có của WordPress (parent `functions.php` luôn chạy, `vendor/autoload.php` của parent nạp mọi class `TL\Theme\`).
 
 - Composer **chỉ còn là dev-dep** (phpcs/phpstan) + autoload PSR-4 nội bộ. KHÔNG phải cơ chế phân phối — `vendor/` + `assets/dist/` đã commit sẵn để deploy không cần Composer/Node.
-- Không có private Packagist. Pin version parent bằng **git tag** (`v0.x.y`); mỗi child ghi dòng `Base: tungleads-theme@vX.Y.Z` trong `CLAUDE.md`/`README.md`. Nâng parent = commit có chủ đích + `CHANGELOG.md` → update dòng version ở từng child → test lại.
+- Không có private Packagist. Pin version parent bằng **git tag** (`v0.x.y`); mỗi child ghi dòng `Base: tungleads-theme@vX.Y.Z` trong `AGENTS.md`/`README.md`. Nâng parent = commit có chủ đích + `CHANGELOG.md` → update dòng version ở từng child → test lại.
 - Fork repo: vẫn loại bỏ.
-- (Ý tưởng V1 "Composer/Git package, không parent/child" trong `TL-Base-Theme-Claude-Code-Prompt.md` đã bị thay bằng đoạn này.)
+- (Ý tưởng V1 "Composer/Git package, không parent/child" trong `TL-Base-Theme-Codex-Prompt.md` đã bị thay bằng đoạn này.)
 
 - WordPress ≥ 6.5 · PHP ≥ 8.2 · `theme.json` schema v2
 - Text domain: `tungleads-theme` · Namespace PHP: `TL\Theme\` (PSR-4 → `src/`)
 - Site mode mặc định: `hybrid` (`config/site-config.php`)
 - Local dev: `docker-compose.yml` ở gốc repo — WP core nằm trong `../../../` (`wordpress/`)
 
-## Quyết định kỹ thuật đã chốt (từ spec `TL-Base-Theme-Claude-Code-Prompt.md`)
+## Quyết định kỹ thuật đã chốt (từ spec `TL-Base-Theme-Codex-Prompt.md`)
 
 - WooCommerce **Blocks-first**: dùng Cart/Checkout/Mini-Cart/Product Collection block chính thức. Hạn chế tối đa override `woocommerce/*.php`, ưu tiên hook.
 - KHÔNG viết custom Gutenberg block "phòng khi cần" — core block + pattern + Block Bindings API.
