@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** Chốt quy ước nhãn model — chỉ còn `claude` / `deepseek`
-- **File đang chạm:** `CLAUDE.md`, `AGENTS.md`, `.ai/WORKLOG.md` (child) + 3 file tương ứng ở parent `tungleads-theme`
+- **Việc:** Chỉnh `.cp-short-desc__body` (CP3.2) — chiều cao thu gọn `7.5em` → `15em`
+- **File đang chạm:** `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
 - **Trạng thái:** XONG
-- **Đã xong:** Bỏ `codex`/`copilot` khỏi danh sách nhãn; sửa bản ghi `copilot` → `deepseek`; `AGENTS.md` chuyển thành hướng dẫn cho DeepSeek
+- **Đã xong:** Đổi `max-height` hộp mô tả ngắn trang chi tiết SP; đồng bộ lại 3 lớp tài liệu (nghĩa ở `CLAUDE.md`/`AGENTS.md` + bảng `.ai/FEATURE_MAP.md`). Kiểm chứng trên `localhost:8888`: computed `max-height: 225px` (= 15em × 15px), nút "Xem thêm" vẫn hiện vì nội dung 1532px > 225px; CSS tự cache-bust qua `filemtime`
 - **Việc tiếp theo:** (không) — chờ việc tiếp theo
-- **Cập nhật lúc:** 2026-09-13 19:50
+- **Cập nhật lúc:** 2026-09-13 20:05
 
 ---
 
@@ -33,3 +33,4 @@
 |---|---|---|---|---|
 | 2026-09-13 19:45 | deepseek | Tạo worklog bàn giao + luật phối hợp model | `.ai/WORKLOG.md`, `CLAUDE.md`, `AGENTS.md` | xong |
 | 2026-09-13 19:50 | deepseek | Chốt nhãn model chỉ còn `claude`/`deepseek` (bỏ codex/copilot) | như trên + 3 file parent | xong |
+| 2026-09-13 20:05 | deepseek | CP3.2: chiều cao thu gọn mô tả ngắn `7.5em` → `15em` + đồng bộ 3 lớp tài liệu | `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |

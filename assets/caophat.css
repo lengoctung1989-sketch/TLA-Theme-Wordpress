@@ -887,7 +887,7 @@ body.cp main#main { padding-block: 0; }
   border-radius: var(--cp-radius-sm);
 }
 .cp-short-desc__body {
-  position: relative; overflow: hidden; max-height: 7.5em;
+  position: relative; overflow: hidden; max-height: 15em;
   color: var(--cp-text); font-size: 15px; line-height: 1.75;
 }
 .cp-short-desc__body::after {
