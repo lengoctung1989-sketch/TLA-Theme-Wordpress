@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** CP3.2 — box "Hỗ trợ trực tuyến": thêm danh sách hotline 4 chi nhánh dưới số chính
+- **Việc:** CP3.2 — box "Hỗ trợ trực tuyến": thêm icon đầu mỗi dòng hotline + canh trái toàn bộ danh sách
 - **File đang chạm:** `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
 - **Trạng thái:** XONG
-- **Đã xong:** `cp_single_support_box()` in thêm `<ul.cp-side-branches>` (CN Quận 7 / Bình Tân / Bến Cát / Giải đáp thắc mắc) — mỗi dòng tên trái + số phải, `tel:` đã lọc ký tự không phải số, sửa nội dung qua filter `cp_support_branches`. CSS: dòng kẻ nét đứt, số màu accent đậm, `nowrap`. Kiểm chứng `localhost:8888`: 4/4 dòng 1 hàng ngang (39px), href đúng `tel:0834484484`…, mobile 390px không tràn ngang
-- **Việc tiếp theo:** (không) — chờ việc tiếp theo
-- **Cập nhật lúc:** 2026-09-13 20:30
+- **Đã xong:** Tách path SVG phone dùng chung cho icon lớn + icon nhỏ `.cp-side-branch__ic` (15px); đổi `justify-content: space-between` → `flex-start` để cả dòng canh trái; nhãn thêm `":"` bằng `::after`. Kiểm chứng `localhost:8888`: 4/4 dòng dạng "icon + tên: số" canh trái, 1 hàng ngang; `php -l` sạch, trang không có Notice/Warning
+- **Việc tiếp theo:** DANG CHỜ Tùng chốt chỗ đặt UI admin cho danh sách hotline chi nhánh (đề xuất: trang Settings trong plugin `tl-site-caophat`; phương án khác: Customizer của child theme)
+- **Cập nhật lúc:** 2026-09-13 20:40
 
 ---
 
@@ -37,3 +37,4 @@
 | 2026-09-13 20:15 | deepseek | CP3.2: nhãn nút mua → "THÊM GIỎ HÀNG"; ẩn số hotline trên mobile (chỉ còn "Gọi ngay") | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:25 | deepseek | CP3.2: thông số kỹ thuật — nhãn + giá trị cùng 1 dòng ("Kích thước: 1m x 3m") | `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:30 | deepseek | CP3.2: box "Hỗ trợ trực tuyến" thêm 4 hotline chi nhánh (filter `cp_support_branches`) | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
+| 2026-09-13 20:40 | deepseek | CP3.2: box "Hỗ trợ trực tuyến" — icon đầu mỗi dòng + canh trái toàn bộ | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |

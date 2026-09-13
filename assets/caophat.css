@@ -1026,7 +1026,7 @@ body.cp main#main { padding-block: 0; }
   font-size: 22px; font-weight: 800; color: var(--cp-accent);
 }
 .cp-side-support-tel .ic { display: inline-flex; }
-/* Hotline chi nhánh: mỗi dòng "tên — số", bấm gọi được; số canh phải, không xuống hàng */
+/* Hotline chi nhánh: mỗi dòng "icon — tên: số", cả dòng canh trái, bấm gọi được */
 .cp-side-branches {
   list-style: none; margin: 0 0 14px; padding: 0;
   border-top: 1px dashed var(--cp-line);
@@ -1034,11 +1034,14 @@ body.cp main#main { padding-block: 0; }
 .cp-side-branches li { border-bottom: 1px dashed var(--cp-line); }
 .cp-side-branches li:last-child { border-bottom: 0; }
 .cp-side-branches a {
-  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+  display: flex; justify-content: flex-start; align-items: center; gap: 8px;
   padding: 8px 0; font-size: 13.5px;
 }
 .cp-side-branches a:hover .cp-side-branch__num { color: var(--cp-accent-dark); }
+.cp-side-branch__ic { flex: 0 0 auto; display: inline-flex; color: var(--cp-primary-dark); }
+.cp-side-branch__ic svg { width: 15px; height: 15px; }
 .cp-side-branch__name { color: var(--cp-muted); }
+.cp-side-branch__name::after { content: ":"; }
 .cp-side-branch__num { font-weight: 700; color: var(--cp-accent); white-space: nowrap; }
 .cp-side-support-note { margin: 0; color: var(--cp-muted); font-size: 13px; }
 
