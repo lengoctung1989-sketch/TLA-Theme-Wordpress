@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** CP3.2 — khối "Thông số kỹ thuật": nhãn + giá trị về CÙNG 1 dòng ("Kích thước: 1m x 3m")
-- **File đang chạm:** `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
+- **Việc:** CP3.2 — box "Hỗ trợ trực tuyến": thêm danh sách hotline 4 chi nhánh dưới số chính
+- **File đang chạm:** `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
 - **Trạng thái:** XONG
-- **Đã xong:** `.cp-spec__label` + `.cp-spec__value` chuyển `display:inline`, nhãn thêm `": "` bằng `::after`, bỏ `margin-top` của giá trị (dòng chảy inline, không dùng flex). Kiểm chứng `localhost:8888`: cả 8/8 dòng nhãn + giá trị nằm cùng 1 hàng ở cả desktop và mobile 390px, không tràn ngang
-- **Việc tiếp theo:** (không). Lưu ý: chiều cao mỗi hàng (72px) vẫn do icon 40px + padding 16px quyết định — muốn khối gọn hơn phải giảm icon/padding (chưa làm vì chưa được yêu cầu)
-- **Cập nhật lúc:** 2026-09-13 20:25
+- **Đã xong:** `cp_single_support_box()` in thêm `<ul.cp-side-branches>` (CN Quận 7 / Bình Tân / Bến Cát / Giải đáp thắc mắc) — mỗi dòng tên trái + số phải, `tel:` đã lọc ký tự không phải số, sửa nội dung qua filter `cp_support_branches`. CSS: dòng kẻ nét đứt, số màu accent đậm, `nowrap`. Kiểm chứng `localhost:8888`: 4/4 dòng 1 hàng ngang (39px), href đúng `tel:0834484484`…, mobile 390px không tràn ngang
+- **Việc tiếp theo:** (không) — chờ việc tiếp theo
+- **Cập nhật lúc:** 2026-09-13 20:30
 
 ---
 
@@ -36,3 +36,4 @@
 | 2026-09-13 20:05 | deepseek | CP3.2: chiều cao thu gọn mô tả ngắn `7.5em` → `15em` + đồng bộ 3 lớp tài liệu | `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:15 | deepseek | CP3.2: nhãn nút mua → "THÊM GIỎ HÀNG"; ẩn số hotline trên mobile (chỉ còn "Gọi ngay") | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:25 | deepseek | CP3.2: thông số kỹ thuật — nhãn + giá trị cùng 1 dòng ("Kích thước: 1m x 3m") | `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
+| 2026-09-13 20:30 | deepseek | CP3.2: box "Hỗ trợ trực tuyến" thêm 4 hotline chi nhánh (filter `cp_support_branches`) | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |

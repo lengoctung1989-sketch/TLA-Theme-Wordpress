@@ -668,6 +668,47 @@ function cp_single_support_box(): void {
 	echo '<a class="cp-side-support-tel" href="tel:' . esc_attr( $tel ) . '">'
 		. '<span class="ic" aria-hidden="true">' . $icon . '</span>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		. esc_html( $disp ) . '</a>';
+
+	// Hotline các chi nhánh — thêm/bớt/sửa qua filter `cp_support_branches`.
+	$branches = (array) apply_filters(
+		'cp_support_branches',
+		array(
+			array(
+				'name' => __( 'CN Quận 7', 'tungleads-theme' ),
+				'tel'  => '0834.484.484',
+			),
+			array(
+				'name' => __( 'CN Bình Tân', 'tungleads-theme' ),
+				'tel'  => '0834.713.713',
+			),
+			array(
+				'name' => __( 'CN Bến Cát', 'tungleads-theme' ),
+				'tel'  => '0814.627.610',
+			),
+			array(
+				'name' => __( 'Giải đáp thắc mắc', 'tungleads-theme' ),
+				'tel'  => '0834.627.627',
+			),
+		)
+	);
+	if ( $branches ) {
+		echo '<ul class="cp-side-branches">';
+		foreach ( $branches as $branch ) {
+			$name = isset( $branch['name'] ) ? trim( (string) $branch['name'] ) : '';
+			$num  = isset( $branch['tel'] ) ? trim( (string) $branch['tel'] ) : '';
+			if ( '' === $name || '' === $num ) {
+				continue;
+			}
+			printf(
+				'<li><a href="tel:%s"><span class="cp-side-branch__name">%s</span><span class="cp-side-branch__num">%s</span></a></li>',
+				esc_attr( preg_replace( '/\D/', '', $num ) ),
+				esc_html( $name ),
+				esc_html( $num )
+			);
+		}
+		echo '</ul>';
+	}
+
 	echo '<p class="cp-side-support-note">' . esc_html__( 'Gọi ngay để nhận báo giá & khảo sát miễn phí.', 'tungleads-theme' ) . '</p>';
 	echo '</div>';
 }
