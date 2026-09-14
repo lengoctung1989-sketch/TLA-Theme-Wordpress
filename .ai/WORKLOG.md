@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** CP3.2 — `.cp-side-branches`: canh đều trái/phải (tên trái — số phải), bỏ icon đầu dòng
-- **File đang chạm:** `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
+- **Việc:** CP3.2 — mobile: 2 box "Hỗ trợ trực tuyến" + "Cam kết Cao Phát" hiển thị TRƯỚC khối "Thông số kỹ thuật"
+- **File đang chạm:** `assets/caophat.css`, `.ai/FEATURE_MAP.md`
 - **Trạng thái:** XONG
-- **Đã xong:** Bỏ markup icon + biến `$ic_branch` + rule `.cp-side-branch__ic`; `.cp-side-branches a` về `justify-content: space-between; align-items: baseline; gap: 10px`; bỏ dấu `":"` sau tên (không còn cần khi tên/số tách 2 mép); rút lại `$path`/`$icon` về 1 dòng như cũ vì không còn nơi dùng thứ 2. Kiểm chứng `localhost:8888`: 0 phần tử icon; 4/4 dòng tên sát mép trái, số sát mép phải, cùng 1 hàng
+- **Đã xong:** Trong `@media (max-width: 768px)`: `.cp-single-layout` → `flex column` + `align-items: stretch`; `display: contents` cho `.cp-single-main`/`.cp-single-side` (2 container không lồng nhau nên không thể chen box sidebar vào giữa bằng CSS thường) rồi xếp lại bằng `order` 1→6: thẻ SP → Hỗ trợ trực tuyến → Cam kết Cao Phát → Thông số kỹ thuật → tabs → Sản phẩm mới. **Tự phát hiện + sửa lỗi mình gây ra**: thiếu `align-items: stretch` thì base `align-items: start` (trục dọc ở grid) thành trục ngang ở flex → gallery min-content 592px đẩy thẻ SP thành 624px, tràn ngang (docScrollWidth 644 > 390). Kiểm chứng `localhost:8888`: 390px và 768px → thứ tự đúng, mọi item đều 335px, docScrollWidth 375 (không tràn); 800px và 1280px → grid 2 cột nguyên vẹn, không đổi
 - **Việc tiếp theo:** (không) — chờ việc tiếp theo
-- **Cập nhật lúc:** 2026-09-14 09:35
+- **Cập nhật lúc:** 2026-09-14 09:50
 
 ---
 
@@ -42,3 +42,4 @@
 | 2026-09-14 09:10 | deepseek | CP3.2 mobile: padding thẻ SP + ô tabs 28px → 10px; sửa rule chết `.cp-single-layout > div.product` | `assets/caophat.css`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-14 09:25 | deepseek | CP3.2 mobile: padding thẻ SP + ô tabs 10px → 15px | `assets/caophat.css`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-14 09:35 | deepseek | CP3.2: `.cp-side-branches` canh đều trái/phải, bỏ icon đầu dòng + bỏ dấu ":" | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
+| 2026-09-14 09:50 | deepseek | CP3.2 mobile: đưa 2 box "Hỗ trợ trực tuyến" + "Cam kết Cao Phát" lên trước khối "Thông số kỹ thuật" (display:contents + order) | `assets/caophat.css`, `.ai/FEATURE_MAP.md` | xong |

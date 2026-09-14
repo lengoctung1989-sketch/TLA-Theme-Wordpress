@@ -1139,6 +1139,19 @@ body.cp main#main { padding-block: 0; }
      bản cũ dùng `.cp-single-layout > div.product` nên KHÔNG khớp phần tử nào. */
   .woocommerce .cp-single-main > div.product,
   .cp-single-tabs.cp-card { padding: 15px; }
+  /* Mobile: đưa 2 box "Hỗ trợ trực tuyến" + "Cam kết Cao Phát" lên TRƯỚC khối
+     "Thông số kỹ thuật". `.cp-single-side` là sibling của `.cp-single-main` nên không
+     thể chen vào giữa bằng CSS thường → `display: contents` làm phẳng 2 container,
+     các con trở thành item của `.cp-single-layout` rồi xếp lại bằng `order`. */
+  .cp-single-layout { display: flex; flex-direction: column; gap: 20px; align-items: stretch; }
+  .cp-single-main, .cp-single-side { display: contents; }
+  .woocommerce .cp-single-main > div.product { order: 1; }
+  .cp-single-side > .cp-side-support { order: 2; }
+  .cp-single-side > .cp-trust-box { order: 3; }
+  .cp-single-main > .cp-spec { order: 4; }
+  .cp-single-main > .cp-single-tabs { order: 5; }
+  /* Box "Sản phẩm mới" (không có class riêng) xuống cuối. */
+  .cp-single-side > .cp-side-box:not(.cp-side-support):not(.cp-trust-box) { order: 6; }
   .woocommerce div.product > span.onsale { font-size: 16px; padding: 8px 14px; top: 0; left: 0; }
   /* Mobile: cột hẹp -> xếp dọc cho gọn (giá 1 dòng, tag "Tiết kiệm" xuống dòng dưới) */
   .cp-price-box { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
