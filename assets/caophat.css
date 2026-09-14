@@ -1137,7 +1137,11 @@ body.cp main#main { padding-block: 0; }
   .cp-single-side { position: static; grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 768px) {
-  .woocommerce .cp-single-layout > div.product { padding: 16px; }
+  /* Thẻ sản phẩm + ô tabs: giảm padding cho gọn trên mobile.
+     Selector phải là `.cp-single-main > div.product` (đúng cấu trúc DOM);
+     bản cũ dùng `.cp-single-layout > div.product` nên KHÔNG khớp phần tử nào. */
+  .woocommerce .cp-single-main > div.product,
+  .cp-single-tabs.cp-card { padding: 10px; }
   .woocommerce div.product > span.onsale { font-size: 16px; padding: 8px 14px; top: 0; left: 0; }
   /* Mobile: cột hẹp -> xếp dọc cho gọn (giá 1 dòng, tag "Tiết kiệm" xuống dòng dưới) */
   .cp-price-box { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }

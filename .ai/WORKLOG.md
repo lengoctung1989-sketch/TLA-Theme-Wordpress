@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** CP3.2 — hotline chi nhánh: thêm icon + canh trái, và làm **sửa được trong admin** (Settings → Cao Phát ở plugin)
-- **File đang chạm:** `inc/woocommerce.php` + `assets/caophat.css` + 3 file tài liệu (repo child) · `plugins/tl-site-caophat/tl-site-caophat.php` + `README.md` (repo ngoài, thư mục `/wordpress/` không được git track)
+- **Việc:** CP3.2 — mobile: giảm padding thẻ sản phẩm + ô tabs xuống 10px (`≤768px`)
+- **File đang chạm:** `assets/caophat.css`, `.ai/FEATURE_MAP.md`
 - **Trạng thái:** XONG
-- **Đã xong:** (1) Icon nhỏ đầu mỗi dòng, cả dòng canh trái. (2) Plugin thêm trang **Settings → Cao Phát** (option `tlcp_support_branches`, mỗi dòng `Tên | Số`, có nonce + `manage_options`), hàm `tlcp_support_branches()` parse dữ liệu; theme đọc qua `function_exists()` và có mảng dự phòng nếu plugin tắt. Backup plugin: `.scratch/backup-tl-site-caophat/tl-site-caophat.php.bak-20260913-2130` (hash khớp bản gốc). Kiểm chứng: menu admin hiện `options-general.php => Cao Phát | slug=tlcp-support | cap=manage_options`; render ra textarea 4 dòng mặc định + nonce + nút Lưu; đổi option → frontend đổi theo, xoá option → về 4 số mặc định; `php -l` cả 2 file sạch
-- **Việc tiếp theo:** (không) — LƯU Ý chưa test bằng mắt trong wp-admin vì phiên browser không có cookie đăng nhập (Tùng tự mở `Settings → Cao Phát` kiểm tra)
-- **Cập nhật lúc:** 2026-09-13 20:45
+- **Đã xong:** Thay rule mobile cũ bằng `.woocommerce .cp-single-main > div.product, .cp-single-tabs.cp-card { padding: 10px }`. **Phát hiện + sửa rule chết**: rule cũ ghi `.cp-single-layout > div.product` nhưng DOM thật là `.cp-single-main > div.product` → trước đây mobile vẫn giữ padding 28px, chưa từng có tác dụng. Kiểm chứng `localhost:8888`: 390px → product 10px, tabs 10px (trước 28px/28px); 1024px và 1280px vẫn 28px (không đụng desktop); `.cp-spec` giữ 20px; không tràn ngang
+- **Việc tiếp theo:** (không) — chờ việc tiếp theo
+- **Cập nhật lúc:** 2026-09-14 09:10
 
 ---
 
@@ -39,3 +39,4 @@
 | 2026-09-13 20:30 | deepseek | CP3.2: box "Hỗ trợ trực tuyến" thêm 4 hotline chi nhánh (filter `cp_support_branches`) | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:40 | deepseek | CP3.2: box "Hỗ trợ trực tuyến" — icon đầu mỗi dòng + canh trái toàn bộ | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:45 | deepseek | CP3.2: hotline chi nhánh sửa được trong admin (plugin thêm Settings → Cao Phát, option `tlcp_support_branches`) | `plugins/tl-site-caophat/tl-site-caophat.php` (+README), `themes/tungleads-theme-cp/inc/woocommerce.php` | xong |
+| 2026-09-14 09:10 | deepseek | CP3.2 mobile: padding thẻ SP + ô tabs 28px → 10px; sửa rule chết `.cp-single-layout > div.product` | `assets/caophat.css`, `.ai/FEATURE_MAP.md` | xong |
