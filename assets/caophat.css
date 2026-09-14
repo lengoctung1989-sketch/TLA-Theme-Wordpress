@@ -736,8 +736,8 @@ body.cp {
   .cp-nav .sub-menu a { padding-left: 36px; font-size: 14.5px; }
   .cp-nav .sub-menu .sub-menu a { padding-left: 52px; }
   .cp-nav__toggle {
-    display: block; position: absolute; top: 7px; right: 8px; z-index: 2;
-    width: 38px; height: 38px; padding: 0; cursor: pointer;
+    display: block; position: absolute; top: 6px; right: 8px; z-index: 2;
+    width: 30px; height: 30px; padding: 0; cursor: pointer;
     background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: 8px;
   }
   .cp-nav__toggle span {
