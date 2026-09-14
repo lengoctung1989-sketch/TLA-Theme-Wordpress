@@ -1,0 +1,5 @@
+# Plugin tl-site-caophat — repo riêng (site caophat.vn)
+.DS_Store
+*.log
+*.bak
+*.bak-*
