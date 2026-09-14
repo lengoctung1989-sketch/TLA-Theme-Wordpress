@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** CP3.2 — mobile: giảm padding thẻ sản phẩm + ô tabs xuống 10px (`≤768px`)
+- **Việc:** CP3.2 — mobile: tăng padding thẻ sản phẩm + ô tabs từ 10px lên 15px (`≤768px`)
 - **File đang chạm:** `assets/caophat.css`, `.ai/FEATURE_MAP.md`
 - **Trạng thái:** XONG
-- **Đã xong:** Thay rule mobile cũ bằng `.woocommerce .cp-single-main > div.product, .cp-single-tabs.cp-card { padding: 10px }`. **Phát hiện + sửa rule chết**: rule cũ ghi `.cp-single-layout > div.product` nhưng DOM thật là `.cp-single-main > div.product` → trước đây mobile vẫn giữ padding 28px, chưa từng có tác dụng. Kiểm chứng `localhost:8888`: 390px → product 10px, tabs 10px (trước 28px/28px); 1024px và 1280px vẫn 28px (không đụng desktop); `.cp-spec` giữ 20px; không tràn ngang
+- **Đã xong:** Đổi `padding: 10px` → `15px` cho `.woocommerce .cp-single-main > div.product, .cp-single-tabs.cp-card` trong block `@media (max-width: 768px)`. Kiểm chứng `localhost:8888`: 390px và 768px = 15px; 1024px và 1280px vẫn 28px (desktop không đổi); không tràn ngang
 - **Việc tiếp theo:** (không) — chờ việc tiếp theo
-- **Cập nhật lúc:** 2026-09-14 09:10
+- **Cập nhật lúc:** 2026-09-14 09:25
 
 ---
 
@@ -40,3 +40,4 @@
 | 2026-09-13 20:40 | deepseek | CP3.2: box "Hỗ trợ trực tuyến" — icon đầu mỗi dòng + canh trái toàn bộ | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-13 20:45 | deepseek | CP3.2: hotline chi nhánh sửa được trong admin (plugin thêm Settings → Cao Phát, option `tlcp_support_branches`) | `plugins/tl-site-caophat/tl-site-caophat.php` (+README), `themes/tungleads-theme-cp/inc/woocommerce.php` | xong |
 | 2026-09-14 09:10 | deepseek | CP3.2 mobile: padding thẻ SP + ô tabs 28px → 10px; sửa rule chết `.cp-single-layout > div.product` | `assets/caophat.css`, `.ai/FEATURE_MAP.md` | xong |
+| 2026-09-14 09:25 | deepseek | CP3.2 mobile: padding thẻ SP + ô tabs 10px → 15px | `assets/caophat.css`, `.ai/FEATURE_MAP.md` | xong |
