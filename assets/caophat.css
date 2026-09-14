@@ -72,8 +72,9 @@ body.cp {
 .cp-btn:hover { transform: translateY(-1px); }
 .cp-btn-primary { background: var(--cp-primary); color: var(--cp-on-primary); }
 .cp-btn-primary:hover { background: var(--cp-primary-dark); }
-.cp-btn-accent { background: var(--cp-accent); color: #fff; }
-.cp-btn-accent:hover { background: var(--cp-accent-dark); }
+.cp-btn-accent { background: #000000; color: #fff; }
+/* Nền nút đã đổi sang đen → hover dùng xám đậm (giữ `--cp-accent-dark` sẽ thành cam, lệch tông) */
+.cp-btn-accent:hover { background: #333333; }
 .cp-btn-ghost { background: transparent; color: var(--cp-text); border-color: var(--cp-line); }
 .cp-btn-ghost:hover { border-color: var(--cp-primary); color: var(--cp-primary); }
 
@@ -82,12 +83,16 @@ body.cp {
 .cp a.cp-btn-accent,
 .cp a.cp-buynow,
 .cp a.cp-contact-btn { color: #fff; }
-.cp a.cp-card-btn:hover { color: var(--cp-on-primary); }
 .cp a.cp-side-support-tel { color: var(--cp-accent); }
+
+/* Chỉ báo focus cho bàn phím (chỉ hiện khi Tab, KHÔNG hiện khi bấm chuột) — ring thương hiệu
+   2px vàng thay cho viền `auto 1px` mặc định của trình duyệt (mờ, khó thấy trên nền vàng). */
+.cp a:focus-visible,
+.cp button:focus-visible { outline: 2px solid var(--cp-primary); outline-offset: 2px; }
 
 /* ---------- Topbar ---------- */
 .cp-topbar {
-  background: var(--cp-primary-dark);
+  background: var(--cp-primary);
   color: var(--cp-on-primary);
   font-size: 13.5px;
 }
@@ -95,11 +100,13 @@ body.cp {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 40px;
+  min-height: 30px;
   gap: 16px;
 }
 .cp-topbar ul { display: flex; gap: 18px; flex-wrap: wrap; }
-.cp-topbar a:hover { color: #fff; }
+/* Hover: TRƯỚC là `#fff` — hợp với nền vàng đậm cũ, nhưng trên nền `--cp-primary`
+   (#fbaf02) thì trắng/vàng chỉ đạt tương phản ~1.75:1 (gần như mất chữ). Dùng cam đất + gạch chân. */
+.cp-topbar a:hover { color: var(--cp-accent); text-decoration: underline; }
 .cp-topbar-right { display: flex; gap: 18px; align-items: center; }
 
 /* ---------- Header ---------- */
@@ -114,7 +121,6 @@ body.cp {
 .cp-header .cp-container {
   display: flex;
   align-items: center;
-  gap: 24px;
   min-height: 76px;
 }
 .cp-logo { display: flex; align-items: center; gap: 12px; }
@@ -129,7 +135,7 @@ body.cp {
 .cp-logo-text b { display: block; font-size: 19px; font-weight: 800; letter-spacing: .3px; }
 .cp-logo-text span { display: block; font-size: 12px; color: var(--cp-muted); text-transform: uppercase; letter-spacing: 2px; }
 
-.cp-nav { margin-left: auto; }
+.cp-nav { margin-left: auto; padding-right: 20px; }
 .cp-nav ul { display: flex; gap: 26px; }
 .cp-nav a {
   font-weight: 600;
@@ -147,8 +153,133 @@ body.cp {
 .cp-nav a:hover::after, .cp-nav a.is-active::after { width: 100%; }
 .cp-nav a.is-active { color: var(--cp-primary); }
 
+/* ---------- CP1.4 — Menu chính: dropdown cấp 2 + mega 3 cấp (CP1.4b) ----------
+   Mở bằng `:hover` (trễ 120ms — hover intent) hoặc `:has(:focus-visible)` khi dùng Tab.
+   KHÔNG dùng `:focus-within` — xem giải thích ở rule mở dropdown bên dưới. */
+.cp-nav li { position: relative; }
+.cp-nav .menu-item-has-children > a { padding-right: 15px; }
+/* Mũi tên chi dấu có menu con — dùng `::before` vì `::after` đã là gạch chân của cấp 1 */
+.cp-nav .menu-item-has-children > a::before {
+  content: ""; position: absolute; right: 1px; top: 50%;
+  width: 5px; height: 5px; margin-top: -4px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg); transition: transform .18s ease;
+}
+.cp-nav li:hover > a::before,
+.cp-nav li:has(:focus-visible) > a::before { transform: rotate(-135deg); margin-top: -1px; }
+.cp-nav .sub-menu {
+  position: absolute; top: 100%; left: 0; z-index: 60;
+  min-width: 250px; margin: 0; padding: 8px;
+  display: block; visibility: hidden; opacity: 0; transform: translateY(6px);
+  /* Panel đang đóng KHÔNG nhận chuột. Cần thiết vì `opacity: 0` không chặn hit-test trong
+     Chromium: chỉ cần một phần tử con lỡ có `visibility: visible` là cả panel bắt hover. */
+  pointer-events: none;
+  background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+  box-shadow: var(--cp-shadow-lg);
+  transition: opacity .16s ease, transform .16s ease, visibility .16s;
+}
+/* Mở dropdown bằng chuột (`:hover`) hoặc bàn phím. Dùng `:has(:focus-visible)` chứ KHÔNG dùng
+   `:focus-within`: click chuột vào mục cũng làm link nhận focus, `:focus-within` khiến panel
+   giữ mở mãi — triệu chứng: chưa hover mà panel đã hiện sẵn (Tùng báo).
+   `:focus-visible` chỉ đúng khi focus do bàn phím (Tab) → vẫn Tab được vào menu con. */
+.cp-nav li:hover > .sub-menu,
+.cp-nav li:has(:focus-visible) > .sub-menu { visibility: visible; opacity: 1; transform: translateY(0); pointer-events: auto; }
+/* "Hover intent": trễ 120ms khi mở bằng CHUỘT để lướt ngang qua mục không làm panel bật lên.
+   (Bàn phím vẫn hiện ngay — rule dưới khai `transition-delay: 0s` và đứng sau nên thắng.) */
+.cp-nav li:hover > .sub-menu { transition-delay: .12s; }
+.cp-nav li:has(:focus-visible) > .sub-menu { transition-delay: 0s; }
+/* 2 mục cuối canh phải để dropdown không tràn khỏi khung — TRỪ mục mega (mega là dải ngang
+   full chiều rộng, nếu bị `right: 0` + `left: auto` sẽ co lại chỉ còn 1 cột). */
+.cp-nav > ul > li:nth-last-child(-n+2):not(.cp-mega) > .sub-menu { left: auto; right: 0; }
+.cp-nav .sub-menu a {
+  display: block; padding: 9px 12px; border-radius: 8px;
+  font-size: 14.5px; font-weight: 600; white-space: nowrap;
+}
+/* Reset gạch chân + mũi tên của cấp 1 khi ở trong submenu (WP vẫn gắn class menu-item-has-children
+   cho mục còn con ở cấp sâu hơn dù `depth => 2` không in ra) */
+.cp-nav .sub-menu a::after,
+.cp-nav .sub-menu a::before { content: none; }
+.cp-nav .sub-menu a:hover { background: var(--cp-surface); color: var(--cp-primary-dark); }
+.cp-nav .sub-menu .current-menu-item > a,
+.cp-nav .sub-menu .current_page_item > a { background: var(--cp-surface); color: var(--cp-primary-dark); }
+
+/* Nút mở menu con trong panel mobile — JS (CP1.5) tạo, ẩn ở desktop */
+.cp-nav__toggle { display: none; }
+
+/* ---------- CP1.4b — Mega menu 3 cấp (VD mục \"Các Loại Cửa\") ----------
+   JS (nav-menu.js) gắn `.cp-mega` cho mục cấp 1 có menu cấp 3 và `.sub-menu--mega` cho menu cấp 2.
+   Cấu trúc: cấp 2 = TIÊU ĐỀ CỘT, cấp 3 = danh sách phẳng trong cột. Chỉ áp ở desktop (≥769px). */
+@media (min-width: 769px) {
+  /* Bỏ `position` của <li> để panel neo vào `.cp-header` (đang sticky) → thành DẢI NGANG
+     hết chiều rộng, không bị tràn ra ngoài màn hình như khi neo vào từng mục nav. */
+  .cp-nav li.cp-mega { position: static; }
+  .cp-nav li.cp-mega > a { position: relative; }      /* giữ mũi tên ▾ neo theo link */
+  .cp-nav li.cp-mega > .sub-menu {
+    left: 0; right: 0; top: 100%; min-width: 0; padding: 18px 20px;
+    /* `auto-fit` + bước cột cố định: 3 cột thì nằm 1 hàng, menu nhiều cột thì TỰ XUỐNG HÀNG
+       (nếu dùng `grid-auto-flow: column` thì 12 cột sẽ nở ngang và tràn ra ngoài màn hình). */
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 240px));
+    justify-content: start; gap: 18px 26px;
+    border-left: 0; border-right: 0; border-radius: 0;
+  }
+  .cp-nav .sub-menu--mega > li { padding: 0 22px; border-left: 1px solid var(--cp-line); }
+  .cp-nav .sub-menu--mega > li:first-child { padding-left: 0; border-left: 0; }
+  .cp-nav .sub-menu--mega > li:last-child { padding-right: 0; }
+  /* Cột ĐẦU TIÊN của một HÀNG mới khi panel xuống dòng: bỏ gạch dọc + thụt lề trái cho thẳng
+     hàng với cột đầu hàng 1. JS (nav-menu.js) gắn `.cp-row-start` vì grid `auto-fit` không cho
+     CSS biết cột nào bắt đầu hàng mới. Đặt SAU `:first-child` (cùng độ ưu tiên → rule sau thắng). */
+  .cp-nav .sub-menu--mega > li.cp-row-start { padding-left: 0; border-left: 0; }
+  /* Cấp 2 = tiêu đề cột: chữ hoa, gạch chân vàng như mẫu tham khảo.
+     `min-height` = 2 dòng tiêu đề (13px × 1.4 × 2) + padding 8 + border 2 → tiêu đề nào cũng cao
+     bằng nhau, nhờ đó danh sách của MỌI cột bắt đầu cùng một hàng (tiêu đề 1 dòng không làm
+     danh sách phía dưới bị "nhảy" lên so với tiêu đề 2 dòng). */
+  .cp-nav .sub-menu--mega > li > a {
+    display: block; padding: 0 0 8px; margin: 0 0 10px; min-height: calc(2.8em + 10px);
+    white-space: normal;
+    font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+    color: var(--cp-primary-dark); border-bottom: 2px solid var(--cp-primary);
+  }
+  .cp-nav .sub-menu--mega > li > a:hover { background: none; color: var(--cp-accent); }
+  /* Cấp 3 = danh sách phẳng, KHÔNG bo góc/nền như dropdown thường.
+     ⚠️ KHÔNG đặt `visibility: visible` trong khối reset này: cấp 3 cũng mang class `.sub-menu`
+     nên nó khớp luôn rule gốc `visibility: hidden`; nếu set thẳng `visible` thì khi panel ĐANG
+     ĐÓNG, danh sách cấp 3 vẫn nhận chuột (opacity 0 không chặn hit-test) → vùng panel mega
+     (full chiều rộng × cao ~620px) tự bắt hover và menu tự mở dù chuột chưa tới chữ.
+     Vì vậy `visibility` nằm ở rule CÓ ĐIỀU KIỆN hover/focus ngay dưới. */
+  .cp-nav .sub-menu--mega > li > .sub-menu {
+    position: static; opacity: 1; transform: none;
+    display: block; min-width: 0; padding: 0; border: 0; box-shadow: none; background: none;
+  }
+  .cp-nav li:hover > .sub-menu--mega > li > .sub-menu,
+  .cp-nav li:has(:focus-visible) > .sub-menu--mega > li > .sub-menu { visibility: visible; }
+  /* "Cầu" hover: panel mega neo vào `.cp-header` nên mép trên panel cách mép dưới link ~20px.
+     Dải trong suốt này (chỉ tồn tại khi panel đang mở) lấp khoảng hở đó → rê chuột từ chữ
+     xuống panel không bị mất hover giữa đường. */
+  .cp-nav li.cp-mega:hover > .sub-menu::before {
+    content: ""; position: absolute; left: 0; right: 0; top: -28px; height: 28px;
+  }
+  .cp-nav .sub-menu--mega .sub-menu a {
+    padding: 4px 0; font-size: 14px; font-weight: 500; white-space: nowrap;
+    /* Tên danh mục quá dài (VD "Cửa gỗ công nghiệp MDF Melamine" ≈ 242px trong khi cột chỉ
+       rộng 195px) trước đây tràn `overflow: visible` sang cột bên cạnh → vỡ lưới cột.
+       Cắt đuôi bằng "…"; tên đầy đủ nằm ở trang danh mục khi bấm vào. */
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .cp-nav .sub-menu--mega .sub-menu a:hover { background: none; color: var(--cp-accent); }
+  /* CP1.4b — cột GOM các mục cấp 2 không có danh mục con (JS gom lại thành `.cp-mega__misc`).
+     Cột này không có tiêu đề nên chèn khoảng đệm cao đúng bằng tiêu đề cột (13px × 1.4 +
+     padding 8 + border 2 + margin 10) để các link thẳng hàng với cột bên cạnh. */
+  .cp-nav .sub-menu--mega > li.cp-mega__misc::before {
+    content: ""; display: block; height: 2.8em; font-size: 13px;
+    padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2px solid transparent;
+  }
+}
+
 .cp-header-cta { display: flex; align-items: center; gap: 14px; }
-.cp-hotline { display: flex; align-items: center; gap: 10px; }
+/* Tap target ≥ 44px (Apple/Material) cho các phần tử bấm trên header — WCAG 2.2 chỉ yêu cầu
+   24px nhưng 44px mới đủ thoải mái trên mobile. Không làm header cao thêm vì chiều cao hàng
+   đang do logo (46px) quyết định. */
+.cp-hotline { display: flex; align-items: center; gap: 10px; min-height: 44px; }
 .cp-hotline .ic {
   width: 40px; height: 40px; border-radius: 50%;
   background: var(--cp-surface); display: grid; place-items: center;
@@ -159,6 +290,62 @@ body.cp {
 
 .cp-burger { display: none; background: none; border: 0; cursor: pointer; padding: 8px; }
 .cp-burger span { display: block; width: 24px; height: 2px; background: var(--cp-text); margin: 5px 0; }
+
+/* ---------- CP1.6 — Ô tìm kiếm trên header ---------- */
+/* Là con trực tiếp của `.cp-container` → tự có khoảng cách với nav (margin) vì container
+   đã bỏ `gap` theo yêu cầu trước đó. */
+.cp-search {
+  display: flex; align-items: center; flex: 0 0 auto;
+  width: 230px; height: 40px;
+  background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: 999px;
+}
+.cp-search:focus-within { background: #fff; border-color: var(--cp-primary); }
+.cp-search input[type="search"] {
+  flex: 1 1 auto; min-width: 0; height: 100%; padding: 0 4px 0 14px;
+  background: none; border: 0; outline: 0; font: inherit; font-size: 14px; color: var(--cp-text);
+  /* `appearance: none` là điều kiện để Chrome cho phép ẩn pseudo-element bên dưới (từ Chrome 83
+     không style được `::-webkit-search-cancel-button` nếu input còn appearance mặc định) */
+  -webkit-appearance: none; appearance: none;
+}
+/* Bỏ nút xoá nhanh (×) của Chrome/Safari cho `input[type=search]` — 21:15 ngày 2026-09-14 */
+.cp-search input[type="search"]::-webkit-search-cancel-button,
+.cp-search input[type="search"]::-webkit-search-decoration,
+.cp-search input[type="search"]::-webkit-search-results-button,
+.cp-search input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none; appearance: none; display: none;
+}
+.cp-search input[type="search"]::placeholder { color: var(--cp-muted); }
+/* Chrome phủ nền xanh #e8f0fe khi nó tự điền / gợi ý giá trị đã gõ vào ô này (rule UA
+   `input:-internal-autofill-selected` — KHÔNG xoá được, xem khối "autofill" bên dưới).
+   Ô search nằm trong pill nền `--cp-surface` nên phủ ĐÚNG màu đó (không dùng #fff như rule chung)
+   — selector này đặc thù hơn rule chung nên thắng dù khai báo trước. */
+.cp-search input[type="search"]:-webkit-autofill,
+.cp-search input[type="search"]:-webkit-autofill:hover,
+.cp-search input[type="search"]:-webkit-autofill:focus,
+.cp-search input[type="search"]:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--cp-surface) inset !important;
+  box-shadow: 0 0 0 1000px var(--cp-surface) inset !important;
+}
+.cp-search button {
+  flex: 0 0 auto; width: 42px; height: 100%; display: grid; place-items: center;
+  background: none; border: 0; cursor: pointer; color: var(--cp-muted);
+}
+.cp-search button:hover { color: var(--cp-primary-dark); }
+.cp-search button svg { width: 18px; height: 18px; }
+
+/* ---------- CP1.7 — Icon giỏ hàng trên header ---------- */
+.cp-cart-link {
+  position: relative; flex: 0 0 auto; display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 50%; /* 44px = tap target tối thiểu */
+  background: var(--cp-surface); color: var(--cp-text);
+}
+.cp-cart-link:hover { background: var(--cp-primary); color: var(--cp-on-primary); }
+.cp-cart-link__ic { width: 20px; height: 20px; }
+.cp-cart-link__count {
+  position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px;
+  display: grid; place-items: center; background: var(--cp-accent); color: #fff;
+  border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 1;
+}
 
 /* ---------- Hero ---------- */
 .cp-hero {
@@ -317,18 +504,14 @@ body.cp {
 .cp-price { margin-top: auto; display: flex; align-items: baseline; gap: 8px; }
 .cp-price b { font-size: 17px; color: var(--cp-accent); }
 .cp-price del { font-size: 13px; color: var(--cp-muted); }
-.cp-card-btn {
-  margin-top: 6px; text-align: center;
-  border: 1px solid var(--cp-line); border-radius: 999px;
-  padding: 9px; font-weight: 600; font-size: 14px; color: var(--cp-primary);
-  transition: background .2s ease, color .2s ease;
-}
-.cp-card-btn:hover { background: var(--cp-primary); color: var(--cp-on-primary); }
 
 /* ---------- CTA band ---------- */
+/* Nền dải CTA: dùng tông CAM ĐẤT đậm (`--cp-accent-dark` → `--cp-accent`) để chữ trắng đạt
+   WCAG AA — đo được 6.6:1 ở đầu đậm và 4.8:1 ở đầu nhạt (nền vàng cũ chỉ 1.9–3.0:1, dưới chuẩn).
+   Muốn quay lại nền vàng thì đổi 2 biến này và đổi `color` sang `--cp-on-primary` (8.9:1). */
 .cp-cta {
-  background: linear-gradient(120deg, var(--cp-primary-dark), var(--cp-primary));
-  color: var(--cp-on-primary);
+  background: linear-gradient(120deg, var(--cp-accent-dark), var(--cp-accent));
+  color: #fff;
   border-radius: 20px;
   padding: 44px;
   display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
@@ -367,14 +550,18 @@ body.cp {
   color: #8a8073; font-size: 13px;
 }
 
-/* ---------- Page hero (products/contact) ---------- */
+/* ---------- Page hero (danh mục · giỏ hàng · thanh toán · hoàn tất đơn) ---------- */
 .cp-pagehero {
-  background: linear-gradient(120deg, var(--cp-primary-dark), var(--cp-primary));
-  color: var(--cp-on-primary); padding: 54px 0;
+  /* Tông SÁNG (thay dải vàng đậm cũ): nền trắng → kem nhạt, viền dưới mảnh, chữ đậm.
+     Breadcrumb dùng đúng tông với `.cp-breadcrumb--bar` ở trang chi tiết SP (13.5px, --cp-muted). */
+  background: linear-gradient(180deg, #fff, var(--cp-surface));
+  border-bottom: 1px solid var(--cp-line);
+  color: var(--cp-text); padding: 20px 0;
 }
 .cp-pagehero h1 { font-size: clamp(28px, 4vw, 40px); margin: 0 0 8px; font-weight: 800; }
-.cp-breadcrumb { font-size: 14px; opacity: .85; }
-.cp-breadcrumb a:hover { color: #fff; text-decoration: underline; }
+.cp-breadcrumb { font-size: 13.5px; color: var(--cp-muted); }
+.cp-breadcrumb a { color: var(--cp-muted); }
+.cp-breadcrumb a:hover { color: var(--cp-primary-dark); text-decoration: underline; }
 
 /* ---------- Layout with sidebar ---------- */
 .cp-shop { display: grid; grid-template-columns: 260px 1fr; gap: 32px; align-items: start; }
@@ -497,10 +684,66 @@ body.cp {
   .cp-shop { grid-template-columns: 1fr; }
   .cp-shop-aside { position: static; }
   .cp-shop .cp-products { grid-template-columns: repeat(3, 1fr); }
+  /* CP1.6 — ≤1024px: ô tìm kiếm xuống hàng riêng, full chiều ngang.
+     Dùng `order` (không đổi thứ tự DOM) vì ở desktop `.cp-search` phải nằm TRÁI khối hotline,
+     còn ở đây cần nó xuống dưới cùng sau khi khối CTA đã chiếm hàng đầu. */
+  .cp-header .cp-container { flex-wrap: wrap; }
+  /* Ô search nằm TRONG `.cp-header-cta` → khối cta chiếm hết hàng rồi tự `flex-wrap`:
+     hàng 1 = hotline/giỏ/burger (canh phải), hàng 2 = ô search full chiều ngang. */
+  .cp-header-cta { order: 1; flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-end; }
+  /* 44px: ô search + nút kính lúp là tap target trên mobile/tablet */
+  .cp-search { order: 2; flex: 1 1 100%; width: auto; height: 44px; margin: 8px 0 2px; }
 }
 @media (max-width: 768px) {
-  .cp-nav { display: none; }
-  .cp-burger { display: block; }
+  /* ---------- CP1.5 — Menu mobile: panel dọc dưới header ---------- */
+  .cp-nav {
+    display: none;
+    position: absolute; top: 100%; left: 0; right: 0;
+    margin: 0; padding: 6px 0 10px;
+    background: #fff; border-top: 1px solid var(--cp-line); border-bottom: 1px solid var(--cp-line);
+    box-shadow: var(--cp-shadow-lg);
+    max-height: calc(100vh - 64px); overflow-y: auto;
+  }
+  .cp-nav.is-open { display: block; }
+  body.cp-nav-open { overflow: hidden; }
+  .cp-nav ul { display: block; gap: 0; }
+  .cp-nav a {
+    display: block; padding: 13px 20px; border-radius: 0;
+    border-bottom: 1px solid var(--cp-line); font-size: 15.5px;
+  }
+  .cp-nav a::after { content: none; }
+  .cp-nav li.menu-item-has-children > a { padding-right: 68px; }
+  .cp-nav li.menu-item-has-children > a::before { content: none; }
+  .cp-nav .sub-menu {
+    position: static; visibility: visible; opacity: 1; transform: none;
+    min-width: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none;
+    display: none; background: var(--cp-surface);
+    /* Bật lại vì rule base đặt `pointer-events: none` cho panel ĐÓNG ở desktop (mobile mở panel
+       bằng class `.is-open`, không đi qua `:hover` nên nếu thiếu dòng này link con không bấm được) */
+    pointer-events: auto;
+  }
+  .cp-nav li.is-open > .sub-menu { display: block; }
+  /* CP1.4b — cột gom trong panel mobile: không có nút mở riêng nên luôn hiện sẵn */
+  .cp-nav li.cp-mega__misc > .sub-menu { display: block; }
+  .cp-nav .sub-menu a { padding-left: 36px; font-size: 14.5px; }
+  .cp-nav .sub-menu .sub-menu a { padding-left: 52px; }
+  .cp-nav__toggle {
+    display: block; position: absolute; top: 7px; right: 8px; z-index: 2;
+    width: 38px; height: 38px; padding: 0; cursor: pointer;
+    background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: 8px;
+  }
+  .cp-nav__toggle span {
+    display: block; width: 9px; height: 9px; margin: 0 auto;
+    border-right: 2px solid var(--cp-text); border-bottom: 2px solid var(--cp-text);
+    transform: rotate(45deg) translate(-2px, -2px); transition: transform .18s ease;
+  }
+  .cp-nav li.is-open > .cp-nav__toggle span { transform: rotate(-135deg) translate(-2px, -2px); }
+
+  .cp-burger { display: block; min-width: 44px; min-height: 44px; }
+  .cp-burger span { transition: transform .2s ease, opacity .2s ease; }
+  .cp-burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .cp-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .cp-burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .cp-header .cp-container { gap: 12px; min-height: 64px; }
   .cp-logo-mark { width: 38px; height: 38px; font-size: 16px; }
   .cp-logo-text b { font-size: 15px; letter-spacing: 0; }
@@ -527,16 +770,54 @@ body.cp {
   .cp-products, .cp-shop .cp-products { grid-template-columns: 1fr 1fr; }
 }
 
+/* ---------- Ô nhập bị trình duyệt tự điền (autofill) ----------
+   Chrome/Edge phủ nền xanh nhạt lên ô vừa autofill — DevTools hiển thị nguyên nhân là rule
+   "user agent stylesheet": `input:-internal-autofill-selected { background-color: rgb(232,240,254) }`.
+   Rule đó THUỘC TRÌNH DUYỆT nên: (1) không nằm trong file nào của mình để mà xoá; (2) author CSS
+   cũng KHÔNG viết được selector `:-internal-*` (chỉ dành cho UA stylesheet); (3) `background-color`
+   thường không thắng được. Cách duy nhất là ĐÈ bằng box-shadow inset cùng màu nền input (#fff).
+   Đổi màu nền ô nhập thì sửa số màu ở đây cho khớp. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  box-shadow: 0 0 0 1000px #fff inset !important;
+  -webkit-text-fill-color: var(--cp-text) !important;
+  caret-color: var(--cp-text);
+}
+
+/* ---------- Tôn trọng cài đặt giảm chuyển động của người dùng ----------
+   Người bật "giảm chuyển động" (tiền đình nhạy cảm) sẽ không thấy hiệu ứng trượt/pulse;
+   nội dung vẫn hiện đủ vì các hiệu ứng đều là transition trang trí. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ---------- WordPress adaptations ---------- */
 /* wp_nav_menu markup: đánh dấu mục hiện tại như .is-active của mockup */
 .cp-nav .current-menu-item > a,
 .cp-nav .current_page_item > a { color: var(--cp-primary); }
 .cp-nav .current-menu-item > a::after,
 .cp-nav .current_page_item > a::after { width: 100%; }
-.cp-nav .sub-menu { display: none; }
+/* Ghi chú: KHÔNG ẩn `.sub-menu` ở đây nữa — dropdown desktop đã xây ở khối CP1.4
+   (ẩn bằng `visibility` để còn chạy transition), panel mobile ẩn/hiện bằng `.is-open` ở CP1.5. */
 
-/* custom-logo */
-.cp-logo .custom-logo { width: 200px; max-width: 100%; height: auto; display: block; }
+/* custom-logo — CP1.2
+   LƯU Ý selector: PHẢI là `.cp-header .custom-logo`, KHÔNG dùng `.cp-logo .custom-logo` (selector cũ
+   là selector CHẾT): `the_custom_logo()` in ra `<a class="custom-logo-link">` LỒNG trong
+   `<a class="cp-logo">`, HTML lồng thẻ <a> không hợp lệ nên trình duyệt tự đóng thẻ <a> ngoài →
+   logo nằm trực tiếp trong `.cp-container`, không phải con của `.cp-logo` (vì vậy rule cũ
+   `width: 200px` chưa bao giờ có tác dụng, logo vẫn hiện đúng cỡ gốc).
+   `height: auto` giữ đúng tỷ lệ ảnh gốc (không méo). */
+.cp-header .custom-logo {
+  width: 250px; height: auto; max-width: 100%; display: block;
+}
 
 /* skip-link (kế thừa a11y từ theme cha) */
 .cp-header .skip-link,
@@ -595,8 +876,14 @@ body.cp main#main { padding-block: 0; }
 .cp-shop-main li.product .woocommerce-loop-product__title,
 .cp-shop-main li.product .cp-card-title { font-size: 15.5px; font-weight: 600; margin: 0; line-height: 1.4; }
 .cp-shop-main li.product .price { margin-top: auto; }
-.cp-shop-main li.product .price { color: var(--cp-accent); font-weight: 700; font-size: 17px; }
-.cp-shop-main li.product .price del { color: var(--cp-muted); font-weight: 400; font-size: 13px; }
+/* ⚠️ Phải đủ 5 class: WooCommerce có rule
+   `.woocommerce:where(body:not(.woocommerce-uses-block-theme)) ul.products li.product .price`
+   = (0,4,2) > selector 3-class cũ → ép giá trong card về màu olive `rgb(149,142,9)` và
+   `font-size:.857em; font-weight:400` (đo được 13.71px). Selector dưới = (0,5,2) nên thắng lại. */
+.woocommerce .cp-shop-main ul.products li.product .price { color: var(--cp-accent); font-weight: 700; font-size: 17px; }
+.woocommerce .cp-shop-main ul.products li.product .price del { color: var(--cp-muted); font-weight: 400; font-size: 13px; }
+/* `<ins>` mặc định của trình duyệt có gạch chân — `.cp-price` (trang chủ) đã tắt nên card cũng tắt */
+.woocommerce .cp-shop-main ul.products li.product .price ins { text-decoration: none; }
 .cp-shop-main li.product .star-rating { font-size: 13px; margin: 2px 0; }
 
 /* Phân trang WooCommerce (prefix .woocommerce để thắng CSS mặc định của plugin) */
@@ -704,7 +991,6 @@ body.cp main#main { padding-block: 0; }
   font-size: 15px; font-weight: 800; min-height: 0; line-height: 1.1; letter-spacing: .5px;
   border: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
 }
-.cp-shop-main li.product .cp-card-btn { display: block; text-align: center; margin-top: 8px; }
 
 /* Ghi đè vị trí của WooCommerce (.woocommerce ul.products li.product .onsale { top:0; right:0 })
    để tag giảm giá dính sát góc trái-trên ảnh. */
@@ -921,7 +1207,9 @@ body.cp main#main { padding-block: 0; }
 
 /* ---- Form mua hàng: 2 nút lớn ---- */
 .cp-single-layout form.cart {
-  display: grid; grid-template-columns: 2fr 1fr; gap: 12px;
+  /* Cột nút "THÊM VÀO GIỎ HÀNG" phải ≥ 195px (đo bằng `white-space: nowrap`) nếu không nhãn
+     dài sẽ xuống 2 dòng; cột mua hàng lấy phần còn lại nên dùng `minmax` thay vì tỉ lệ cứng. */
+  display: grid; grid-template-columns: minmax(0, 2fr) minmax(200px, 1fr); gap: 12px;
   align-items: stretch; margin: 0 0 4px;
 }
 .cp-single-layout form.cart .quantity { display: none; }
@@ -966,7 +1254,7 @@ body.cp main#main { padding-block: 0; }
 .cp-contact-btn--zalo:hover { background: #0052cc; }
 
 /* ---- Sidebar phải ---- */
-.cp-single-side { position: sticky; top: 96px; display: grid; gap: 20px; }
+.cp-single-side { position: sticky; top: 100px; display: grid; gap: 20px; }
 .cp-side-box {
   background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
   box-shadow: var(--cp-shadow); padding: 20px;
@@ -1125,8 +1413,9 @@ body.cp main#main { padding-block: 0; }
   font-size: 15px; font-weight: 800; min-height: 0; line-height: 1.1; letter-spacing: .5px;
   border: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
 }
-.woocommerce .cp-related-band li.product .price { color: var(--cp-accent); font-weight: 700; font-size: 17px; margin-top: auto; }
-.woocommerce .cp-related-band li.product .price del { color: var(--cp-muted); font-weight: 400; font-size: 13px; }
+.woocommerce .cp-related-band ul.products li.product .price { color: var(--cp-accent); font-weight: 700; font-size: 17px; margin-top: auto; }
+.woocommerce .cp-related-band ul.products li.product .price del { color: var(--cp-muted); font-weight: 400; font-size: 13px; }
+.woocommerce .cp-related-band ul.products li.product .price ins { text-decoration: none; }
 
 /* ---- Responsive ---- */
 @media (max-width: 1024px) {
@@ -1163,6 +1452,526 @@ body.cp main#main { padding-block: 0; }
   /* Mobile: nhãn nút gọi chỉ còn "Gọi ngay", ẩn số hotline (số vẫn nằm trong href tel:) */
   .cp-tel-num { display: none; }
   .woocommerce .cp-single-tabs .woocommerce-tabs ul.tabs li a { padding: 12px 14px; font-size: 12.5px; }
-  .cp-spec { padding: 20px; }
+  .cp-spec { padding: 15px; }
   .cp-spec__grid { grid-template-columns: 1fr; }
+}
+
+/* ================= CP3.3 — Popup "Đặt hàng nhanh" ================= */
+.cp-quick-order {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.cp-quick-order[hidden] { display: none; }
+.cp-quick-order__overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, .55); }
+.cp-quick-order__dialog {
+  position: relative; width: 100%; max-width: 460px; max-height: 92vh; overflow-y: auto;
+  background: #fff; border-radius: var(--cp-radius); padding: 24px;
+  box-shadow: var(--cp-shadow-lg);
+}
+.cp-quick-order__close {
+  position: absolute; top: 10px; right: 12px; width: 36px; height: 36px;
+  display: grid; place-items: center; border: 0; border-radius: 50%;
+  background: transparent; color: var(--cp-muted);
+  font-size: 26px; line-height: 1; cursor: pointer;
+}
+.cp-quick-order__close:hover { background: var(--cp-surface); color: var(--cp-text); }
+.cp-quick-order__title {
+  margin: 0 0 14px; padding-right: 36px;
+  font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px;
+}
+.cp-quick-order__product {
+  display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 12px;
+  background: var(--cp-surface); border-radius: var(--cp-radius-sm);
+}
+.cp-quick-order__thumb img { display: block; width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
+.cp-quick-order__meta { flex: 1 1 auto; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cp-quick-order__name { font-size: 14.5px; font-weight: 700; line-height: 1.35; }
+.cp-quick-order__price { color: var(--cp-accent); font-size: 15px; font-weight: 800; }
+.cp-quick-order__price del { color: var(--cp-muted); font-size: 13px; font-weight: 400; margin-right: 6px; }
+/* Số lượng đặt ngay trong khối sản phẩm (input nằm trong <form> nên vẫn được gửi).
+   Selector có tiền tố `.cp-quick-order` để thắng rule input chung ở dưới. */
+.cp-quick-order__qty { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.cp-quick-order__qty-label { font-size: 12.5px; font-weight: 600; color: var(--cp-muted); }
+.cp-quick-order .cp-quick-order__qty input[type="number"] {
+  width: 64px; padding: 5px 10px; text-align: center;
+  font-weight: 700; background: #fff;
+}
+.cp-quick-order__field { display: block; margin: 0 0 12px; }
+.cp-quick-order__field > span { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+.cp-quick-order__field em { color: var(--cp-sale); font-style: normal; }
+.cp-quick-order input[type="text"],
+.cp-quick-order input[type="tel"],
+.cp-quick-order input[type="number"],
+.cp-quick-order textarea {
+  width: 100%; background: #fff;
+  border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+  font: inherit; font-size: 16px; /* 16px: iOS không tự zoom khi focus vào ô nhập */
+  color: var(--cp-text);
+}
+/* Ô nhập 1 dòng (họ tên / SĐT / số lượng): padding gọn; textarea để rộng rãi hơn. */
+.cp-quick-order input[type="text"],
+.cp-quick-order input[type="tel"],
+.cp-quick-order input[type="number"] { padding: 5px 10px; }
+.cp-quick-order textarea { padding: 11px 13px; resize: vertical; }
+.cp-quick-order input:focus,
+.cp-quick-order textarea:focus { outline: 2px solid var(--cp-primary); outline-offset: 1px; border-color: var(--cp-primary); }
+/* Honeypot: người thật không thấy, bot điền → server chặn */
+.cp-quick-order__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.cp-quick-order__submit {
+  width: 100%; min-height: 52px; margin-top: 4px; border: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--cp-accent); color: #fff; border-radius: var(--cp-radius-sm);
+  font: inherit; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+  transition: background .18s ease, opacity .18s ease;
+}
+.cp-quick-order__submit-ic { display: inline-flex; flex: 0 0 auto; }
+.cp-quick-order__submit-ic svg { width: 18px; height: 18px; }
+.cp-quick-order__submit:hover { background: var(--cp-accent-dark); }
+.cp-quick-order__submit[disabled] { opacity: .65; cursor: default; }
+.cp-quick-order__msg { margin: 10px 0 0; font-size: 13.5px; font-weight: 600; }
+.cp-quick-order__msg.is-error { color: var(--cp-sale); }
+.cp-quick-order__msg.is-ok { color: #1f8a4c; }
+.cp-quick-order__note { margin: 10px 0 0; font-size: 12.5px; color: var(--cp-muted); }
+body.cp-qo-open { overflow: hidden; }
+
+@media (max-width: 480px) {
+  .cp-quick-order { padding: 10px; }
+  .cp-quick-order__dialog { padding: 18px; }
+  .cp-quick-order__title { font-size: 18px; }
+  .cp-quick-order__thumb img { width: 48px; height: 48px; }
+}
+
+/* ================= CP3.4 — Trang giỏ hàng (/cart/) ================= */
+.cp-cart-section { padding: 40px 0 64px; }
+/* Shortcode bọc thêm `div.woocommerce` (chứa cả .woocommerce-notices-wrapper) nên lưới
+   đặt trên wrapper này, và phải chỉ định cột tường minh — nếu không, notices-wrapper
+   (dù rỗng) chiếm ô 1 và đẩy form sang cột 2. */
+.cp-cart .woocommerce {
+  display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; align-items: start;
+}
+.cp-cart .woocommerce-notices-wrapper { grid-column: 1 / -1; }
+.cp-cart .woocommerce-notices-wrapper:empty { display: none; }
+.cp-cart .woocommerce-cart-form { grid-column: 1; }
+.cp-cart .cart-collaterals { grid-column: 2; }
+
+/* ---------- Thông báo WooCommerce (giỏ hàng · shop · sản phẩm) ----------
+   Mặc định WooCommerce dùng xanh lá #8fae1b cho viền trên + icon → đổi về vàng thương hiệu.
+   (Trang thanh toán có khối riêng `.cp-checkout ...` ở dưới, đã bỏ hẳn icon.) */
+.woocommerce-message { border-top-color: #fbaf02; }
+.woocommerce-message::before { color: #fbaf02; }
+
+/* ---- Bảng giỏ: card trắng ---- */
+.cp-cart .woocommerce-cart-form {
+  background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+  box-shadow: var(--cp-shadow); padding: 4px 24px 20px;
+}
+.cp-cart table.cart { margin: 0; border: 0; border-collapse: collapse; background: transparent; border-radius: 0; }
+.cp-cart table.cart thead th {
+  padding: 16px 8px !important; background: transparent; border: 0;
+  border-bottom: 1px solid var(--cp-line);
+  text-align: left; font-size: 12.5px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--cp-muted);
+}
+.cp-cart table.cart td {
+  padding: 18px 8px; border: 0; border-top: 0; border-bottom: 1px dashed var(--cp-line);
+  vertical-align: middle; font-size: 14.5px; background: transparent;
+}
+.cp-cart table.cart tbody tr:last-child td { border-bottom: 0; }
+.cp-cart table.cart .product-thumbnail { min-width: 0; }
+.cp-cart table.cart .product-thumbnail img {
+  display: block; width: 72px; height: 72px !important; max-width: none;
+  object-fit: cover; border-radius: 10px; box-shadow: none;
+}
+.cp-cart table.cart .product-name a { color: var(--cp-text); font-weight: 700; font-size: 15px; line-height: 1.4; }
+.cp-cart table.cart .product-name a:hover { color: var(--cp-primary); }
+.cp-cart table.cart .product-price .amount { font-weight: 600; }
+.cp-cart table.cart .product-subtotal .amount { color: var(--cp-accent); font-weight: 800; font-size: 16px; }
+.cp-cart table.cart .product-remove a.remove {
+  display: grid; place-items: center; width: 30px; height: 30px; margin: 0 auto;
+  background: var(--cp-surface); color: var(--cp-muted) !important;
+  font-size: 20px; line-height: 1; text-decoration: none;
+}
+.cp-cart table.cart .product-remove a.remove:hover { background: var(--cp-sale); color: #fff !important; }
+.cp-cart table.cart .quantity .qty {
+  width: 76px; padding: 5px 10px !important; text-align: center; font-weight: 700;
+  border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+  font-size: 16px; color: var(--cp-text);
+}
+.cp-cart table.cart .quantity .qty:focus { outline: 2px solid var(--cp-primary); outline-offset: 1px; border-color: var(--cp-primary); }
+
+/* ---- Hàng coupon + cập nhật giỏ (selector phải đủ mạnh để thắng CSS WooCommerce) ---- */
+/* KHÔNG đặt display:flex lên <td> này — làm vậy sẽ mất `colspan="6"` và ô bị co về cột đầu.
+   Giữ table-cell, cho coupon float trái + căn phải nút (đúng cách WooCommerce làm). */
+.woocommerce-cart .cp-cart table.cart td.actions {
+  padding: 16px 8px 10px; text-align: right;
+}
+.woocommerce-cart .cp-cart table.cart td.actions .coupon { float: left; display: flex; gap: 8px; flex-wrap: wrap; margin: 0; }
+.woocommerce-cart .cp-cart table.cart td.actions .coupon .input-text {
+  float: none; min-width: 220px; margin: 0; padding: 10px 14px; background: #fff;
+  border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+  font-size: 16px; line-height: 1.4; color: var(--cp-text);
+}
+.woocommerce-cart .cp-cart table.cart td.actions .button {
+  float: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;
+  min-height: 44px; padding: 0 20px; cursor: pointer; white-space: nowrap;
+  background: var(--cp-primary); color: var(--cp-on-primary);
+  border: 0; border-radius: 999px;
+  font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+}
+.woocommerce-cart .cp-cart table.cart td.actions .button:hover,
+.woocommerce-cart .cp-cart table.cart td.actions .button:focus { background: var(--cp-primary-dark); color: var(--cp-on-primary); }
+.woocommerce-cart .cp-cart table.cart td.actions .button:disabled { opacity: .5; cursor: default; }
+
+/* ---- Khối tổng tiền ---- */
+.cp-cart .cart-collaterals .cart_totals {
+  float: none; width: auto;
+  background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+  box-shadow: var(--cp-shadow); padding: 22px 24px 24px;
+}
+.cp-cart .cart-collaterals .cart_totals > h2 { margin: 0 0 12px; font-size: 18px; font-weight: 800; }
+.cp-cart .cart-collaterals .cart_totals table { width: 100%; margin: 0; border: 0; }
+.cp-cart .cart-collaterals .cart_totals table th {
+  width: auto; padding: 12px 0; background: transparent; border: 0;
+  border-bottom: 1px dashed var(--cp-line); white-space: nowrap;
+  text-align: left; font-size: 14px; font-weight: 600; letter-spacing: 0;
+  text-transform: none; color: var(--cp-muted);
+}
+.cp-cart .cart-collaterals .cart_totals table td {
+  padding: 12px 0; border: 0; border-bottom: 1px dashed var(--cp-line);
+  text-align: right; font-size: 14.5px;
+}
+.cp-cart .cart-collaterals .cart_totals table tr.order-total th,
+.cp-cart .cart-collaterals .cart_totals table tr.order-total td {
+  padding-top: 16px; border-bottom: 0; color: var(--cp-text); font-weight: 700;
+}
+.cp-cart .cart-collaterals .cart_totals table tr.order-total .amount { color: var(--cp-accent); font-size: 22px; font-weight: 800; }
+/* Khối "Tính phí vận chuyển" của WooCommerce: dòng phụ nhỏ, gọn trong card; bỏ pseudo-element
+   dùng icon font của WooCommerce (trên môi trường này glyph hiện ra ô vuông lỗi dù file font
+   `WooCommerce.woff2` CÓ tồn tại trong plugin → không phải lỗi thiếu file). */
+.cp-cart .cart_totals .woocommerce-shipping-destination,
+.cp-cart .cart_totals .woocommerce-shipping-calculator p,
+.cp-cart .cart_totals .woocommerce-shipping-calculator .form-row {
+  margin: 4px 0 0; font-size: 12.5px; color: var(--cp-muted); line-height: 1.5;
+}
+.cp-cart .cart_totals .shipping-calculator-button {
+  display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--cp-accent);
+}
+.cp-cart .cart_totals .shipping-calculator-button::after { content: none; }
+.cp-cart .cart_totals .shipping-calculator-form { margin-top: 10px; text-align: left; }
+.cp-cart .cart_totals .shipping-calculator-form select,
+.cp-cart .cart_totals .shipping-calculator-form input[type="text"] {
+  width: 100%; padding: 5px 10px; background: #fff;
+  border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+  font-size: 16px; color: var(--cp-text);
+}
+.cp-cart .cart_totals .shipping-calculator-form button.button {
+  width: 100%; min-height: 42px; margin-top: 8px; cursor: pointer;
+  background: var(--cp-primary); color: var(--cp-on-primary);
+  border: 0; border-radius: 999px;
+  font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+}
+.cp-cart .wc-proceed-to-checkout { padding: 8px 0 0; }
+.cp-cart .wc-proceed-to-checkout a.checkout-button {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 54px; margin: 0; padding: 0 18px; border-radius: var(--cp-radius-sm);
+  background: var(--cp-accent); color: #fff !important;
+  font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+}
+.cp-cart .wc-proceed-to-checkout a.checkout-button:hover { background: var(--cp-accent-dark); }
+/* Cross-sells (nếu shop có bán chéo) — 2 cột gọn trong cột phải */
+.cp-cart .cross-sells ul.products { list-style: none; margin: 0 0 18px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+
+/* ---- Giỏ trống ---- */
+.cp-cart .cart-empty { margin: 0 0 6px; font-size: 17px; font-weight: 700; text-align: center; }
+.cp-cart .return-to-shop { margin-top: 18px; text-align: center; }
+.cp-cart .return-to-shop a.button {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 0 24px; border-radius: var(--cp-radius-sm);
+  background: var(--cp-primary); color: var(--cp-on-primary);
+  font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1024px) {
+  .cp-cart .woocommerce { grid-template-columns: 1fr; gap: 24px; }
+  .cp-cart .woocommerce-cart-form, .cp-cart .cart-collaterals { grid-column: 1; }
+}
+@media (max-width: 768px) {
+  .cp-cart-section { padding: 28px 0 44px; }
+  .cp-cart .woocommerce-cart-form { padding: 2px 14px 16px; }
+  /* Mỗi sản phẩm thành 1 thẻ dọc: dùng data-title có sẵn của WooCommerce làm nhãn.
+     Lưu ý: `woocommerce-smallscreen.css` ép `text-align: right !important` cho mọi td
+     → 2 ô cần canh trái (thumbnail, tên SP) phải ghi đè bằng !important. */
+  .cp-cart table.cart_responsive thead, .cp-cart table.shop_table_responsive thead { display: none; }
+  /* WooCommerce zebra-stripe ô trên mobile (nền xám) — bỏ để hợp card trắng của theme */
+  .woocommerce-cart .cp-cart table.shop_table_responsive tr td,
+  .woocommerce-cart .cp-cart table.cart_responsive tr td { background-color: transparent; }
+  .cp-cart table.cart_responsive tr.cart_item, .cp-cart table.shop_table_responsive tr.cart_item {
+    position: relative; display: block; padding: 14px 0 10px;
+    border-bottom: 1px dashed var(--cp-line);
+  }
+  .cp-cart table.cart_responsive tr.cart_item:last-child,
+  .cp-cart table.shop_table_responsive tr.cart_item:last-child { border-bottom: 0; }
+  .cp-cart table.cart_responsive tr.cart_item td,
+  .cp-cart table.shop_table_responsive tr.cart_item td {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 5px 0; border: 0; text-align: right;
+  }
+  .cp-cart table.cart_responsive tr.cart_item td::before,
+  .cp-cart table.shop_table_responsive tr.cart_item td::before {
+    content: attr(data-title); flex: 0 0 auto; text-align: left;
+    font-size: 13px; font-weight: 600; color: var(--cp-muted);
+  }
+  .cp-cart table.shop_table_responsive tr.cart_item td.product-remove,
+  .cp-cart table.cart_responsive tr.cart_item td.product-remove { position: absolute; top: 10px; right: 0; padding: 0; }
+  .cp-cart table.shop_table_responsive tr.cart_item td.product-remove::before,
+  .cp-cart table.cart_responsive tr.cart_item td.product-remove::before { content: none; }
+  .cp-cart table.shop_table_responsive tr.cart_item td.product-thumbnail,
+  .cp-cart table.cart_responsive tr.cart_item td.product-thumbnail { display: block; padding: 0 0 8px; text-align: left !important; }
+  .cp-cart table.shop_table_responsive tr.cart_item td.product-thumbnail::before,
+  .cp-cart table.cart_responsive tr.cart_item td.product-thumbnail::before { content: none; }
+  .cp-cart table.cart .product-thumbnail img { width: 64px; height: 64px !important; }
+  .cp-cart table.shop_table_responsive tr.cart_item td.product-name,
+  .cp-cart table.cart_responsive tr.cart_item td.product-name { display: block; padding: 0 40px 6px 0; text-align: left !important; }
+  .cp-cart table.shop_table_responsive tr.cart_item td.product-name::before,
+  .cp-cart table.cart_responsive tr.cart_item td.product-name::before { content: none; }
+  .woocommerce-cart .cp-cart table.cart td.actions { padding-top: 14px; text-align: left; }
+  .woocommerce-cart .cp-cart table.cart td.actions .coupon { float: none; flex-direction: column; }
+  .woocommerce-cart .cp-cart table.cart td.actions .coupon .input-text { min-width: 0; width: 100%; }
+  .woocommerce-cart .cp-cart table.cart td.actions .coupon .button,
+  .woocommerce-cart .cp-cart table.cart td.actions > .button { display: flex; width: 100%; margin-top: 10px; }
+}
+
+/* ================= CP3.5 — Trang thanh toán (/checkout/) ================= */
+.cp-checkout-section { padding: 40px 0 64px; }
+.cp-checkout form.checkout {
+  display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 8px 32px; align-items: start;
+}
+.cp-checkout #customer_details { grid-column: 1; grid-row: 1 / span 2; }
+/* WC 11 in tiêu đề "Đơn hàng của bạn" RA NGOÀI `#order_review` (form-checkout.php dòng 54)
+   nên nó bị tách hẳn khỏi thẻ trắng (đo được: cách thẻ ~250px). Ẩn bản ngoài — bản thật in
+   BÊN TRONG thẻ bằng `cp_order_review_title()` (inc/woocommerce.php). */
+.cp-checkout #order_review_heading { display: none; }
+/* Hai card cùng bắt đầu ở hàng 1 (form đã có `align-items: start`) → mép trên ngang nhau. */
+.cp-checkout #order_review { grid-column: 2; grid-row: 1 / span 2; }
+.cp-checkout .woocommerce-notices-wrapper { grid-column: 1 / -1; }
+.cp-checkout .woocommerce-notices-wrapper:empty { display: none; }
+
+/* Thông báo / khối coupon-login của WooCommerce: bỏ pseudo-element icon font (glyph hiện ô vuông lỗi) */
+.cp-checkout .woocommerce-info, .cp-checkout .woocommerce-message, .cp-checkout .woocommerce-error {
+  margin: 0 0 16px; padding: 14px 18px; background: var(--cp-surface);
+  border: 0; border-left: 3px solid var(--cp-primary); border-radius: var(--cp-radius-sm);
+  font-size: 14px; color: var(--cp-text);
+}
+.cp-checkout .woocommerce-info::before, .cp-checkout .woocommerce-message::before, .cp-checkout .woocommerce-error::before { content: none; }
+
+/* ---- Hai card: thông tin khách | đơn hàng ---- */
+.cp-checkout #customer_details, .cp-checkout #order_review {
+  background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+  box-shadow: var(--cp-shadow); padding: 24px;
+}
+/* 1 cột: "Thông tin thanh toán" trước, rồi "Giao hàng đến một địa chỉ khác?" + "Ghi chú đơn hàng"
+   xuống dưới (yêu cầu của Tùng). Bên trong mỗi khối vẫn là lưới 2 cột field. */
+.cp-checkout .col2-set { display: grid; grid-template-columns: 1fr; gap: 24px; }
+/* Gán cột TƯỜNG MINH: nếu để auto-placement thì `.col-2` (giao hàng) lại nằm cột trái
+   và `.col-1` (thanh toán) nằm cột phải — đã kiểm chứng bằng cách gán inline. */
+.cp-checkout .col2-set .col-1 { float: none; width: auto; grid-column: 1; }
+.cp-checkout .col2-set .col-2 { float: none; width: auto; grid-column: 1; }
+.cp-checkout .woocommerce-billing-fields h3, .cp-checkout .woocommerce-shipping-fields h3,
+.cp-checkout .woocommerce-additional-fields h3, .cp-checkout .cp-order-review__title {
+  margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--cp-line);
+  font-size: 16px; font-weight: 800;
+}
+.cp-checkout .woocommerce-billing-fields__field-wrapper,
+.cp-checkout .woocommerce-shipping-fields__field-wrapper {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px;
+}
+/* Ghi chú đơn hàng là 1 ô duy nhất cho cả đơn → chiếm hết chiều ngang
+   (field này của WooCommerce chỉ có class `form-row notes`, không phải `form-row-wide`). */
+.cp-checkout .woocommerce-additional-fields__field-wrapper { display: grid; grid-template-columns: 1fr; }
+/* WooCommerce tự chèn `<span class="optional">(tuỳ chọn)</span>` vào nhãn field không bắt buộc.
+   Nhãn của ta đã ghi rõ "(không bắt buộc)" theo wording popup CP3.3 → ẩn span cho khỏi lặp chữ. */
+.cp-checkout .form-row label .optional { display: none; }
+/* Ô "Ghi chú" đồng bộ với popup đặt hàng nhanh (CP3.3): nhãn 13px, textarea
+   padding 11px 13px và cao 75px — số đo trực tiếp từ popup trên trang chi tiết SP. */
+.cp-checkout .form-row.notes label { font-size: 13px; }
+/* Selector phải 3 class: rule gốc `.cp-checkout .form-row textarea` (0,2,1) BỊ rule của
+   WooCommerce `.woocommerce form .form-row textarea` (0,2,2) đè → bo góc phải khai ở đây mới ăn. */
+.cp-checkout .form-row.notes textarea { min-height: 75px; padding: 11px 13px; border-radius: var(--cp-radius-sm); }
+/* 3 class cho `-first`/`-last`: rule của WooCommerce `.woocommerce form .form-row-first` (0,2,2)
+   đè `.cp-checkout .form-row` (0,2,0) → không ghi rõ thì ô nửa hàng bị co còn 47% (đo được 170px). */
+.cp-checkout .form-row,
+.cp-checkout .form-row.form-row-first,
+.cp-checkout .form-row.form-row-last { float: none; width: auto; margin: 0 0 14px; padding: 0; }
+.cp-checkout .form-row-wide { grid-column: 1 / -1; }
+.cp-checkout .form-row label {
+  display: block; margin: 0 0 6px; font-size: 13.5px; font-weight: 600; color: var(--cp-text);
+}
+.cp-checkout .form-row .required { color: var(--cp-sale); text-decoration: none; }
+.cp-checkout .form-row input.input-text,
+.cp-checkout .form-row textarea,
+.cp-checkout .form-row select {
+  width: 100%; min-height: 44px; padding: 10px 14px; background: #fff;
+  border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+  font: inherit; font-size: 16px; color: var(--cp-text);
+}
+.cp-checkout .form-row textarea { min-height: 88px; resize: vertical; }
+.cp-checkout .form-row input.input-text:focus,
+.cp-checkout .form-row textarea:focus,
+.cp-checkout .form-row select:focus { outline: 2px solid var(--cp-primary); outline-offset: 1px; border-color: var(--cp-primary); }
+/* Select quốc gia/tỉnh của WooCommerce dùng select2 */
+.cp-checkout .select2-container .select2-selection--single {
+  height: 44px; padding: 0 14px; background: #fff;
+  border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+}
+.cp-checkout .select2-container--default .select2-selection--single .select2-selection__rendered {
+  padding: 0; line-height: 42px; font-size: 16px; color: var(--cp-text);
+}
+.cp-checkout .select2-container--default .select2-selection--single .select2-selection__arrow { height: 42px; right: 10px; }
+
+/* ---- Bảng đơn hàng ---- */
+.cp-checkout table.woocommerce-checkout-review-order-table { width: 100%; margin: 0 0 14px; border: 0; border-collapse: collapse; }
+.cp-checkout table.woocommerce-checkout-review-order-table thead th {
+  padding: 0 0 10px; background: transparent; border: 0; border-bottom: 1px solid var(--cp-line);
+  text-align: left; font-size: 12.5px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--cp-muted);
+}
+.cp-checkout table.woocommerce-checkout-review-order-table thead th:last-child,
+.cp-checkout table.woocommerce-checkout-review-order-table tfoot td { text-align: right; }
+.cp-checkout table.woocommerce-checkout-review-order-table td,
+.cp-checkout table.woocommerce-checkout-review-order-table tfoot th {
+  padding: 12px 0; border: 0; border-bottom: 1px dashed var(--cp-line);
+  vertical-align: top; font-size: 14.5px;
+}
+.cp-checkout table.woocommerce-checkout-review-order-table tbody td:first-child { padding-right: 14px; }
+.cp-checkout table.woocommerce-checkout-review-order-table tbody td:last-child { white-space: nowrap; text-align: right; }
+.cp-checkout table.woocommerce-checkout-review-order-table tr.cart_item:last-child td { border-bottom: 1px solid var(--cp-line); }
+.cp-checkout table.woocommerce-checkout-review-order-table tr.order-total th,
+.cp-checkout table.woocommerce-checkout-review-order-table tr.order-total td { padding-top: 14px; border-bottom: 0; font-weight: 700; }
+.cp-checkout table.woocommerce-checkout-review-order-table .order-total .amount { color: var(--cp-accent); font-size: 22px; font-weight: 800; }
+
+/* ---- Phương thức thanh toán + nút đặt hàng ---- */
+.cp-checkout #payment { background: transparent; border-radius: 0; padding: 0; }
+.cp-checkout #payment ul.payment_methods { margin: 0 0 16px; padding: 0; border: 0; list-style: none; }
+.cp-checkout #payment ul.payment_methods li { padding: 12px 0; border-top: 1px dashed var(--cp-line); }
+.cp-checkout #payment ul.payment_methods li label { display: inline-flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600; }
+.cp-checkout #payment .payment_box {
+  margin: 8px 0 0; padding: 12px 14px; background: var(--cp-surface);
+  border-radius: var(--cp-radius-sm); font-size: 13.5px; color: var(--cp-muted);
+}
+.cp-checkout #payment div.form-row { margin: 0; padding: 0; }
+.cp-checkout #payment #place_order {
+  width: 100%; min-height: 54px; margin: 0; border: 0; cursor: pointer;
+  background: var(--cp-accent); color: #fff; border-radius: var(--cp-radius-sm);
+  font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+}
+.cp-checkout #payment #place_order:hover { background: var(--cp-accent-dark); }
+
+/* ---- Responsive ---- */
+@media (max-width: 1024px) {
+  .cp-checkout form.checkout { grid-template-columns: 1fr; gap: 20px; }
+  .cp-checkout #customer_details, .cp-checkout #order_review { grid-column: 1; grid-row: auto; }
+}
+@media (max-width: 768px) {
+  .cp-checkout-section { padding: 28px 0 48px; }
+  .cp-checkout #customer_details, .cp-checkout #order_review { padding: 16px; }
+  .cp-checkout .col2-set { grid-template-columns: 1fr; gap: 20px; }
+  .cp-checkout .col2-set .col-1, .cp-checkout .col2-set .col-2 { grid-column: 1; }
+  .cp-checkout .woocommerce-billing-fields__field-wrapper,
+  .cp-checkout .woocommerce-shipping-fields__field-wrapper,
+  .cp-checkout .woocommerce-additional-fields__field-wrapper { grid-template-columns: 1fr; }
+  .cp-checkout #payment #place_order { font-size: 14px; }
+}
+
+/* ================= CP3.6 — Trang hoàn tất đơn hàng (/checkout/order-received/) =================
+   CSS viết theo ĐÚNG DOM của WC 11 (đã dò): khối cảm ơn là `<p class="woocommerce-notice
+   woocommerce-thankyou-order-received">`, tóm tắt là `<ul class="woocommerce-order-overview">`
+   4 `<li>`, rồi `<section class="woocommerce-order-details">` chứa bảng sản phẩm. */
+/* `padding-bottom` rộng hơn bình thường để nút hotline nổi (FAB 54px) không che dòng "Tổng" */
+.cp-thankyou-section { padding: 40px 0 120px; }
+
+/* Khối "Cảm ơn bạn…" → thẻ trắng có vạch xanh. Phải ghi rõ 2 class để thắng
+   `.woocommerce-notice--success` của WooCommerce (viền xanh mặc định). */
+.cp-thankyou .woocommerce-thankyou-order-received {
+  margin: 0 0 20px; padding: 16px 20px; background: #fff;
+  border: 1px solid var(--cp-line); border-left: 4px solid #1f8a4c;
+  border-radius: var(--cp-radius-sm); box-shadow: var(--cp-shadow);
+  font-size: 16px; font-weight: 700; color: var(--cp-text);
+}
+
+/* Tóm tắt đơn: 4 ô ngang. Phải tắt clearfix `::before/::after` của WooCommerce, nếu không lưới grid
+   sinh thêm 2 ô rỗng ở đầu → 2 ô nội dung bị đẩy xuống hàng 2 (đã đo được lỗi này: 3 ô hàng 1 + 1 ô hàng 2).
+   Selector cần 3 class (`.order_details`) vì WooCommerce khai `.woocommerce ul.order_details::before`
+   = (0,2,1), mạnh hơn `.cp-thankyou .woocommerce-order-overview::before` = (0,2,0). */
+.cp-thankyou .woocommerce-order-overview {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;
+  margin: 0 0 26px; padding: 0; border: 0; list-style: none;
+}
+.cp-thankyou .woocommerce-order-overview.order_details::before,
+.cp-thankyou .woocommerce-order-overview.order_details::after { content: none; }
+/* Ô tóm tắt: WooCommerce khai `.woocommerce ul.order_details li` = (0,2,2) — MẠNH HƠN
+   `.cp-thankyou .woocommerce-order-overview li` = (0,2,1) — nên nó ép `padding-left: 0`,
+   `padding-right: 2em`, `font-size: .715em`, `margin-right: 2em`, `float: left`,
+   `border-right: 1px dashed`, làm chữ dính sát lề trái (đo được: cách mép ô 1px).
+   Selector phải là `ul.…order_details li` (0,3,1) và phải reset từng thuộc tính đó. */
+.cp-thankyou ul.woocommerce-order-overview.order_details li {
+  float: none; margin: 0; padding: 14px 16px; background: #fff; border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius-sm); box-shadow: var(--cp-shadow);
+  font-size: 12px; font-weight: 600; color: var(--cp-muted);
+  text-transform: uppercase; letter-spacing: .3px;
+}
+.cp-thankyou .woocommerce-order-overview li strong {
+  display: block; margin-top: 6px; font-size: 15px; font-weight: 800;
+  color: var(--cp-text); text-transform: none; letter-spacing: 0;
+}
+
+/* Ghi chú của cổng thanh toán: COD in \"Trả tiền mặt khi giao hàng\" bằng một `<p>` KHÔNG có class
+   (hook `woocommerce_thankyou_cod`) → cho thành dải thông báo để không trơ giữa 2 card.
+   Selector cấu trúc vì markup đó không có class nào để bám vào. */
+.cp-thankyou .woocommerce-order > p:not([class]) {
+  margin: 0 0 20px; padding: 14px 18px; background: var(--cp-surface);
+  border: 1px solid var(--cp-line); border-left: 3px solid var(--cp-primary);
+  border-radius: var(--cp-radius-sm); font-size: 14px; font-weight: 600; color: var(--cp-text);
+}
+
+/* Card chi tiết đơn (+ địa chỉ khách: đơn test chưa in ra, để sẵn cho đơn có địa chỉ giao riêng) */
+.cp-thankyou .woocommerce-order-details,
+.cp-thankyou .woocommerce-customer-details {
+  margin: 0 0 20px; padding: 24px; background: #fff; border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius); box-shadow: var(--cp-shadow);
+}
+.cp-thankyou .woocommerce-order-details__title,
+.cp-thankyou .woocommerce-column__title {
+  margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--cp-line);
+  font-size: 16px; font-weight: 800;
+}
+.cp-thankyou table.shop_table { width: 100%; margin: 0; border: 0; border-collapse: collapse; }
+.cp-thankyou table.shop_table th,
+.cp-thankyou table.shop_table td {
+  padding: 12px 0; border-bottom: 1px solid var(--cp-line); font-size: 14.5px; text-align: left;
+}
+.cp-thankyou table.shop_table thead th { font-size: 13px; font-weight: 700; color: var(--cp-muted); text-transform: uppercase; }
+/* "TỔNG" (cột tiền) canh phải cho thẳng với các con số bên dưới */
+.cp-thankyou table.shop_table thead th:last-child { text-align: right; }
+.cp-thankyou table.shop_table tbody td:last-child,
+.cp-thankyou table.shop_table tfoot td { text-align: right; white-space: nowrap; }
+.cp-thankyou table.shop_table tfoot tr:last-child th,
+.cp-thankyou table.shop_table tfoot tr:last-child td { padding-top: 14px; border-bottom: 0; font-weight: 800; }
+.cp-thankyou table.shop_table .order-total .amount { color: var(--cp-accent); font-size: 20px; font-weight: 800; }
+.cp-thankyou .woocommerce-customer-details address {
+  margin: 0; padding: 0; border: 0; font-style: normal; font-size: 14.5px; line-height: 1.7;
+}
+
+.cp-thankyou-actions { margin-top: 4px; text-align: center; }
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .cp-thankyou-section { padding: 28px 0 110px; }
+  .cp-thankyou .woocommerce-order-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .cp-thankyou ul.woocommerce-order-overview.order_details li { padding: 12px 14px; }
+  .cp-thankyou .woocommerce-order-details,
+  .cp-thankyou .woocommerce-customer-details { padding: 16px; }
+  .cp-thankyou table.shop_table th,
+  .cp-thankyou table.shop_table td { padding: 10px 0; font-size: 14px; }
 }

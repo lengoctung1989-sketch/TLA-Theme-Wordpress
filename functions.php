@@ -41,6 +41,16 @@ add_action(
 			array( 'cp-fonts' ),
 			file_exists( $cp_style_path ) ? (string) filemtime( $cp_style_path ) : wp_get_theme()->get( 'Version' )
 		);
+
+		// CP1.5 — menu mobile: burger mở panel + accordion menu con.
+		$cp_nav_js = get_stylesheet_directory() . '/assets/nav-menu.js';
+		wp_enqueue_script(
+			'cp-nav-menu',
+			get_stylesheet_directory_uri() . '/assets/nav-menu.js',
+			array(),
+			file_exists( $cp_nav_js ) ? (string) filemtime( $cp_nav_js ) : wp_get_theme()->get( 'Version' ),
+			true
+		);
 	},
 	20
 );
@@ -144,7 +154,6 @@ add_action(
  * In 1 card sản phẩm theo markup .cp-card. Dùng ở các khối trang chủ.
  */
 function cp_product_card( \WC_Product $product ): void {
-	$cats = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
 	?>
 	<article class="cp-card">
 		<div class="cp-card-media">
@@ -161,15 +170,35 @@ function cp_product_card( \WC_Product $product ): void {
 			</a>
 		</div>
 		<div class="cp-card-body">
-			<?php if ( ! empty( $cats[0] ) ) : ?>
-				<span class="cp-card-cat"><?php echo esc_html( $cats[0] ); ?></span>
-			<?php endif; ?>
 			<h3 class="cp-card-title">
 				<a href="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>"><?php echo esc_html( $product->get_name() ); ?></a>
 			</h3>
 			<div class="cp-price"><?php echo $product->get_price_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-			<a class="cp-card-btn" href="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>"><?php esc_html_e( 'Xem chi tiết', 'tungleads-theme' ); ?></a>
 		</div>
 	</article>
 	<?php
 }
+
+/**
+ * CP4.1 — Ảnh chèn trong NỘI DUNG (mô tả danh mục / mô tả sản phẩm / bài viết) thiếu hẳn
+ * thuộc tính `alt`: thêm `alt=""` để HTML hợp lệ và screen reader không đọc tên file.
+ * Đo 21:40 ngày 2026-09-14: 28/28 ảnh trong mô tả danh mục "Cửa Phòng Ngủ" không có `alt`
+ * (ảnh card sản phẩm đã đủ nhờ filter `wp_get_attachment_image_attributes` ở inc/woocommerce.php).
+ * Muốn alt MÔ TẢ thật (tốt hơn cho SEO ảnh) thì điền trong trình soạn thảo.
+ */
+add_filter(
+	'the_content',
+	static function ( $content ) {
+		if ( ! is_string( $content ) || false === strpos( $content, '<img' ) || ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+			return $content;
+		}
+		$cp_tags = new WP_HTML_Tag_Processor( $content );
+		while ( $cp_tags->next_tag( 'img' ) ) {
+			if ( null === $cp_tags->get_attribute( 'alt' ) ) {
+				$cp_tags->set_attribute( 'alt', '' );
+			}
+		}
+		return $cp_tags->get_updated_html();
+	},
+	20
+);

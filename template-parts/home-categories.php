@@ -28,7 +28,8 @@ if ( is_wp_error( $cp_terms ) || empty( $cp_terms ) ) {
 	return;
 }
 
-$cp_fallback = get_stylesheet_directory_uri() . '/assets/images/door-hdf.png';
+/* Ảnh dự phòng cho danh mục chưa có thumbnail: WebP 24KB thay cho PNG 656KB */
+$cp_fallback = get_stylesheet_directory_uri() . '/assets/images/door-hdf.webp';
 ?>
 <div class="cp-cats">
 	<?php

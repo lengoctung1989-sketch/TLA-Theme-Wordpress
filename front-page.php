@@ -24,7 +24,11 @@ $cp_shop = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( '
 $cp_hero_badge = get_theme_mod( 'cp_hero_badge' ) ?: __( 'Thương hiệu cửa uy tín tại TP.HCM', 'tungleads-theme' );
 $cp_hero_title = get_theme_mod( 'cp_hero_title' ) ?: __( 'Thế giới <em>Cửa gỗ công nghiệp</em>, cửa nhựa giả gỗ &amp; cửa chống cháy', 'tungleads-theme' );
 $cp_hero_desc  = get_theme_mod( 'cp_hero_desc' ) ?: __( 'Cao Phát Door mang đến sản phẩm cửa chất lượng cao, đa dạng mẫu mã và kiểu dáng — tiện nghi, an toàn và thẩm mỹ cho mọi không gian sống.', 'tungleads-theme' );
-$cp_hero_img   = get_theme_mod( 'cp_hero_image' ) ?: $cp_img . '/hero.png';
+/* Ảnh hero: bản mặc định dùng WebP (**986KB PNG → 37KB**) + bản 652px cho màn hình nhỏ.
+   Ảnh tuỳ chỉnh trong Customizer dùng nguyên file người dùng tải lên (không có srcset). */
+$cp_hero_img    = get_theme_mod( 'cp_hero_image' );
+$cp_hero_src    = $cp_hero_img ? $cp_hero_img : $cp_img . '/hero.webp';
+$cp_hero_srcset = $cp_hero_img ? '' : $cp_img . '/hero-652.webp 652w, ' . $cp_img . '/hero.webp 1024w';
 $cp_cta_title  = get_theme_mod( 'cp_cta_title' ) ?: __( 'Cần tư vấn chọn cửa phù hợp?', 'tungleads-theme' );
 $cp_cta_desc   = get_theme_mod( 'cp_cta_desc' ) ?: __( 'Đội ngũ Cao Phát Door hỗ trợ đo đạc, báo giá và thi công tận nơi tại TP.HCM.', 'tungleads-theme' );
 ?>
@@ -46,7 +50,9 @@ $cp_cta_desc   = get_theme_mod( 'cp_cta_desc' ) ?: __( 'Đội ngũ Cao Phát Do
 				</div>
 			</div>
 			<div class="cp-hero-media">
-				<img src="<?php echo esc_url( $cp_hero_img ); ?>" alt="<?php esc_attr_e( 'Showroom cửa gỗ công nghiệp Cao Phát Door', 'tungleads-theme' ); ?>">
+				<img src="<?php echo esc_url( $cp_hero_src ); ?>"
+					<?php if ( $cp_hero_srcset ) : ?>srcset="<?php echo esc_attr( $cp_hero_srcset ); ?>" sizes="(max-width: 900px) 100vw, 652px"<?php endif; ?>
+					alt="<?php esc_attr_e( 'Showroom cửa gỗ công nghiệp Cao Phát Door', 'tungleads-theme' ); ?>" fetchpriority="high" decoding="async">
 				<div class="cp-hero-float">
 					<div><b>10+ <?php esc_html_e( 'năm', 'tungleads-theme' ); ?></b><small><?php esc_html_e( 'Kinh nghiệm thi công', 'tungleads-theme' ); ?></small></div>
 					<div><b>5.000+</b><small><?php esc_html_e( 'Công trình hoàn thiện', 'tungleads-theme' ); ?></small></div>

@@ -26,6 +26,7 @@ function cp_is_single_product(): bool {
 
 /**
  * Script tách dải thumbnail gallery ra ô riêng + nút mũi tên — chỉ trang chi tiết SP.
+ * CP3.3: kèm script popup "Đặt hàng nhanh" (chỉ khi plugin tl-site-caophat đang bật).
  */
 add_action(
 	'wp_enqueue_scripts',
@@ -41,6 +42,30 @@ add_action(
 			array(),
 			file_exists( $path ) ? (string) filemtime( $path ) : wp_get_theme()->get( 'Version' ),
 			true
+		);
+
+		if ( ! function_exists( 'tlcp_quick_order_nonce' ) ) {
+			return;
+		}
+		$qo_rel  = '/assets/quick-order.js';
+		$qo_path = get_stylesheet_directory() . $qo_rel;
+		wp_enqueue_script(
+			'cp-quick-order',
+			get_stylesheet_directory_uri() . $qo_rel,
+			array(),
+			file_exists( $qo_path ) ? (string) filemtime( $qo_path ) : wp_get_theme()->get( 'Version' ),
+			true
+		);
+		wp_localize_script(
+			'cp-quick-order',
+			'cpQuickOrder',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'i18n'    => array(
+					'sending' => __( 'Đang gửi đơn…', 'tungleads-theme' ),
+					'error'   => __( 'Chưa gửi được đơn. Vui lòng thử lại hoặc gọi hotline.', 'tungleads-theme' ),
+				),
+			)
 		);
 	},
 	20
@@ -63,7 +88,10 @@ add_action(
 		add_action( 'woocommerce_before_shop_loop_item_title', 'cp_loop_body_open', 20 );
 		add_action( 'woocommerce_shop_loop_item_title', 'cp_loop_title', 10 );
 		add_action( 'woocommerce_after_shop_loop_item', 'cp_loop_body_close', 20 );
-		add_filter( 'woocommerce_loop_add_to_cart_link', 'cp_loop_detail_link', 10, 2 );
+		/* 20:05 ngày 2026-09-14 — card KHÔNG còn nút nào: bỏ luôn nút "Thêm vào giỏ hàng" mặc định
+		   của WooCommerce (trước đây filter `woocommerce_loop_add_to_cart_link` đổi nút đó thành
+		   "Xem chi tiết"). Ảnh + tiêu đề trong card vẫn là link tới trang sản phẩm. */
+		remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10 );
 
 		/* ---- Wrapper chung: bỏ wrapper + breadcrumb mặc định ---- */
 		remove_action( 'woocommerce_before_main_content', 'woocommerce_output_content_wrapper', 10 );
@@ -290,14 +318,7 @@ function cp_loop_media_open(): void {
 }
 
 function cp_loop_body_open(): void {
-	global $product;
 	echo '</a></div><div class="cp-card-body">';
-	if ( $product instanceof WC_Product ) {
-		$names = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
-		if ( ! empty( $names[0] ) ) {
-			echo '<span class="cp-card-cat">' . esc_html( $names[0] ) . '</span>';
-		}
-	}
 }
 
 function cp_loop_title(): void {
@@ -317,16 +338,24 @@ function cp_loop_body_close(): void {
 }
 
 /**
- * @param string     $html
- * @param WC_Product $product
+ * CP3.1 — Ảnh thiếu `alt`: lấy tên sản phẩm (bài viết cha của ảnh) làm alt.
+ * Đo 21:30 ngày 2026-09-14: 29/46 ảnh ở trang danh mục không có alt → hại SEO + screen reader.
  */
-function cp_loop_detail_link( $html, $product ): string {
-	return sprintf(
-		'<a href="%s" class="cp-card-btn">%s</a>',
-		esc_url( get_permalink( $product->get_id() ) ),
-		esc_html__( 'Xem chi tiết', 'tungleads-theme' )
-	);
-}
+add_filter(
+	'wp_get_attachment_image_attributes',
+	static function ( $attr, $attachment ) {
+		if ( ! empty( $attr['alt'] ) || empty( $attachment->post_parent ) ) {
+			return $attr;
+		}
+		$cp_title = get_the_title( $attachment->post_parent );
+		if ( $cp_title ) {
+			$attr['alt'] = $cp_title;
+		}
+		return $attr;
+	},
+	10,
+	2
+);
 
 /* ========================= CP3.2 — SINGLE ========================= */
 
@@ -508,28 +537,95 @@ function cp_single_hotline_btn(): void {
 }
 
 /**
- * CP3.2 — Nhãn nút mua: "Thêm vào giỏ hàng" → "Thêm giỏ hàng".
- * Chữ hoa ("THÊM GIỎ HÀNG") do CSS `text-transform: uppercase` của
- * `.single_add_to_cart_button` lo, nên chuỗi i18n giữ dạng thường.
+ * CP3.3 — Nút "MUA HÀNG" (ô lớn cạnh nút "Thêm vào giỏ").
+ * Có JS + plugin bật → mở popup đặt nhanh; JS tắt/plugin tắt → link gọi hotline.
  */
-add_filter(
-	'woocommerce_product_single_add_to_cart_text',
-	static function () {
-		return __( 'Thêm giỏ hàng', 'tungleads-theme' );
-	}
-);
-
-/** Nút "MUA HÀNG" (gọi điện) — ô lớn cạnh nút "Thêm giỏ hàng". */
 function cp_single_buynow_btn(): void {
+	global $product;
+
 	$ic_bag = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>';
+
+	$data = '';
+	if ( function_exists( 'tlcp_quick_order_nonce' ) && $product instanceof WC_Product && $product->is_purchasable() ) {
+		$data = ' data-cp-quick-order="' . esc_attr( (string) $product->get_id() ) . '"';
+	}
+
 	printf(
-		'<a class="cp-buynow" href="tel:%s"><span class="cp-buynow__ic" aria-hidden="true">%s</span><span class="cp-buynow__txt"><strong>%s</strong><span>%s</span></span></a>',
+		'<a class="cp-buynow" href="tel:%s"%s><span class="cp-buynow__ic" aria-hidden="true">%s</span><span class="cp-buynow__txt"><strong>%s</strong><span>%s</span></span></a>',
 		esc_attr( cp_hotline_tel() ),
+		$data, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- đã esc_attr khi dựng.
 		$ic_bag, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_html__( 'Mua hàng', 'tungleads-theme' ),
 		esc_html__( 'Gọi điện xác nhận và giao hàng tận nơi', 'tungleads-theme' )
 	);
 }
+
+/**
+ * CP3.3 — Popup "Đặt hàng nhanh" (chỉ trang chi tiết SP).
+ * In ở `wp_footer` để không phụ thuộc vị trí trong luồng template.
+ * Chỉ in khi plugin `tl-site-caophat` đang bật (thiếu hàm nonce = thiếu handler AJAX).
+ */
+function cp_quick_order_popup(): void {
+	if ( ! cp_is_single_product() || ! function_exists( 'tlcp_quick_order_nonce' ) ) {
+		return;
+	}
+
+	global $product;
+	if ( ! $product instanceof WC_Product || ! $product->is_purchasable() ) {
+		return;
+	}
+	?>
+<div class="cp-quick-order" id="cp-quick-order" hidden>
+	<div class="cp-quick-order__overlay" data-cp-qo-close></div>
+	<div class="cp-quick-order__dialog" role="dialog" aria-modal="true" aria-labelledby="cp-qo-title">
+		<button type="button" class="cp-quick-order__close" data-cp-qo-close aria-label="<?php esc_attr_e( 'Đóng', 'tungleads-theme' ); ?>">&times;</button>
+		<h3 class="cp-quick-order__title" id="cp-qo-title"><?php esc_html_e( 'Đặt hàng nhanh', 'tungleads-theme' ); ?></h3>
+
+		<form class="cp-quick-order__form" method="post" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-cp-qo-form>
+			<input type="hidden" name="action" value="cp_quick_order">
+			<input type="hidden" name="nonce" value="<?php echo esc_attr( tlcp_quick_order_nonce() ); ?>">
+			<input type="hidden" name="product_id" value="<?php echo esc_attr( (string) $product->get_id() ); ?>">
+			<input type="text" name="cp_hp" class="cp-quick-order__hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+			<div class="cp-quick-order__product">
+				<span class="cp-quick-order__thumb"><?php echo wp_kses_post( $product->get_image( 'woocommerce_gallery_thumbnail' ) ); ?></span>
+				<span class="cp-quick-order__meta">
+					<span class="cp-quick-order__name"><?php echo esc_html( $product->get_name() ); ?></span>
+					<span class="cp-quick-order__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></span>
+				</span>
+				<label class="cp-quick-order__qty">
+					<span class="cp-quick-order__qty-label"><?php esc_html_e( 'SL', 'tungleads-theme' ); ?></span>
+					<input type="number" name="qty" value="1" min="1" max="99" inputmode="numeric" aria-label="<?php esc_attr_e( 'Số lượng', 'tungleads-theme' ); ?>">
+				</label>
+			</div>
+
+			<label class="cp-quick-order__field">
+				<span><?php esc_html_e( 'Họ tên người nhận', 'tungleads-theme' ); ?> <em>*</em></span>
+				<input type="text" name="name" required autocomplete="name">
+			</label>
+			<label class="cp-quick-order__field">
+				<span><?php esc_html_e( 'Số điện thoại', 'tungleads-theme' ); ?> <em>*</em></span>
+				<input type="tel" name="phone" required inputmode="tel" autocomplete="tel">
+			</label>
+			<label class="cp-quick-order__field">
+				<span><?php esc_html_e( 'Địa chỉ nhận hàng', 'tungleads-theme' ); ?> <em>*</em></span>
+				<input type="text" name="address" required autocomplete="street-address">
+			</label>
+			<label class="cp-quick-order__field">
+				<span><?php esc_html_e( 'Ghi chú (không bắt buộc)', 'tungleads-theme' ); ?></span>
+				<textarea name="note" rows="2"></textarea>
+			</label>
+
+			<button type="submit" class="cp-quick-order__submit"><span class="cp-quick-order__submit-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span><?php esc_html_e( 'Gửi đơn hàng', 'tungleads-theme' ); ?></button>
+			<p class="cp-quick-order__msg" role="status" aria-live="polite"></p>
+			<p class="cp-quick-order__note"><?php esc_html_e( 'Cao Phát sẽ gọi xác nhận đơn trước khi giao hàng.', 'tungleads-theme' ); ?></p>
+		</form>
+	</div>
+</div>
+	<?php
+}
+// Prio 5: phải in TRƯỚC `wp_print_footer_scripts` (prio 20) để script tìm thấy popup.
+add_action( 'wp_footer', 'cp_quick_order_popup', 5 );
 
 /**
  * Giá gốc & giá bán (xử lý cả biến thể: lấy khoảng giảm lớn nhất).
@@ -713,3 +809,263 @@ function cp_single_support_box(): void {
 	echo '<p class="cp-side-support-note">' . esc_html__( 'Gọi ngay để nhận báo giá & khảo sát miễn phí.', 'tungleads-theme' ) . '</p>';
 	echo '</div>';
 }
+
+/* ============================ CP3.4 — CART ============================ */
+
+/** Trang giỏ hàng (`/cart/`). */
+function cp_is_cart_page(): bool {
+	return function_exists( 'is_cart' ) && is_cart();
+}
+
+/** Trang thanh toán (`/checkout/`) — loại trừ trang "đơn đã nhận" (`/checkout/order-received/`). */
+function cp_is_checkout_page(): bool {
+	return function_exists( 'is_checkout' ) && is_checkout()
+		&& ! ( function_exists( 'is_order_received_page' ) && is_order_received_page() );
+}
+
+/**
+ * CP3.6 — Trang hoàn tất đơn hàng (`/checkout/order-received/`).
+ * WooCommerce trả `is_checkout() === true` cho endpoint này, nhưng ta cố ý loại nó khỏi
+ * `cp_is_checkout_page()` để không chèn hero "Thanh toán"; trang này có hero riêng.
+ */
+function cp_is_order_received_page(): bool {
+	return function_exists( 'is_order_received_page' ) && is_order_received_page();
+}
+
+/**
+ * CP3.6 — Nút "Về trang chủ" ở cuối trang hoàn tất đơn.
+ * Gắn vào `woocommerce_thankyou` (chạy bên trong nội dung shortcode, sau card chi tiết đơn).
+ */
+add_action( 'woocommerce_thankyou', 'cp_thankyou_home_button', 30 );
+function cp_thankyou_home_button(): void {
+	if ( ! cp_is_order_received_page() ) {
+		return;
+	}
+
+	echo '<div class="cp-thankyou-actions"><a class="cp-btn cp-btn-primary" href="' . esc_url( home_url( '/' ) ) . '">'
+		. esc_html__( 'Về trang chủ', 'tungleads-theme' ) . '</a></div>';
+}
+
+/**
+ * CP3.4 + CP3.5 — Bọc nội dung shortcode WooCommerce trong hero + container của site.
+ * `page.php` của theme cha không có container, cũng không in tiêu đề trang.
+ *
+ * @param string $title   Tiêu đề H1 của trang.
+ * @param string $class   Class đặt trên `.cp-container` (vd `cp-cart`, `cp-checkout`).
+ * @param string $content Nội dung gốc của trang.
+ */
+function cp_woo_page_wrap( string $title, string $class, string $content ): string {
+	ob_start();
+	woocommerce_breadcrumb(
+		array(
+			'wrap_before' => '<nav class="cp-breadcrumb">',
+			'wrap_after'  => '</nav>',
+		)
+	);
+	$crumb = (string) ob_get_clean();
+
+	$hero = '<section class="cp-pagehero"><div class="cp-container">' . $crumb
+		. '<h1>' . esc_html( $title ) . '</h1></div></section>';
+
+	return $hero . '<section class="cp-section ' . esc_attr( $class ) . '-section"><div class="cp-container ' . esc_attr( $class ) . '">'
+		. $content . '</div></section>';
+}
+
+/**
+ * CP3.4 + CP3.5 — Gắn hero/container cho trang có shortcode WooCommerce.
+ * Guard: chỉ main query trong vòng lặp (không đụng excerpt/widget/query phụ).
+ */
+add_filter(
+	'the_content',
+	static function ( $content ) {
+		if ( ! in_the_loop() || ! is_main_query() ) {
+			return $content;
+		}
+		if ( cp_is_cart_page() ) {
+			return cp_woo_page_wrap( __( 'Giỏ hàng', 'tungleads-theme' ), 'cp-cart', $content );
+		}
+		if ( cp_is_order_received_page() ) {
+			// CP3.6 — phải kiểm tra TRƯỚC `cp_is_checkout_page()` (trang này là checkout endpoint).
+			return cp_woo_page_wrap( __( 'Đặt hàng thành công', 'tungleads-theme' ), 'cp-thankyou', $content );
+		}
+		if ( cp_is_checkout_page() ) {
+			return cp_woo_page_wrap( __( 'Thanh toán', 'tungleads-theme' ), 'cp-checkout', $content );
+		}
+		return $content;
+	},
+	5
+);
+
+/**
+ * CP3.5 — Tiêu đề "Đơn hàng của bạn" nằm TRONG thẻ `#order_review`.
+ *
+ * WooCommerce 11 in `<h3 id="order_review_heading">` RA NGOÀI `#order_review`
+ * (`templates/checkout/form-checkout.php` dòng 54) để phục vụ layout 2 cột → tiêu đề bị
+ * tách khỏi thẻ trắng. Ta ẩn bản ngoài bằng CSS và in bản của mình bằng hook chạy
+ * BÊN TRONG `#order_review` (prio 5 — trước bảng đơn hàng ở prio 10).
+ *
+ * An toàn với AJAX: `update_order_review` chỉ thay fragment `.woocommerce-checkout-review-order-table`
+ * (`WC_AJAX`, `includes/class-wc-ajax.php`), KHÔNG thay cả `#order_review` → tiêu đề không mất,
+ * và AJAX gọi thẳng `woocommerce_order_review()` nên cũng không bị in trùng.
+ */
+function cp_order_review_title(): void {
+	// Dùng lại đúng chuỗi của WooCommerce để ăn theo bản dịch tiếng Việt ("Đơn hàng của bạn").
+	echo '<h3 class="cp-order-review__title">' . esc_html__( 'Your order', 'woocommerce' ) . '</h3>';
+}
+add_action( 'woocommerce_checkout_order_review', 'cp_order_review_title', 5 );
+
+/**
+ * CP3.5 — Rút gọn form "Thông tin thanh toán" (yêu cầu của Tùng).
+ *
+ * 1. Gộp "Họ" + "Tên" → 1 trường "Họ và tên": bỏ `billing_last_name`, tên đầy đủ lưu ở
+ *    `billing_first_name` — cùng cách CP3.3 lưu tên khách đặt nhanh.
+ *    `get_formatted_billing_full_name()` ghép họ + tên nên vẫn in ra đúng tên đầy đủ.
+ * 2. Bỏ 4 trường: Tên công ty · Quốc gia/Khu vực · Căn hộ-dãy phòng · Mã bưu điện.
+ * 3. Email: không bắt buộc (vẫn kiểm tra định dạng nếu khách có nhập).
+ * 4. Sắp thứ tự + độ rộng cho lưới 2 cột: Họ và tên (cả hàng) → SĐT | Email → Địa chỉ → Thành phố.
+ * 5. Nhãn ô ghi chú đổi thành "Ghi chú (không bắt buộc)" cho giống popup đặt hàng nhanh (CP3.3).
+ *
+ * ⚠️ Hệ quả của việc bỏ "bắt buộc" ở email: đơn của khách vãng lai sẽ KHÔNG có email → không
+ * gửi được mail xác nhận cho khách, và cổng thanh toán online (VNPay/MoMo/Stripe…) thường báo
+ * lỗi thiếu email. Site hiện chỉ dùng COD nên chấp nhận được; nếu nối cổng thanh toán online
+ * thì phải bật lại `required` cho email.
+ */
+function cp_checkout_trim_billing_fields( array $fields ): array {
+	if ( empty( $fields['billing'] ) ) {
+		return $fields;
+	}
+
+	// 1. Bỏ các trường không dùng.
+	foreach ( array( 'billing_company', 'billing_country', 'billing_address_2', 'billing_postcode', 'billing_last_name' ) as $key ) {
+		unset( $fields['billing'][ $key ] );
+	}
+
+	// 2. Gộp họ + tên.
+	if ( isset( $fields['billing']['billing_first_name'] ) ) {
+		$fields['billing']['billing_first_name']['label']       = __( 'Họ và tên', 'tungleads-theme' );
+		$fields['billing']['billing_first_name']['placeholder'] = __( 'Nhập họ và tên', 'tungleads-theme' );
+	}
+
+	// 3. Email không bắt buộc.
+	if ( isset( $fields['billing']['billing_email'] ) ) {
+		$fields['billing']['billing_email']['required'] = false;
+		$fields['billing']['billing_email']['label']    = __( 'Địa chỉ email (không bắt buộc)', 'tungleads-theme' );
+	}
+
+	// 4. Thứ tự + độ rộng: `form-row-wide` chiếm cả hàng, `-first`/`-last` mỗi cái nửa hàng.
+	$layout = array(
+		'billing_first_name' => array( 10, 'form-row-wide' ),
+		'billing_phone'      => array( 20, 'form-row-first' ),
+		'billing_email'      => array( 30, 'form-row-last' ),
+		'billing_address_1'  => array( 40, 'form-row-wide' ),
+		'billing_city'       => array( 50, 'form-row-wide' ),
+	);
+
+	foreach ( $layout as $key => list( $priority, $width ) ) {
+		if ( ! isset( $fields['billing'][ $key ] ) ) {
+			continue;
+		}
+
+		// Giữ các class khác của WooCommerce (`address-field`, `validate-phone`…) — chỉ thay class độ rộng.
+		$class   = array_diff( (array) ( $fields['billing'][ $key ]['class'] ?? array() ), array( 'form-row-first', 'form-row-last', 'form-row-wide' ) );
+		$class[] = $width;
+
+		$fields['billing'][ $key ]['priority'] = $priority;
+		$fields['billing'][ $key ]['class']    = array_values( $class );
+	}
+
+	// 5. Ô ghi chú — nhãn giống popup đặt hàng nhanh.
+	if ( isset( $fields['order']['order_comments'] ) ) {
+		$fields['order']['order_comments']['label'] = __( 'Ghi chú (không bắt buộc)', 'tungleads-theme' );
+	}
+
+	return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'cp_checkout_trim_billing_fields', 20 );
+
+/**
+ * CP3.5 — Quốc gia đã bị gỡ khỏi form nhưng VẪN phải lưu vào đơn.
+ *
+ * Không chèn lại thì đơn sẽ trống `billing_country` → sai phí vận chuyển/thuế và lệch số liệu
+ * báo cáo. Giá trị lấy theo quốc gia cơ sở của shop (WooCommerce → Cài đặt chung), không hard-code.
+ * Filter này còn có tác dụng phụ cần thiết: `WC_Checkout::update_session()` chạy SAU filter và
+ * ghi `billing_country` vào customer → bước tính lại vận chuyển vẫn khớp zone.
+ */
+function cp_checkout_force_base_country( array $data ): array {
+	$base    = function_exists( 'wc_get_base_location' ) ? wc_get_base_location() : array();
+	$country = ! empty( $base['country'] ) ? $base['country'] : 'VN';
+
+	$data['billing_country'] = $country;
+
+	// Khi khách KHÔNG tick "Giao hàng đến một địa chỉ khác", WooCommerce tự copy billing → shipping
+	// ngay trong `get_posted_data()` (`class-wc-checkout.php:846`), nhưng bản copy đó chạy TRƯỚC filter
+	// này và đọc `$data['billing_country']` — key này đã bị gỡ khỏi form nên rỗng → `shipping_country`
+	// rỗng → `validate_checkout()` chặn với lỗi "Xin hãy nhập một địa chỉ để tiếp tục."
+	// Vì vậy phải tự điền `shipping_country` khi nó đang trống (khách chọn quốc gia giao khác thì giữ nguyên).
+	if ( empty( $data['shipping_country'] ) ) {
+		$data['shipping_country'] = $country;
+	}
+
+	return $data;
+}
+add_filter( 'woocommerce_checkout_posted_data', 'cp_checkout_force_base_country' );
+
+/* ======================= CP1.7 — Icon giỏ hàng trên header ======================= */
+
+/** Số sản phẩm đang có trong giỏ (0 nếu WooCommerce chưa sẵn sàng). */
+function cp_cart_count(): int {
+	return ( function_exists( 'WC' ) && WC()->cart ) ? (int) WC()->cart->get_cart_contents_count() : 0;
+}
+
+/**
+ * CP1.7 — In icon giỏ hàng (link + số lượng). Dùng ở header VÀ trong fragment AJAX nên
+ * markup phải giống hệt nhau ở cả 2 đường.
+ */
+function cp_header_cart_link(): void {
+	if ( ! function_exists( 'wc_get_cart_url' ) ) {
+		return;
+	}
+
+	$count = cp_cart_count();
+	?>
+	<a class="cp-cart-link" href="<?php echo esc_url( wc_get_cart_url() ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %d: số sản phẩm trong giỏ */ __( 'Giỏ hàng, %d sản phẩm', 'tungleads-theme' ), $count ) ); ?>">
+		<svg class="cp-cart-link__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+		<?php if ( $count > 0 ) : ?>
+			<span class="cp-cart-link__count"><?php echo esc_html( (string) $count ); ?></span>
+		<?php endif; ?>
+	</a>
+	<?php
+}
+
+/**
+ * CP1.7 — Thêm sản phẩm vào giỏ bằng AJAX thì WooCommerce thay fragment theo selector khoá mảng
+ * → trả lại đúng khối `.cp-cart-link` để số lượng trên header tự nhảy, không cần tải lại trang.
+ */
+add_filter(
+	'woocommerce_add_to_cart_fragments',
+	static function ( array $fragments ): array {
+		ob_start();
+		cp_header_cart_link();
+		$fragments['a.cp-cart-link'] = (string) ob_get_clean();
+
+		return $fragments;
+	}
+);
+
+/**
+ * CP3.4 — Nhãn tên gói vận chuyển trong bảng tổng tiền hiện tiếng Anh "Shipment"
+ * (gói ngôn ngữ tiếng Việt hiện tại chưa dịch). WooCommerce sinh chuỗi này bằng
+ * `_x( 'Shipment', 'shipping packages', 'woocommerce' )` → phải dùng filter
+ * `gettext_with_context` (KHÔNG phải `gettext`), và khớp cả context.
+ */
+add_filter(
+	'gettext_with_context',
+	static function ( $translated, $original, $context, $domain ) {
+		if ( 'woocommerce' === $domain && 'Shipment' === $original && 'shipping packages' === $context ) {
+			return __( 'Vận chuyển', 'tungleads-theme' );
+		}
+		return $translated;
+	},
+	10,
+	4
+);
