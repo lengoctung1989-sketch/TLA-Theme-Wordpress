@@ -1127,6 +1127,13 @@ body.cp main#main { padding-block: 0; }
 .woocommerce div.product .woocommerce-product-gallery__wrapper { margin: 0; }
 .woocommerce div.product .woocommerce-product-gallery__image { max-width: 100%; }
 
+/* Nút zoom (kính lúp) trên ảnh SP: WooCommerce đặt `z-index: 99` — CAO HƠN cả header
+   (`.cp-header` z-index 50) lẫn panel menu cấp 2-3 (`.cp-nav .sub-menu` z-index 60, nằm
+   TRONG stacking context của header) → khi menu xổ xuống, nút zoom vẽ ĐÈ lên menu.
+   Hạ về 9 (dưới header 50) → menu luôn nằm trên. Selector (0,4,2) thắng rule WooCommerce
+   `.woocommerce-product-gallery__trigger` (0,1,0). Vẫn trên ảnh/thumbnail (z-index auto). */
+.woocommerce div.product div.images .woocommerce-product-gallery__trigger { z-index: 9; }
+
 /* ---- Ô thumbnail riêng dưới ảnh chính + nút mũi tên 2 đầu (do single-gallery.js bọc) ---- */
 .cp-thumbs {
   display: flex; align-items: center; gap: 10px; margin-top: 14px;
