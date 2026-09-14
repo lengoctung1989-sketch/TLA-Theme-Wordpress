@@ -127,8 +127,40 @@
 			setOpen(false);
 		});
 
+		/* 4. CP1.2b — Ô search trên mobile: bấm icon kính lúp mở ô nhập thành hàng riêng bên dưới. */
+		var searchToggle = header.querySelector('.cp-search-toggle');
+		var searchForm = header.querySelector('.cp-search');
+
+		function setSearchOpen(open) {
+			header.classList.toggle('is-search-open', open);
+			if (searchToggle) { searchToggle.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+			if (open && searchForm) {
+				var input = searchForm.querySelector('input[type="search"]');
+				if (input) { input.focus(); }
+			}
+		}
+
+		if (searchToggle && searchForm) {
+			searchToggle.addEventListener('click', function () {
+				setSearchOpen(!header.classList.contains('is-search-open'));
+			});
+			// Đóng khi bấm ra ngoài header (trừ khi bấm chính header).
+			document.addEventListener('click', function (e) {
+				if (!header.classList.contains('is-search-open')) { return; }
+				if (header.contains(e.target)) { return; }
+				setSearchOpen(false);
+			});
+			document.addEventListener('keydown', function (e) {
+				if ('Escape' === e.key && header.classList.contains('is-search-open')) {
+					setSearchOpen(false);
+					searchToggle.focus();
+				}
+			});
+		}
+
 		window.addEventListener('resize', function () {
 			if (!isMobile() && nav.classList.contains('is-open')) { setOpen(false); }
+			if (!isMobile() && header.classList.contains('is-search-open')) { setSearchOpen(false); }
 			markRowStarts(); // số cột mỗi hàng đổi theo bề rộng → đánh dấu lại cột đầu hàng
 		});
 	}

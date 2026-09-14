@@ -39,6 +39,10 @@ $cp_disp = cp_hotline_display();
 
 <header class="cp-header">
 	<div class="cp-container">
+		<?php /* CP1.2b — Nút burger đặt là CON ĐẦU TIÊN của `.cp-container` để ở mobile nó nằm
+		           bên TRÁI (desktop `display: none` nên không ảnh hưởng). */ ?>
+		<button class="cp-burger" type="button" aria-label="<?php esc_attr_e( 'Mở menu', 'tungleads-theme' ); ?>" aria-expanded="false" aria-controls="cp-nav"><span></span><span></span><span></span></button>
+
 		<?php if ( has_custom_logo() ) : ?>
 			<?php /* CP1.2 — KHÔNG bọc logo trong <a> nữa: `the_custom_logo()` đã in <a class="custom-logo-link">;
 			           lồng <a> trong <a> là HTML không hợp lệ → trình duyệt tự tách thẻ và `.cp-logo` bị rỗng 0×0. */ ?>
@@ -72,7 +76,7 @@ $cp_disp = cp_hotline_display();
 		           bên trái hotline). Ở ≤1024px khối cta chiếm hết hàng và tự `flex-wrap` để ô search
 		           xuống hàng riêng full chiều ngang — xem CSS khối CP1.6. */ ?>
 		<div class="cp-header-cta">
-			<form class="cp-search" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+			<form id="cp-search" class="cp-search" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 				<label class="screen-reader-text" for="cp-search-input"><?php esc_html_e( 'Tìm sản phẩm', 'tungleads-theme' ); ?></label>
 				<input id="cp-search-input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" placeholder="<?php esc_attr_e( 'Tìm cửa theo tên, mã…', 'tungleads-theme' ); ?>" autocomplete="off" autocapitalize="off" spellcheck="false">
 				<?php /* Chỉ tìm trong sản phẩm — site bán cửa, khách gõ vào đây là muốn tìm sản phẩm */ ?>
@@ -91,8 +95,11 @@ $cp_disp = cp_hotline_display();
 					<b><?php echo esc_html( $cp_disp ); ?></b>
 				</span>
 			</a>
+			<?php /* CP1.2b — Icon tìm kiếm (chỉ hiện ở mobile): bấm để mở ô search thành 1 hàng riêng. */ ?>
+			<button class="cp-search-toggle" type="button" aria-label="<?php esc_attr_e( 'Tìm sản phẩm', 'tungleads-theme' ); ?>" aria-expanded="false" aria-controls="cp-search">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+			</button>
 			<?php cp_header_cart_link(); /* CP1.7 — icon giỏ hàng, nằm bên phải khối hotline */ ?>
-			<button class="cp-burger" type="button" aria-label="<?php esc_attr_e( 'Mở menu', 'tungleads-theme' ); ?>" aria-expanded="false" aria-controls="cp-nav"><span></span><span></span><span></span></button>
 		</div>
 	</div>
 </header>

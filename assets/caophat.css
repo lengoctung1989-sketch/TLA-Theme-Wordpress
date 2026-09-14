@@ -291,6 +291,14 @@ body.cp {
 .cp-burger { display: none; background: none; border: 0; cursor: pointer; padding: 8px; }
 .cp-burger span { display: block; width: 24px; height: 2px; background: var(--cp-text); margin: 5px 0; }
 
+/* Nút mở ô search trên mobile (desktop ẩn — desktop đã có sẵn ô search trong hàng) */
+.cp-search-toggle {
+  display: none; flex: 0 0 auto; width: 35px; height: 35px; padding: 0; border: 0; cursor: pointer;
+  border-radius: 50%; background: var(--cp-surface); color: var(--cp-text); place-items: center;
+}
+.cp-search-toggle:hover { background: var(--cp-primary); color: var(--cp-on-primary); }
+.cp-search-toggle svg { width: 20px; height: 20px; }
+
 /* ---------- CP1.6 — Ô tìm kiếm trên header ---------- */
 /* Là con trực tiếp của `.cp-container` → tự có khoảng cách với nav (margin) vì container
    đã bỏ `gap` theo yêu cầu trước đó. */
@@ -336,7 +344,7 @@ body.cp {
 /* ---------- CP1.7 — Icon giỏ hàng trên header ---------- */
 .cp-cart-link {
   position: relative; flex: 0 0 auto; display: grid; place-items: center;
-  width: 44px; height: 44px; border-radius: 50%; /* 44px = tap target tối thiểu */
+  width: 35px; height: 35px; border-radius: 50%; /* 35px theo yêu cầu Tùng (trước 44px) */
   background: var(--cp-surface); color: var(--cp-text);
 }
 .cp-cart-link:hover { background: var(--cp-primary); color: var(--cp-on-primary); }
@@ -740,6 +748,35 @@ body.cp {
   .cp-nav li.is-open > .cp-nav__toggle span { transform: rotate(-135deg) translate(-2px, -2px); }
 
   .cp-burger { display: block; min-width: 44px; min-height: 44px; }
+  /* ---------- CP1.2b — Header mobile 1 HÀNG: [burger trái] [logo giữa] [search icon][giỏ phải] ----------
+     Logo căn giữa bằng PHẦN KHOẢNG TRỐNG còn lại (`.cp-logo { flex: 1 1 auto; justify-content: center }`)
+     — KHÔNG dùng `position: absolute; left: 50%`: logo rộng 188px sẽ ĐÈ LÊN icon search (đã đo thực tế:
+     icon không bấm được). Thu nhỏ logo để vừa 1 hàng (xem rule bên dưới). Hotline ẩn trên mobile. */
+  /* KHÔNG khai báo lại `gap`/`min-height`: rule `.cp-header .cp-container` ở dưới (cuối media query này)
+     đã đặt `gap: 12px; min-height: 64px` — khai báo trùng sẽ thành CSS chết, dễ gây nhầm khi sửa sau. */
+  .cp-header .cp-container { flex-wrap: nowrap; align-items: center; position: relative; }
+  .cp-burger { order: -1; }
+  /* Logo vào ĐÚNG TÂM container: `justify-content: center` chỉ căn giữa theo KHOẢNG TRỐNG còn lại —
+     khối bên phải (2 icon: 35 + 10 + 35 = 80px) rộng hơn burger (44px) nên bị lệch 18px sang trái.
+     `padding-left` = (khối phải − burger) = 80 − 44 = 36px bù lại phần lệch đó (đổi cỡ icon thì phải đổi số này). */
+  .cp-logo { flex: 1 1 auto; min-width: 0; justify-content: center; margin: 0; padding-left: 36px; }
+  /* (0,3,0) — phải mạnh hơn rule `.cp-header .custom-logo` (0,2,0) nằm CUỐI file (width: 250px).
+     CHỈ dùng `max-width` (không thêm `max-height`/`height`): clamp 2 chiều cùng lúc làm box lệch tỉ lệ
+     (đo thực tế: 169×26 trong khi tỉ lệ ảnh gốc 473×87 = 5.44) → logo bị bóp méo. */
+  .cp-header .cp-logo .custom-logo { width: auto; height: auto; max-width: min(160px, 100%); margin: 0 auto; object-fit: contain; }
+  .cp-header-cta { order: 1; margin-left: auto; flex: 0 0 auto; flex-wrap: nowrap; gap: 10px; }
+  .cp-hotline { display: none; }
+  .cp-search-toggle { display: grid; }
+  /* Ô search ẩn sẵn, chỉ hiện khi bấm icon (JS gắn `.is-search-open` ở `.cp-header`).
+     Khi mở: trượt xuống THÀNH DẢI RIÊNG dưới header (`position: absolute` + `top: 100%`) —
+     KHÔNG cho wrap trong hàng vì `.cp-header-cta` sẽ bị đẩy xuống hàng mới làm vỡ layout (đã đo). */
+  .cp-search { display: none; }
+  .cp-header.is-search-open .cp-search {
+    display: flex; position: absolute; left: 0; right: 0; top: 100%; z-index: 5;
+    width: auto; height: 48px; margin: 0; padding: 0 14px;
+    border-radius: 0; border-left: 0; border-right: 0; background: #fff;
+    box-shadow: var(--cp-shadow-lg);
+  }
   .cp-burger span { transition: transform .2s ease, opacity .2s ease; }
   .cp-burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .cp-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
