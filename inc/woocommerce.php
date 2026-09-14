@@ -537,7 +537,7 @@ function cp_single_hotline_btn(): void {
 }
 
 /**
- * CP3.3 — Nút "MUA HÀNG" (ô lớn cạnh nút "Thêm vào giỏ").
+ * CP3.3 — Nút "ĐẶT HÀNG NHANH" (ô lớn cạnh nút "Thêm vào giỏ").
  * Có JS + plugin bật → mở popup đặt nhanh; JS tắt/plugin tắt → link gọi hotline.
  */
 function cp_single_buynow_btn(): void {
@@ -551,12 +551,11 @@ function cp_single_buynow_btn(): void {
 	}
 
 	printf(
-		'<a class="cp-buynow" href="tel:%s"%s><span class="cp-buynow__ic" aria-hidden="true">%s</span><span class="cp-buynow__txt"><strong>%s</strong><span>%s</span></span></a>',
+		'<a class="cp-buynow" href="tel:%s"%s><span class="cp-buynow__ic" aria-hidden="true">%s</span><span class="cp-buynow__txt"><strong>%s</strong></span></a>',
 		esc_attr( cp_hotline_tel() ),
 		$data, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- đã esc_attr khi dựng.
 		$ic_bag, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		esc_html__( 'Mua hàng', 'tungleads-theme' ),
-		esc_html__( 'Gọi điện xác nhận và giao hàng tận nơi', 'tungleads-theme' )
+		esc_html__( 'Đặt hàng nhanh', 'tungleads-theme' )
 	);
 }
 

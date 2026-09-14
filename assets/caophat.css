@@ -1224,7 +1224,6 @@ body.cp main#main { padding-block: 0; }
 .cp-buynow__ic svg { width: 26px; height: 26px; }
 .cp-buynow__txt { display: flex; flex-direction: column; }
 .cp-buynow strong { font-size: 15px; text-transform: uppercase; letter-spacing: .4px; }
-.cp-buynow__txt span { font-size: 12px; opacity: .92; font-weight: 400; }
 .woocommerce .cp-single-layout form.cart .single_add_to_cart_button {
   grid-column: 2; height: auto; min-height: 56px; border-radius: var(--cp-radius-sm);
   display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center;
