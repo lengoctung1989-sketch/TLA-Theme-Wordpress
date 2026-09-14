@@ -5,6 +5,7 @@
 - **Base:** `tungleads-theme@v0.1.0` (git tag trên repo parent). Nâng parent là hành động có chủ đích: đổi số ở đây + `README.md` → test lại toàn bộ child.
 - **Ranh giới:** child chỉ trình bày (skin CSS + template override + hook). Business logic (CPT, taxonomy, API riêng) → plugin `tl-site-plugin`, KHÔNG cho vào child theme.
 - **Deploy:** ship cả parent + child + plugin `tl-site-caophat` + `assets/dist/` của parent qua `deploy-caophat.sh` (gốc repo). **Chỉ đẩy production (`--go`) khi Tùng yêu cầu rõ ràng** — không tự ý chạy.
+- **⚠️ PHẠM VI CỦA DEEPSEEK (Tùng chốt 2026-09-14):** DeepSeek **chỉ xây dựng/sửa chức năng** (code, CSS, JS, template ở local) + **commit LOCAL**. Việc **push/deploy production do Tùng + Claude Code làm** → DeepSeek **KHÔNG đề xuất, không chờ duyệt, không hỏi lại** về deploy. Các việc chỉ chạy được trên production (regenerate thumbnail, đối chiếu ảnh 404/`.webp` do LiteSpeed sinh, thao tác dữ liệu trên host…) cũng thuộc phần bàn giao đó.
 
 - Không business logic, không build step (CSS tĩnh `assets/caophat.css`).
 - Parent lo: boot, FeatureRegistry, SiteMode, Setup, Enqueue, Performance, Security, SEO, WooCommerce integration, templates blog/archive/page.
