@@ -736,9 +736,18 @@ body.cp {
   .cp-nav .sub-menu a { padding-left: 36px; font-size: 14.5px; }
   .cp-nav .sub-menu .sub-menu a { padding-left: 52px; }
   .cp-nav__toggle {
-    display: block; position: absolute; top: 6px; right: 8px; z-index: 2;
+    display: block; position: absolute; top: 11px; right: 8px; z-index: 2;
     width: 30px; height: 30px; padding: 0; cursor: pointer;
     background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: 8px;
+  }
+  /* Vùng BẤM 44px (chuẩn a11y) trong khi nút vẫn HIỂN THỊ 30px: lớp phủ trong suốt
+     44×44 căn giữa theo nút (nới 7px mỗi bên). Nút `top: 11px` + hàng link cao 52px
+     → tâm nút = 26px = tâm hàng, lớp phủ 44px nằm GỌN trong hàng (4..48px) nên không
+     lấn sang mục menu trên/dưới. `top` phải là số CỐ ĐỊNH (không dùng `top: 50%`):
+     khi mở menu con, <li> cao thêm cả submenu nên `50%` sẽ đẩy nút xuống giữa submenu. */
+  .cp-nav__toggle::before {
+    content: ''; position: absolute; top: 50%; left: 50%;
+    width: 44px; height: 44px; transform: translate(-50%, -50%);
   }
   .cp-nav__toggle span {
     display: block; width: 9px; height: 9px; margin: 0 auto;
