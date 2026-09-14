@@ -18,12 +18,12 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** deepseek
-- **Việc:** CP3.2 — mobile: tăng padding thẻ sản phẩm + ô tabs từ 10px lên 15px (`≤768px`)
-- **File đang chạm:** `assets/caophat.css`, `.ai/FEATURE_MAP.md`
+- **Việc:** CP3.2 — `.cp-side-branches`: canh đều trái/phải (tên trái — số phải), bỏ icon đầu dòng
+- **File đang chạm:** `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md`
 - **Trạng thái:** XONG
-- **Đã xong:** Đổi `padding: 10px` → `15px` cho `.woocommerce .cp-single-main > div.product, .cp-single-tabs.cp-card` trong block `@media (max-width: 768px)`. Kiểm chứng `localhost:8888`: 390px và 768px = 15px; 1024px và 1280px vẫn 28px (desktop không đổi); không tràn ngang
+- **Đã xong:** Bỏ markup icon + biến `$ic_branch` + rule `.cp-side-branch__ic`; `.cp-side-branches a` về `justify-content: space-between; align-items: baseline; gap: 10px`; bỏ dấu `":"` sau tên (không còn cần khi tên/số tách 2 mép); rút lại `$path`/`$icon` về 1 dòng như cũ vì không còn nơi dùng thứ 2. Kiểm chứng `localhost:8888`: 0 phần tử icon; 4/4 dòng tên sát mép trái, số sát mép phải, cùng 1 hàng
 - **Việc tiếp theo:** (không) — chờ việc tiếp theo
-- **Cập nhật lúc:** 2026-09-14 09:25
+- **Cập nhật lúc:** 2026-09-14 09:35
 
 ---
 
@@ -41,3 +41,4 @@
 | 2026-09-13 20:45 | deepseek | CP3.2: hotline chi nhánh sửa được trong admin (plugin thêm Settings → Cao Phát, option `tlcp_support_branches`) | `plugins/tl-site-caophat/tl-site-caophat.php` (+README), `themes/tungleads-theme-cp/inc/woocommerce.php` | xong |
 | 2026-09-14 09:10 | deepseek | CP3.2 mobile: padding thẻ SP + ô tabs 28px → 10px; sửa rule chết `.cp-single-layout > div.product` | `assets/caophat.css`, `.ai/FEATURE_MAP.md` | xong |
 | 2026-09-14 09:25 | deepseek | CP3.2 mobile: padding thẻ SP + ô tabs 10px → 15px | `assets/caophat.css`, `.ai/FEATURE_MAP.md` | xong |
+| 2026-09-14 09:35 | deepseek | CP3.2: `.cp-side-branches` canh đều trái/phải, bỏ icon đầu dòng + bỏ dấu ":" | `inc/woocommerce.php`, `assets/caophat.css`, `CLAUDE.md`, `AGENTS.md`, `.ai/FEATURE_MAP.md` | xong |
