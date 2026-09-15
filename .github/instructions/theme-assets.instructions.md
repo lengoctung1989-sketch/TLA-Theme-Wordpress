@@ -11,7 +11,7 @@ applyTo: "assets/**"
 
 - Đặt tên theo phong cách có sẵn: `.cp-<khối>`, `.cp-<khối>__<phần>`, `.cp-<khối>--<biến thể>` (VD `.cp-side-box`, `.cp-nav__toggle`, `.cp-shop-toolbar`).
 - Màu/khoảng cách lấy từ token `--cp-*` ở đầu file; không hard-code hex mới khi token đã có.
-- Mở khối bằng comment `/* CPx.y <slug> */` — cùng số với bảng trong `AGENTS.md`.
+- Mở khối bằng comment `/* CPx.y <slug> */` — cùng số với bảng `CPx.y` trong `CLAUDE.md`.
 - Đè link/nút của theme parent: theme parent có `body.cp …` và nhiều `!important`; link mang class nút cần `.cp a.<class>` để thắng `.cp a { color: inherit }`.
 - Tôn trọng `prefers-reduced-motion` khi thêm transition/animation.
 

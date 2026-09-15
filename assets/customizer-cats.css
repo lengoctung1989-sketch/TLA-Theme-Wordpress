@@ -1,0 +1,22 @@
+/* CP2.6 — giao diện control "chọn + kéo thả thứ tự danh mục" trong Customizer */
+.cp-term-order {
+  margin: 8px 0 0; padding: 0; list-style: none;
+  border: 1px solid #dcdcde; border-radius: 4px; background: #fff;
+  max-height: 320px; overflow-y: auto;
+}
+.cp-term-order__item {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; padding: 7px 10px; border-bottom: 1px solid #f0f0f1;
+  background: #fff; cursor: default;
+}
+.cp-term-order__item:last-child { border-bottom: 0; }
+.cp-term-order__item.ui-sortable-helper { box-shadow: 0 2px 8px rgba(0, 0, 0, .18); border-radius: 4px; }
+.cp-term-order__item.ui-sortable-placeholder { visibility: visible !important; background: #f6f7f7; border: 1px dashed #c3c4c7; }
+.cp-term-order__label { display: flex; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0; cursor: pointer; }
+.cp-term-order__name { font-weight: 600; }
+.cp-term-order__count { color: #646970; font-size: 12px; }
+.cp-term-order__handle {
+  flex: 0 0 auto; color: #8c8f94; cursor: grab; font-size: 15px; line-height: 1;
+  padding: 2px 4px; border-radius: 3px;
+}
+.cp-term-order__handle:hover { background: #f0f0f1; color: #2271b1; }

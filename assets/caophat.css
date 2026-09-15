@@ -9,7 +9,6 @@
 :root {
   --cp-bg: #ffffff;
   --cp-surface: #f6f4f1;
-  --cp-surface-2: #efeae4;
   --cp-text: #26221e;
   --cp-muted: #6f6a63;
   --cp-line: #e5e0d9;
@@ -77,6 +76,12 @@ body.cp {
 .cp-btn-accent:hover { background: #333333; }
 .cp-btn-ghost { background: transparent; color: var(--cp-text); border-color: var(--cp-line); }
 .cp-btn-ghost:hover { border-color: var(--cp-primary); color: var(--cp-primary); }
+
+/* CP4.1 — mobile (yêu cầu Tùng 2026-09-15): nút gọn hơn `12px 22px` → `10px 14px`.
+   Cao 50 → 46px (vẫn ≥ 44px tap target), mỗi nút hẹp lại 16px. Desktop giữ nguyên. */
+@media (max-width: 768px) {
+  .cp-btn { padding: 10px 14px; }
+}
 
 /* Link có class nút riêng phải thắng ".cp a { color: inherit }" (nếu không sẽ ăn màu chữ của khối cha) */
 .cp a.cp-btn-primary { color: var(--cp-on-primary); }
@@ -403,6 +408,11 @@ body.cp {
 }
 .cp-hero-float b { font-size: 20px; color: var(--cp-primary); }
 .cp-hero-float small { color: var(--cp-muted); font-size: 12.5px; }
+/* Số liệu và nhãn phải XUỐNG DÒNG: `b` + `small` đều là inline và markup KHÔNG có khoảng trắng giữa
+   `</b><small>` (front-page.php) → khi đủ chỗ chúng nằm cùng 1 dòng và DÍNH LIỀN nhau ("10+ nămKinh
+   nghiệm thi công"); hẹp hơn thì `small` tự xuống dòng một cách tuỳ tiện. Cho mỗi ô thành cột dọc để
+   hành vi giống nhau ở MỌI bề rộng. */
+.cp-hero-float > div { display: flex; flex-direction: column; line-height: 1.25; }
 
 /* ---------- Feature strip ---------- */
 .cp-features {
@@ -432,14 +442,27 @@ body.cp {
 .cp-feature span { font-size: 13px; color: var(--cp-muted); }
 
 /* ---------- Section ---------- */
-.cp-section { padding: 64px 0; }
+/* 2026-09-15 (yêu cầu Tùng): `64px 0` → `40px 0` — áp cho các khối DÙNG rule gốc này:
+  5 khối trang chủ, `.cp-section` trang cửa hàng/danh mục SP (CP3.1), `.cp-section.cp-news-section`
+  (CP5.1), dải CTA trong trang chi tiết SP. Các khối có padding RIÊNG thì KHÔNG đổi:
+  `.cp-single-section` 28/0, `.cp-thankyou-section` 40/120, `.cp-related-band` 40/44,
+  `.cp-article-section` 26/44, `.cp-page-section` 28/44. (`.cp-cart-section` + `.cp-checkout-section`
+  từng có padding riêng 40/64 nhưng rule đó đã XOÁ 2026-09-15 vì là CSS mồ côi — trang giỏ/thanh toán
+  thực tế dùng `.cp-pagehero` + `.cp-section` + `.cp-shop*`.) */
+.cp-section { padding: 40px 0; }
 .cp-section.alt { background: var(--cp-surface); }
+/* 2026-09-15 (yêu cầu Tùng) — DESKTOP: tiêu đề khối "nổi bật + hiện đại" hơn:
+   nhãn nhỏ thành CHIP bo tròn (nền vàng nhạt), h2 to hơn (clamp 26→38px, weight 800,
+   letter-spacing -.6px), gạch nhấn vàng 56×4px dưới tiêu đề, và một đường kẻ mảnh
+   dưới cả khối tiêu đề. H2 ::after dùng CHUNG với mobile (46×3px, khai lại ở block ≤768px). */
 .cp-section-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 32px;
+  gap: 28px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--cp-line);
+  margin-bottom: 34px;
 }
 .cp-eyebrow {
   display: inline-block;
@@ -450,18 +473,55 @@ body.cp {
   letter-spacing: 2px;
   margin-bottom: 8px;
 }
+/* Trong khối tiêu đề → chip (0,2,0 thắng `.cp-eyebrow` 1 class ở trên) */
+.cp-section-head .cp-eyebrow {
+  padding: 5px 13px;
+  border-radius: 999px;
+  background: rgba(251, 175, 2, .16);
+  /* `--cp-accent-dark` (không phải `--cp-accent`): chữ 11.5px trên nền chip vàng nhạt
+     chỉ đạt 4.32:1 với `#c8471f` (< 4.5:1), đổi sang `#a63817` → 5.91:1 trên nền trắng,
+     5.46:1 trên nền kem `.cp-section.alt` (đo theo công thức WCAG). */
+  color: var(--cp-accent-dark);
+  font-size: 11.5px;
+  letter-spacing: 1.4px;
+  margin-bottom: 12px;
+}
 .cp-section-head h2 {
-  font-size: clamp(24px, 3vw, 34px);
+  font-size: clamp(26px, 2.7vw, 38px);
   margin: 0;
   font-weight: 800;
-  letter-spacing: -.4px;
+  letter-spacing: -.6px;
+  line-height: 1.2;
 }
-.cp-section-head p { margin: 8px 0 0; color: var(--cp-muted); max-width: 560px; }
+/* Gạch nhấn dưới tiêu đề — desktop 56×4px (mobile 46×3px) */
+.cp-section-head h2::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 4px;
+  margin-top: 14px;
+  border-radius: 2px;
+  background: var(--cp-primary);
+}
+.cp-section-head p { margin: 10px 0 0; color: var(--cp-muted); max-width: 560px; }
 .cp-link-more { color: var(--cp-primary); font-weight: 600; white-space: nowrap; }
 .cp-link-more:hover { color: var(--cp-primary-dark); }
 
 /* ---------- Category grid ---------- */
 .cp-cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+/* CP2.6 — Admin chọn bố cục trong Customizer ("Trang chủ — Danh mục nổi bật").
+   Modifier (0,2,0) MẠNH hơn `.cp-cats` (0,1,0) dùng trong media query cũ → phải khai lại
+   breakpoint ở dưới, nếu không lưới 6/4 cột sẽ đè luôn rule mobile. */
+.cp-cats--cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.cp-cats--cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cp-cats--cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* "Hiển thị ngang": 1 hàng cuộn — `contain: paint` là BẮT BUỘC (bài học CP2.4: thiếu nó, overflow
+   của dải cuộn lan ra document → tràn ngang ở 390px dù container vẫn cuộn đúng). */
+.cp-cats--horizontal {
+  display: flex; gap: 22px; overflow-x: auto; scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; contain: paint; padding: 8px 0;
+}
+.cp-cats--horizontal .cp-cat { flex: 1 1 220px; min-width: 200px; scroll-snap-align: start; }
 .cp-cat {
   position: relative;
   border-radius: var(--cp-radius);
@@ -481,6 +541,51 @@ body.cp {
 }
 .cp-cat-overlay b { font-size: 19px; }
 .cp-cat-overlay span { font-size: 13.5px; opacity: .85; }
+
+/* CP2.6 — responsive cho bố cục do Admin chọn (xem ghi chú ở `.cp-cats--cols-*`) */
+@media (max-width: 1200px) {
+  .cp-cats--cols-6 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 1024px) {
+  .cp-cats--cols-6,
+  .cp-cats--cols-4,
+  .cp-cats--cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  /* 2026-09-15 (yêu cầu Tùng): "Danh mục nổi bật" trên mobile = 1 HÀNG 3 CỘT, phần còn lại
+     xem bằng cuộn ngang + 2 nút ‹ › (CP2.8). Bỏ lưới 2 cột cũ (và 1 cột ở ≤520px) — dù Admin
+     chọn bố cục nào (cols-6/4/3/horizontal) thì mobile vẫn 1 hàng 3 cột cho đồng nhất.
+     `contain: paint` BẮT BUỘC (bài học CP2.4: thiếu nó, overflow của dải lan ra document →
+     tràn ngang ở 390px dù dải cuộn đúng). */
+  .cp-cats,
+  .cp-cats--cols-6,
+  .cp-cats--cols-4,
+  .cp-cats--cols-3,
+  .cp-cats--horizontal {
+    display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; contain: paint; padding: 8px 0;
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .cp-cats::-webkit-scrollbar { display: none; }
+  .cp-cats .cp-cat,
+  .cp-cats--horizontal .cp-cat {
+    flex: 0 0 calc((100% - 20px) / 3); /* 3 cột = trừ 2 khe gap 10px */
+    min-width: 0; scroll-snap-align: start;
+  }
+  /* Thẻ chỉ còn ~110px ở 390px → chữ gọn lại; mô tả cắt 2 dòng để không tràn khỏi thẻ */
+  .cp-cat-overlay { padding: 10px; }
+  .cp-cat-overlay b { font-size: 13px; line-height: 1.3; }
+  .cp-cat-overlay span {
+    font-size: 11px; line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+}
+@media (max-width: 520px) {
+  /* Mobile vẫn giữ 1 HÀNG 3 CỘT (dải cuộn) — xem block `≤768px` ở trên, không về lưới 1 cột nữa */
+  .cp-cats--cols-6,
+  .cp-cats--cols-4,
+  .cp-cats--cols-3 { grid-template-columns: none; }
+}
 
 /* ---------- Product grid ---------- */
 .cp-products { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
@@ -528,35 +633,115 @@ body.cp {
 .cp-cta p { margin: 0; opacity: .9; }
 .cp-cta .cp-btn-accent { box-shadow: var(--cp-shadow-lg); }
 
-/* ---------- Blog ---------- */
-.cp-posts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.cp-post {
-  background: #fff; border: 1px solid var(--cp-line);
-  border-radius: var(--cp-radius); padding: 22px;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-.cp-post:hover { transform: translateY(-3px); box-shadow: var(--cp-shadow); }
-.cp-post time { font-size: 12.5px; color: var(--cp-accent); font-weight: 600; }
-.cp-post h3 { font-size: 17px; margin: 10px 0 8px; line-height: 1.4; }
-.cp-post p { font-size: 14px; color: var(--cp-muted); margin: 0; }
-
 /* ---------- Footer ---------- */
-.cp-footer { background: #211d19; color: #cabfb2; padding: 56px 0 0; font-size: 14.5px; }
+/* CP1.3 — nền footer tuỳ biến: ẢNH nền trên `.cp-footer`, LỚP MÀU đè lên ảnh là `::before` với
+   `opacity: var(--cp-footer-bg-op)` (giá trị do `cp_footer_style()` ở functions.php in ra).
+   Không chọn ảnh thì lớp màu trùng màu nền → giao diện y như trước. */
+.cp-footer {
+  position: relative;
+  /* 2026-09-15 (yêu cầu Tùng): ĐƯỜNG LINE NGANG 7px MÀU VÀNG CHỦ ĐẠO ở sát mép trên footer.
+     Dùng `border-top` chứ không dùng `::after`: `.cp-footer::before` đã là LỚP MÀU đè ảnh nền, còn
+     border nằm NGOÀI padding-box nên lớp `::before` (`inset: 0`) không phủ lên line. */
+  border-top: 7px solid var(--cp-primary, #fbaf02);
+  background-color: var(--cp-footer-bg, #211d19);
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  color: var(--cp-footer-fg, #cabfb2); padding: 56px 0 0; font-size: 14.5px;
+}
+.cp-footer::before {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  background-color: var(--cp-footer-bg, #211d19);
+  opacity: var(--cp-footer-bg-op, 1);
+  pointer-events: none;
+}
+.cp-footer > .cp-container { position: relative; z-index: 1; }
 .cp-footer-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 36px; }
-.cp-footer h4 { color: #fff; font-size: 16px; margin: 0 0 16px; }
-.cp-footer a:hover { color: #fff; }
+/* CP1.3 — "Số cột" = 3 (Customizer): lưới 3 cột đều nhau, chỉ render Cột 1–3. */
+.cp-footer-grid--cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Chữ do THEME quyết định (KHÔNG thuộc ô soạn thảo) — lấy từ biến để tự đổi theo nền footer:
+   `cp_footer_style()` (functions.php) in `--cp-footer-title/fg/muted/line` khi nền là SÁNG; nếu không
+   thì tiêu đề/`p` màu sáng nằm trên nền sáng = vô hình (tiêu đề `#fff` đo được contrast **1.18**).
+   Giá trị sau dấu phẩy = bảng màu NỀN TỐI (giữ nguyên giao diện cũ khi nền tối). */
+.cp-footer h4 { color: var(--cp-footer-title, #fff); font-size: 16px; margin: 0 0 16px; }
+.cp-footer a:hover { color: var(--cp-footer-title, #fff); }
 .cp-footer li { margin-bottom: 9px; }
-.cp-footer .cp-logo-text b { color: #fff; }
-.cp-footer .cp-logo-text span { color: #9a8f80; }
-.cp-footer p { color: #9a8f80; line-height: 1.7; }
-.cp-foot-contact li { display: flex; gap: 10px; }
-.cp-foot-contact .ic { color: var(--cp-accent); flex: none; }
+.cp-footer .cp-logo-text b { color: var(--cp-footer-title, #fff); }
+.cp-footer .cp-logo-text span { color: var(--cp-footer-muted, #9a8f80); }
+.cp-footer p { color: var(--cp-footer-muted, #9a8f80); line-height: 1.7; }
+
+/* CP1.3 — mỗi cột = tiêu đề + 1 ô soạn thảo (TinyMCE) → chuẩn hoá lại các thẻ HTML trong ô đó:
+   giữ ĐÚNG tông màu footer cũ (chữ #cabfb2, phụ #9a8f80). Danh sách (`ul`/`ol`) NAY GIỮ NGUYÊN
+   định dạng như trong ô soạn thảo — xem ghi chú ở rule `ul, ol` bên dưới (Tùng báo 2026-09-15). */
+.cp-foot-col { min-width: 0; }
+/* Ô soạn thảo là nội dung tự do → chuỗi dài không có khoảng trắng (email, URL) phải ngắt được,
+   nếu không sẽ đẩy tràn ngang cả trang (đo ở 390px: `caophatdoor@gmail.com` rộng **183px** trong cột
+   157px → `scrollWidth` 396 > 390). `break-word` chỉ cắt khi từ không vừa dòng. */
+.cp-footer .cp-col__body { min-width: 0; overflow-wrap: break-word; }
+.cp-footer .cp-logo + .cp-col__body { margin-top: 16px; }
+.cp-footer .cp-col__body > *:first-child { margin-top: 0; }
+.cp-footer .cp-col__body > *:last-child { margin-bottom: 0; }
+.cp-footer .cp-col__body p { margin: 0 0 12px; }
+/* 2026-09-15 (Tùng báo: "dùng ul/li trong ô soạn thảo mà ra trang không thấy"):
+   Trước đây rule này ép `list-style: none; padding: 0` (cộng với reset chung `.cp ul` ở dòng 48) ⇒
+   `<ul>/<li>` hiện ra như dòng chữ thường, KHÔNG có dấu đầu dòng và không thụt lề (đo: chữ lệch so với
+   `<ul>` = **0px**). Nay giữ ĐÚNG định dạng danh sách như trong ô soạn thảo (TinyMCE dùng dấu `disc`).
+   Cột nguồn "Menu" không đi qua `.cp-col__body` nên vẫn không có dấu (giữ như thiết kế). */
+.cp-footer .cp-col__body ul,
+.cp-footer .cp-col__body ol { margin: 0 0 12px; padding-left: 20px; }
+.cp-footer .cp-col__body ul { list-style: disc; }
+.cp-footer .cp-col__body ol { list-style: decimal; }
+.cp-footer .cp-col__body ul ul { list-style: circle; }
+.cp-footer .cp-col__body ol ol { list-style: lower-alpha; }
+.cp-footer .cp-col__body a { color: inherit; }
+/* 2026-09-15 (yêu cầu Tùng: "định dạng chữ trong ô soạn thảo phải hiện y như đã nhập"):
+   BỎ mọi rule ép màu/size cho chữ trong ô soạn thảo —
+   • `strong, b { color: #fff }` đã XOÁ: Tùng đặt nền footer SÁNG (`#d6d6d6` + ảnh, opacity 95%)
+     và nhập chữ ĐEN (`color:#000000`) → ép #fff làm chữ đậm trắng trên nền sáng = mất chữ.
+   • `h5` chỉ còn giữ khoảng cách, KHÔNG ép màu/cỡ (nếu ép thì cỡ chữ Tùng chọn trong editor bị đè).
+   Trỏ chuột vào link dùng `opacity` (không đổi màu) để không phá màu chữ Tùng đặt. */
+.cp-footer .cp-col__body a:hover { opacity: .78; }
+.cp-footer .cp-col__body h5 { margin: 0 0 10px; }
+.cp-footer .cp-col__body img { max-width: 100%; height: auto; border-radius: var(--cp-radius-sm); }
+/* 2026-09-15 (Tùng nhúng bản đồ ở cột “VỊ TRÍ CỬA HÀNG”): iframe mã nhúng (Google Maps/YouTube) thường
+   ghi `width="600"` cứng → trong cột footer chỉ ~157–346px nên TRÀN NGANG (đo: `overflow` 257/234/423
+   ở 1440/768/390). `max-width` ép iframe co theo cột; `height` giữ nguyên của mã nhúng. */
+.cp-footer .cp-col__body iframe {
+  max-width: 100%; border: 0; border-radius: var(--cp-radius-sm); display: block;
+}
+/* Icon cho link liên hệ (thay icon SVG cũ bằng mask → không phải nhúng SVG vào ô soạn thảo) */
+.cp-footer .cp-col__body a[href^="tel:"]::before,
+.cp-footer .cp-col__body a[href^="mailto:"]::before {
+  content: ''; display: inline-block; width: 16px; height: 16px; margin-right: 8px;
+  vertical-align: -3px; background-color: var(--cp-accent);
+  -webkit-mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat;
+  mask-position: center; mask-size: contain; mask-repeat: no-repeat;
+}
+.cp-footer .cp-col__body a[href^="tel:"]::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E");
+}
+.cp-footer .cp-col__body a[href^="mailto:"]::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m22 7-10 6L2 7'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m22 7-10 6L2 7'/%3E%3C/svg%3E");
+}
 .cp-footer-bottom {
-  border-top: 1px solid rgba(255,255,255,.1);
+  border-top: 1px solid var(--cp-footer-line, rgba(255,255,255,.1));
   margin-top: 40px; padding: 20px 0;
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-  color: #8a8073; font-size: 13px;
+  color: var(--cp-footer-muted, #8a8073); font-size: 13px;
 }
+/* 2026-09-16 — Dòng ghi công "Thiết kế bởi tungleads.com" là markup CỐ ĐỊNH ở `footer.php` (có link).
+   `.cp a` chung đã bỏ gạch chân nên phải thêm lại để nhìn ra là link; giữ màu chữ của dòng cuối. */
+.cp-footer-bottom .cp-footer-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.cp-footer-bottom .cp-footer-credit a:hover { color: var(--cp-footer-title, #fff); }
+/* Tùng muốn dòng ghi công SÁT LỀ PHẢI: desktop đã sát nhờ `justify-content: space-between`, nhưng ở ≤560px
+   dòng cuối xuống hàng thì món mới nằm bên TRÁI → `margin-left: auto` đẩy sang phải ở mọi bề rộng. */
+.cp-footer-bottom .cp-footer-credit { margin-left: auto; }
+/* 2026-09-16 (Tùng yêu cầu): dòng ghi công HIỂN THỊ SÁT LỀ PHẢI ở MỌI bề rộng (bỏ `padding-right: 84px`,
+   thêm `margin-left: auto` cho trường hợp xuống hàng ở ≤560px).
+   ĐÁNH ĐỔI đã đo (chọn theo yêu cầu “sát lề phải”): khi cuộn tới ĐÁY trang, `.cp-fab` (fixed, 54px, cách
+   phải 18px) phủ lên phần PHẢI của link ghi công ở cả 1440/768/390 — giao nhau **832px²**, click vào GIỮA
+   link trúng `A.call` (nút gọi), chỉ mép trái bấm được. Muốn hết hẳn mà vẫn sát phải thì phải nâng `.cp-fab`
+   lên hoặc chừa `padding-bottom` cho `.cp-footer` — CHƯA làm, chờ Tùng quyết. */
 
 /* ---------- Page hero (danh mục · giỏ hàng · thanh toán · hoàn tất đơn) ---------- */
 .cp-pagehero {
@@ -586,76 +771,19 @@ body.cp {
 }
 .cp-contact-info b { display: block; font-size: 15.5px; }
 .cp-contact-info span { color: var(--cp-muted); font-size: 14.5px; }
-.cp-form { background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius); padding: 28px; box-shadow: var(--cp-shadow); }
-.cp-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.cp-field { margin-bottom: 16px; }
-.cp-field label { display: block; font-size: 13.5px; font-weight: 600; margin-bottom: 6px; }
-.cp-field input, .cp-field textarea, .cp-field select {
-  width: 100%; padding: 12px 14px; font-family: inherit; font-size: 15px;
-  border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
-  background: var(--cp-surface); color: var(--cp-text);
-  transition: border-color .2s ease, background .2s ease;
-}
-.cp-field input:focus, .cp-field textarea:focus, .cp-field select:focus {
-  outline: none; border-color: var(--cp-primary); background: #fff;
-}
-.cp-field textarea { resize: vertical; min-height: 120px; }
-.cp-map { border-radius: var(--cp-radius); overflow: hidden; border: 1px solid var(--cp-line); margin-top: 32px; }
-.cp-map iframe { display: block; width: 100%; height: 320px; border: 0; }
 
 /* ---------- Single product (WooCommerce style) ---------- */
 .cp-single { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: start; }
-.cp-gallery { display: grid; grid-template-columns: 76px 1fr; gap: 14px; align-items: start; }
-.cp-gallery-thumbs { display: flex; flex-direction: column; gap: 12px; }
-.cp-gallery-thumbs button {
-  padding: 0; border: 2px solid var(--cp-line); border-radius: 10px;
-  overflow: hidden; background: var(--cp-surface); cursor: pointer; aspect-ratio: 1;
-  transition: border-color .2s ease;
-}
-.cp-gallery-thumbs button.is-active { border-color: var(--cp-primary); }
-.cp-gallery-thumbs img { width: 100%; height: 100%; object-fit: cover; }
-.cp-gallery-main {
-  position: relative; border: 1px solid var(--cp-line);
-  border-radius: var(--cp-radius); overflow: hidden; background: var(--cp-surface); aspect-ratio: 4 / 5;
-}
-.cp-gallery-main img { width: 100%; height: 100%; object-fit: cover; }
-.cp-gallery-main .cp-badge { top: 16px; left: 16px; }
-
-.cp-summary .cp-card-cat { font-size: 12.5px; }
-.cp-summary h1 { font-size: clamp(24px, 3vw, 32px); font-weight: 800; margin: 6px 0 12px; line-height: 1.25; }
-.cp-rating { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 13.5px; color: var(--cp-muted); }
-.cp-stars { color: #e2a53a; letter-spacing: 2px; font-size: 15px; }
 .cp-single-price { display: flex; align-items: baseline; gap: 12px; padding: 18px 0; border-top: 1px solid var(--cp-line); border-bottom: 1px solid var(--cp-line); margin-bottom: 20px; }
 .cp-single-price b { font-size: 30px; color: var(--cp-accent); font-weight: 800; }
 .cp-single-price del { font-size: 17px; color: var(--cp-muted); }
-.cp-single-price .cp-save { background: var(--cp-surface-2); color: var(--cp-primary-dark); font-size: 12.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
 .cp-short-desc { color: var(--cp-muted); margin: 0 0 22px; }
-.cp-attrs { list-style: none; margin: 0 0 24px; padding: 0; }
-.cp-attrs li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--cp-line); font-size: 14.5px; }
-.cp-attrs li b { min-width: 130px; color: var(--cp-text); }
-.cp-attrs li span { color: var(--cp-muted); }
 
 .cp-buy { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
-.cp-qty { display: inline-flex; align-items: center; border: 1px solid var(--cp-line); border-radius: 999px; overflow: hidden; }
-.cp-qty button { width: 42px; height: 46px; background: var(--cp-surface); border: 0; font-size: 20px; cursor: pointer; color: var(--cp-text); }
-.cp-qty button:hover { background: var(--cp-surface-2); }
-.cp-qty input { width: 48px; height: 46px; border: 0; text-align: center; font-family: inherit; font-size: 16px; font-weight: 600; background: #fff; }
 .cp-buy .cp-btn { height: 46px; }
-.cp-meta-list { font-size: 13.5px; color: var(--cp-muted); display: grid; gap: 6px; }
-.cp-meta-list b { color: var(--cp-text); }
 
 /* Tabs */
 .cp-tabs { margin-top: 56px; }
-.cp-tab-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--cp-line); flex-wrap: wrap; }
-.cp-tab-nav button {
-  border: 0; background: none; cursor: pointer; font-family: inherit;
-  font-size: 15px; font-weight: 600; color: var(--cp-muted);
-  padding: 14px 20px; position: relative;
-}
-.cp-tab-nav button.is-active { color: var(--cp-primary); }
-.cp-tab-nav button.is-active::after {
-  content: ""; position: absolute; left: 0; bottom: -1px; width: 100%; height: 2px; background: var(--cp-primary);
-}
 .cp-tab-panel { display: none; padding: 26px 2px; color: var(--cp-muted); line-height: 1.8; }
 .cp-tab-panel.is-active { display: block; }
 .cp-tab-panel h3 { color: var(--cp-text); font-size: 18px; margin: 22px 0 10px; }
@@ -690,7 +818,11 @@ body.cp {
   .cp-products { grid-template-columns: repeat(3, 1fr); }
   .cp-footer-grid { grid-template-columns: 1fr 1fr; }
   .cp-shop { grid-template-columns: 1fr; }
-  .cp-shop-aside { position: static; }
+  .cp-shop-aside { position: static; order: 2; } /* 2026-09-15 (yêu cầu Tùng): ≤1024px lưới về 1 cột
+     → đẩy khối "Danh mục sản phẩm" XUỐNG DƯỚI lưới sản phẩm (đo ở 390px TRƯỚC khi sửa: hộp danh mục
+     cao 1603.8px nằm TRÊN `.cp-shop-main`, main bắt đầu ở y=1870). Dùng `order` (KHÔNG đổi DOM) nên
+     thứ tự đọc của screen reader / DOM giữ nguyên như trước — chỉ đổi thứ tự HIỂN THỊ. */
+  .cp-shop-main { order: 1; }
   .cp-shop .cp-products { grid-template-columns: repeat(3, 1fr); }
   /* CP1.6 — ≤1024px: ô tìm kiếm xuống hàng riêng, full chiều ngang.
      Dùng `order` (không đổi thứ tự DOM) vì ở desktop `.cp-search` phải nằm TRÁI khối hotline,
@@ -703,6 +835,13 @@ body.cp {
   .cp-search { order: 2; flex: 1 1 100%; width: auto; height: 44px; margin: 8px 0 2px; }
 }
 @media (max-width: 768px) {
+  /* 2026-09-16 (yêu cầu Tùng): FOOTER VỀ **1 CỘT** trên mobile. Trước đây `@media (max-width:1024px)`
+     chỉ đổi `.cp-footer-grid` sang `1fr 1fr` (2 cột) và KHÔNG có rule nào cho mobile ⇒ đo ở 390px mỗi
+     cột chỉ **157px** (4 cột xếp 2 hàng, chữ bị bóp). Ghi đè ở đây vì media block này nằm SAU (cùng độ
+     ưu tiên ⇒ thắng theo thứ tự nguồn). Chọn breakpoint 768 = đúng breakpoint "mobile" của theme (header
+     mobile + menu burger). Muốn chỉ ≤480 mới 1 cột thì đổi số ở đây. */
+  .cp-footer-grid,
+  .cp-footer-grid--cols-3 { grid-template-columns: 1fr; }
   /* ---------- CP1.5 — Menu mobile: panel dọc dưới header ---------- */
   .cp-nav {
     display: none;
@@ -736,15 +875,20 @@ body.cp {
   .cp-nav .sub-menu a { padding-left: 36px; font-size: 14.5px; }
   .cp-nav .sub-menu .sub-menu a { padding-left: 52px; }
   .cp-nav__toggle {
-    display: block; position: absolute; top: 11px; right: 8px; z-index: 2;
+    /* 2026-09-15 — Tùng yêu cầu `top: 5px` trong `@media (max-width: 768px)` (trước là 11px).
+       Đo ở 390px: `<li>` cao 51.8px; nút 30×30 → tâm nút = 5 + 15 = 20px (trước: 26px = tâm hàng).
+       Hệ quả: chevron cao hơn tâm hàng 5.9px; vùng bấm 44px phủ `-2 .. 42px` → **nhô lên 2px**
+       trên mép hàng (trước: 4..48px nằm gọn trong hàng) ⇒ 2px đáy của mục menu TRÊN có thể bị nút
+       này bắt. Muốn về lại đúng tâm hàng thì đổi về `top: 11px`. */
+    display: block; position: absolute; top: 5px; right: 8px; z-index: 2;
     width: 30px; height: 30px; padding: 0; cursor: pointer;
     background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: 8px;
   }
   /* Vùng BẤM 44px (chuẩn a11y) trong khi nút vẫn HIỂN THỊ 30px: lớp phủ trong suốt
-     44×44 căn giữa theo nút (nới 7px mỗi bên). Nút `top: 11px` + hàng link cao 52px
-     → tâm nút = 26px = tâm hàng, lớp phủ 44px nằm GỌN trong hàng (4..48px) nên không
-     lấn sang mục menu trên/dưới. `top` phải là số CỐ ĐỊNH (không dùng `top: 50%`):
-     khi mở menu con, <li> cao thêm cả submenu nên `50%` sẽ đẩy nút xuống giữa submenu. */
+     44×44 căn giữa theo nút (nới 7px mỗi bên). Với `top: 5px` (đo ở 390px, hàng cao 51.8px):
+     tâm nút = 20px → lớp phủ phủ `-2 .. 42px` (nhô 2px trên mép hàng). `top` phải là số CỐ ĐỊNH
+     (không dùng `top: 50%`): khi mở menu con, <li> cao thêm cả submenu nên `50%` sẽ đẩy nút
+     xuống giữa submenu. */
   .cp-nav__toggle::before {
     content: ''; position: absolute; top: 50%; left: 50%;
     width: 44px; height: 44px; transform: translate(-50%, -50%);
@@ -802,13 +946,10 @@ body.cp {
   .cp-hero-media { order: -1; }
   .cp-cats { grid-template-columns: repeat(2, 1fr); }
   .cp-products, .cp-shop .cp-products { grid-template-columns: repeat(2, 1fr); }
-  .cp-posts { grid-template-columns: 1fr; }
   .cp-contact { grid-template-columns: 1fr; }
-  .cp-form-row { grid-template-columns: 1fr; }
   .cp-topbar { display: none; }
   .cp-cta { padding: 28px; }
   .cp-single { grid-template-columns: 1fr; gap: 28px; }
-  .cp-tab-nav button { padding: 12px 14px; font-size: 14px; }
 }
 @media (max-width: 480px) {
   .cp-features { grid-template-columns: 1fr; }
@@ -935,7 +1076,11 @@ body.cp main#main { padding-block: 0; }
 /* Phân trang WooCommerce (prefix .woocommerce để thắng CSS mặc định của plugin) */
 .woocommerce .cp-shop-main .woocommerce-pagination { margin-top: 40px; text-align: center; }
 .woocommerce .cp-shop-main .woocommerce-pagination ul {
-  display: inline-flex; gap: 8px; list-style: none; margin: 0; padding: 0; border: 0;
+  /* 2026-09-15: THÊM `flex-wrap: wrap` — shop có 19 trang → dãy `ul.page-numbers` rộng **458px**
+     trong khung 350px ở 390px gây TRÀN NGANG toàn trang (`scrollWidth` 501 > 390); cho xuống hàng
+     thì 390px còn 390 (không tràn). Desktop vẫn 1 hàng (không đủ chỗ mới wrap). */
+  display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+  list-style: none; margin: 0; padding: 0; border: 0;
 }
 .woocommerce .cp-shop-main .woocommerce-pagination ul li { margin: 0; border: 0; }
 .woocommerce .cp-shop-main .woocommerce-pagination ul li a,
@@ -995,7 +1140,13 @@ body.cp main#main { padding-block: 0; }
   .cp-shop-main ul.products { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 900px) {
-  .cp-shop-main ul.products { grid-template-columns: repeat(2, 1fr); }
+  /* 2026-09-15 (yêu cầu Tùng): card trắng `.cp-shop-main` `padding: 22px → 10px` trên mobile để
+     lưới sản phẩm rộng hơn (đo ở 390px: card 147 → 159px). Desktop giữ 22px. */
+  .cp-shop-main { padding: 10px; }
+  /* 2026-09-15 (yêu cầu Tùng): lưới sản phẩm 2 cột trên mobile → gap 22px quá rộng so với card
+     141px (đo ở 390px), đổi về 10px. Đặt cùng breakpoint với lúc lưới về 2 cột; desktop (4 cột)
+     vẫn 22px — muốn 10px cho cả desktop thì chuyển rule này ra ngoài media query. */
+  .cp-shop-main ul.products { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
 
 /* Mô tả danh mục dưới lưới — thu gọn sẵn + nút Xem thêm / Thu gọn */
@@ -1596,8 +1747,10 @@ body.cp-qo-open { overflow: hidden; }
   .cp-quick-order__title { font-size: 18px; }
   .cp-quick-order__thumb img { width: 48px; height: 48px; }
 }
-
 /* ================= CP3.4 — Trang giỏ hàng (/cart/) ================= */
+/* ⚠️ `.cp-cart-section` do PHP GHÉP ĐỘNG — `cp_woo_page_wrap()` (inc/woocommerce.php) in
+   `'cp-section ' . $class . '-section'` với `$class = 'cp-cart'` → grep tên class trong PHP
+   KHÔNG thấy. Audit "CSS mồ côi" phải kiểm DOM THẬT của /cart/ rồi mới được xoá. */
 .cp-cart-section { padding: 40px 0 64px; }
 /* Shortcode bọc thêm `div.woocommerce` (chứa cả .woocommerce-notices-wrapper) nên lưới
    đặt trên wrapper này, và phải chỉ định cột tường minh — nếu không, notices-wrapper
@@ -1613,6 +1766,7 @@ body.cp-qo-open { overflow: hidden; }
 /* ---------- Thông báo WooCommerce (giỏ hàng · shop · sản phẩm) ----------
    Mặc định WooCommerce dùng xanh lá #8fae1b cho viền trên + icon → đổi về vàng thương hiệu.
    (Trang thanh toán có khối riêng `.cp-checkout ...` ở dưới, đã bỏ hẳn icon.) */
+.woocommerce-error, .woocommerce-info, .woocommerce-message { margin: 1em 0 2em; }
 .woocommerce-message { border-top-color: #fbaf02; }
 .woocommerce-message::before { color: #fbaf02; }
 
@@ -1797,8 +1951,8 @@ body.cp-qo-open { overflow: hidden; }
   .woocommerce-cart .cp-cart table.cart td.actions .coupon .button,
   .woocommerce-cart .cp-cart table.cart td.actions > .button { display: flex; width: 100%; margin-top: 10px; }
 }
-
 /* ================= CP3.5 — Trang thanh toán (/checkout/) ================= */
+/* `.cp-checkout-section` cũng ghép động y như `.cp-cart-section` (⚠️ xem ghi chú ở CP3.4). */
 .cp-checkout-section { padding: 40px 0 64px; }
 .cp-checkout form.checkout {
   display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 8px 32px; align-items: start;
@@ -2030,3 +2184,594 @@ body.cp-qo-open { overflow: hidden; }
   .cp-thankyou table.shop_table th,
   .cp-thankyou table.shop_table td { padding: 10px 0; font-size: 14px; }
 }
+
+/* ==========================================================================
+   CP5.1 — Trang danh mục tin tức (`category.php`): hero + lưới 2 cột + thẻ bài viết
+   ========================================================================== */
+.cp-news-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 32px;
+  align-items: start;
+}
+/* Cột phải KHÔNG sticky (khác `.cp-shop-aside` / `.cp-single-side`): 3 hộp ở đây cao hơn
+   viewport → `position: sticky` sẽ chốt ở `top` và cắt mất phần đáy, không cuộn tới được. */
+.cp-news-aside { display: grid; gap: 20px; }
+
+/* Hero: dòng "N bài viết" + breadcrumb tự viết (CP5.1) */
+.cp-pagehero__meta { margin: 4px 0 0; color: var(--cp-muted); font-size: 14px; }
+.cp-pagehero__meta b { color: var(--cp-text); }
+.cp-breadcrumb__sep { margin: 0 7px; opacity: .55; }
+.cp-breadcrumb__here { color: var(--cp-text); font-weight: 600; }
+
+/* ---- Danh sách bài viết ---- */
+.cp-news-list { display: grid; gap: 22px; }
+.cp-news-card {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 22px;
+  background: #fff;
+  border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius);
+  padding: 16px;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.cp-news-card:hover { transform: translateY(-3px); box-shadow: var(--cp-shadow-lg); border-color: var(--cp-primary); }
+.cp-news-card__media {
+  display: block; overflow: hidden; border-radius: var(--cp-radius-sm);
+  background: var(--cp-surface); aspect-ratio: 4 / 3;
+}
+.cp-news-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.cp-news-card:hover .cp-news-card__media img { transform: scale(1.04); }
+.cp-news-card__body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.cp-news-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+/* `.cp a` có sẵn `color: inherit` → nhãn chuyên mục phải ghi `.cp a.cp-news-card__cat` mới ăn màu */
+.cp a.cp-news-card__cat {
+  font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  color: var(--cp-accent);
+}
+.cp a.cp-news-card__cat:hover { color: var(--cp-accent-dark); text-decoration: underline; }
+.cp-news-card__date { display: inline-flex; align-items: center; gap: 6px; color: var(--cp-muted); font-size: 13px; }
+.cp-news-card__clock { width: 14px; height: 14px; flex: none; }
+.cp-news-card__title { margin: 0; font-size: 20px; line-height: 1.4; font-weight: 700; }
+.cp-news-card__title a:hover { color: var(--cp-primary-dark); }
+.cp-news-card__excerpt {
+  margin: 0; color: var(--cp-muted); font-size: 14.5px; line-height: 1.7;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* Bài ĐẦU của trang 1: ảnh trên / chữ dưới, tiêu đề lớn hơn */
+.cp-news-card--featured { grid-template-columns: minmax(0, 1fr); padding: 0; overflow: hidden; }
+.cp-news-card--featured .cp-news-card__media { border-radius: 0; aspect-ratio: 21 / 9; }
+.cp-news-card--featured .cp-news-card__body { padding: 20px 22px 24px; }
+.cp-news-card--featured .cp-news-card__title { font-size: clamp(21px, 2.4vw, 27px); }
+.cp-news-card--featured .cp-news-card__excerpt { -webkit-line-clamp: 2; }
+.cp-news-empty {
+  margin: 0; padding: 30px; text-align: center; color: var(--cp-muted);
+  background: #fff; border: 1px dashed var(--cp-line); border-radius: var(--cp-radius);
+}
+
+/* ---- Phân trang (markup `.nav-links` + `.page-numbers` của WordPress core) ---- */
+.cp-pagination { margin-top: 34px; }
+.cp-pagination .nav-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.cp-pagination .page-numbers {
+  display: inline-flex; min-width: 42px; height: 42px; align-items: center; justify-content: center;
+  padding: 0 12px; border: 1px solid var(--cp-line); border-radius: 12px;
+  background: #fff; color: var(--cp-text); font-weight: 700; font-size: 15px;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.cp-pagination a.page-numbers:hover { background: var(--cp-surface); border-color: var(--cp-primary); color: var(--cp-primary-dark); }
+.cp-pagination .page-numbers.current { background: var(--cp-primary); border-color: var(--cp-primary); color: var(--cp-on-primary); }
+.cp-pagination .page-numbers.dots { border-color: transparent; background: none; }
+.cp-pagination .page-numbers.prev,
+.cp-pagination .page-numbers.next { font-size: 22px; line-height: 1; }
+
+/* ---- Sidebar: phần thêm cho hộp của CP3.2 ---- */
+.cp-side-news__date { font-size: 12.5px; color: var(--cp-muted); }
+.cp-news-cats .current-cat > a { color: var(--cp-primary-dark); font-weight: 700; }
+
+/* Mô tả chuyên mục dùng lại khối thu gọn `.cp-shop-desc` (CP3.1) — chỉ chỉnh khoảng cách */
+.cp-news-desc { margin-top: 34px; }
+
+/* ---- Responsive ---- */
+@media (max-width: 1200px) {
+  .cp-news-layout { grid-template-columns: minmax(0, 1fr) 300px; gap: 26px; }
+  .cp-news-card { grid-template-columns: 260px minmax(0, 1fr); gap: 18px; }
+  /* Thẻ nổi bật GIỮ 1 cột — ghi lại bằng rule CÙNG độ ưu tiên (0,1,0) nằm SAU, KHÔNG dùng
+     `.cp-news-card:not(...)` (0,2,0): nâng độ ưu tiên lên 0,2,0 sẽ đè luôn rule 1-cột của
+     `@media (max-width: 768px)` → đo được cột chữ co còn 38px và trang tràn ngang 67px ở 390px. */
+  .cp-news-card--featured { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+@media (max-width: 1024px) {
+  .cp-news-layout { grid-template-columns: minmax(0, 1fr); }
+  .cp-news-aside { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .cp-news-aside { grid-template-columns: minmax(0, 1fr); }
+  .cp-news-card { grid-template-columns: minmax(0, 1fr); }
+  .cp-news-card__media { aspect-ratio: 16 / 9; }
+  .cp-news-card__title,
+  .cp-news-card--featured .cp-news-card__title { font-size: 18.5px; }
+  .cp-news-card__excerpt { -webkit-line-clamp: 4; }
+  .cp-news-card--featured .cp-news-card__body { padding: 16px; }
+  .cp-pagination .page-numbers { min-width: 38px; height: 38px; font-size: 14px; }
+}
+
+/* ==========================================================================
+   CP5.2 — Trang chi tiết tin tức (`single.php`): breadcrumb mảnh + thẻ bài + nội dung
+   Tái dùng lưới `.cp-news-layout` / `.cp-news-aside` của CP5.1 (không khai lại).
+   ========================================================================== */
+.cp-article-section { padding: 26px 0 44px; }
+
+.cp-article {
+  background: #fff; border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius); box-shadow: var(--cp-shadow);
+  padding: 26px 28px 30px;
+}
+.cp-article__title {
+  font-size: clamp(24px, 3vw, 34px); line-height: 1.3; font-weight: 800;
+  letter-spacing: -.4px; margin: 0 0 14px;
+}
+.cp-article__meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px;
+  margin: 0 0 22px; padding-bottom: 18px; border-bottom: 1px solid var(--cp-line);
+  color: var(--cp-muted); font-size: 13.5px;
+}
+/* `.cp a { color: inherit }` → nhãn chuyên mục phải ghi `.cp a.…` mới ăn màu */
+.cp a.cp-article__cat {
+  font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  color: var(--cp-accent);
+}
+.cp a.cp-article__cat:hover { color: var(--cp-accent-dark); text-decoration: underline; }
+.cp-article__date,
+.cp-article__author { display: inline-flex; align-items: center; gap: 6px; }
+.cp-article__icon { width: 14px; height: 14px; flex: none; }
+.cp-article__thumb {
+  margin: 0 0 24px; border-radius: var(--cp-radius-sm);
+  overflow: hidden; background: var(--cp-surface);
+}
+/* Ảnh đầu bài có thể là ảnh DỌC (đo: 992×1388 → cao 1388px, chiếm gần 2 màn hình). Chặn chiều
+   cao bằng `max-height`, giữ nguyên tỉ lệ (KHÔNG crop, KHÔNG méo) và cho hộp ÔM THEO ảnh
+   (`width: auto` + `margin-inline: auto`) — nếu để `width: 100%` thì hộp vẫn 990px và ảnh dọc
+   nằm giữa với 2 dải nền `--cp-surface` hai bên. Muốn cắt thành banner 16/9 thì đổi sang
+   `aspect-ratio: 16 / 9` + `object-fit: cover` + `height: 100%`. */
+.cp-article__thumb img { width: auto; height: auto; max-width: 100%; max-height: 620px; margin-inline: auto; }
+
+/* ---- Nội dung bài viết (typography) ---- */
+/* `overflow-wrap: break-word`: bài viết có thể chứa chuỗi ký tự dài KHÔNG có khoảng trắng
+   (bài mẫu có dải phân cách `<span>====…</span>` 73 ký tự) → đo được 1 span 731.8px gây tràn
+   ngang ở 390px (scrollWidth 769 > 390). `break-word` chỉ cắt khi từ không vừa dòng nên không
+   ảnh hưởng chữ thường. */
+.cp-article__content { font-size: 16.5px; line-height: 1.85; color: var(--cp-text); overflow-wrap: break-word; }
+.cp-article__content > :first-child { margin-top: 0; }
+.cp-article__content p { margin: 0 0 18px; }
+.cp-article__content h2 {
+  font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; line-height: 1.35;
+  margin: 36px 0 14px; padding-bottom: 10px; border-bottom: 2px solid var(--cp-primary);
+}
+.cp-article__content h3 { font-size: 19px; font-weight: 700; margin: 28px 0 12px; }
+.cp-article__content h4 { font-size: 17px; font-weight: 700; margin: 22px 0 10px; }
+/* Reset chung của skin là `.cp ul { list-style: none; padding: 0 }` → phải TRẢ LẠI dấu đầu dòng
+   cho nội dung bài. Cùng độ ưu tiên (0,1,1) nhưng rule này nằm SAU nên thắng. */
+.cp-article__content ul { list-style: disc; margin: 0 0 18px; padding-left: 24px; }
+.cp-article__content ol { list-style: decimal; margin: 0 0 18px; padding-left: 24px; }
+.cp-article__content li { margin-bottom: 8px; }
+.cp-article__content li::marker { color: var(--cp-primary-dark); }
+.cp-article__content a { color: var(--cp-accent); text-decoration: underline; text-underline-offset: 2px; }
+.cp-article__content a:hover { color: var(--cp-accent-dark); }
+.cp-article__content img { border-radius: var(--cp-radius-sm); }
+.cp-article__content figure { margin: 0 0 20px; }
+.cp-article__content figcaption { margin-top: 8px; font-size: 13px; color: var(--cp-muted); text-align: center; }
+.cp-article__content blockquote {
+  margin: 0 0 20px; padding: 16px 20px; font-style: italic;
+  background: var(--cp-surface); border-left: 4px solid var(--cp-primary);
+  border-radius: 0 var(--cp-radius-sm) var(--cp-radius-sm) 0;
+}
+.cp-article__content blockquote p:last-child { margin-bottom: 0; }
+.cp-article__content table { width: 100%; margin: 0 0 20px; border-collapse: collapse; font-size: 15px; }
+.cp-article__content th,
+.cp-article__content td { padding: 10px 12px; border: 1px solid var(--cp-line); text-align: left; }
+.cp-article__content th { background: var(--cp-surface); font-weight: 700; }
+.cp-article__content hr { border: 0; border-top: 1px solid var(--cp-line); margin: 28px 0; }
+.cp-article__content iframe { max-width: 100%; }
+
+/* ---- Chip tag + điều hướng bài trước/sau ---- */
+.cp-article__tags {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--cp-line);
+}
+.cp-article__tags-label { font-size: 13.5px; font-weight: 700; }
+.cp a.cp-article__tag {
+  display: inline-flex; align-items: center; height: 32px; padding: 0 14px;
+  border: 1px solid var(--cp-line); border-radius: 999px; background: #fff;
+  font-size: 13px; color: var(--cp-text);
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.cp a.cp-article__tag:hover { background: var(--cp-surface); border-color: var(--cp-primary); color: var(--cp-primary-dark); }
+
+/* Cột CỐ ĐỊNH 2 (không dùng auto-fit): bài mới nhất chỉ có "Bài trước" → auto-fit cho nó giãn
+   hết 1048px (đo được item 1048×80.9); 2 cột thì mục lẻ vẫn nằm nửa hàng, còn "Bài sau" lẻ thì
+   đẩy sang cột 2 để đúng vị trí bên phải. */
+.cp-article-nav {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px; margin-top: 26px;
+}
+.cp-article-nav__item--next:only-child { grid-column: 2; }
+.cp a.cp-article-nav__item {
+  display: flex; flex-direction: column; gap: 6px; padding: 16px 18px;
+  background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+  box-shadow: var(--cp-shadow); transition: transform .2s ease, border-color .2s ease;
+}
+.cp a.cp-article-nav__item:hover { transform: translateY(-2px); border-color: var(--cp-primary); }
+.cp-article-nav__item--next { text-align: right; }
+.cp-article-nav__dir {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; letter-spacing: .6px;
+  text-transform: uppercase; color: var(--cp-accent);
+}
+.cp-article-nav__item--next .cp-article-nav__dir { justify-content: flex-end; }
+.cp-article-nav__title { font-size: 15px; font-weight: 600; line-height: 1.45; }
+
+/* ---- Dải "Bài viết liên quan" (full chiều rộng, nền xám) ---- */
+.cp-news-related { background: var(--cp-surface); margin-top: 40px; padding: 40px 0 46px; }
+.cp-news-related__title { font-size: clamp(20px, 2.6vw, 26px); font-weight: 800; margin: 0 0 22px; }
+.cp-news-related__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.cp-news-mini {
+  display: flex; flex-direction: column; background: #fff;
+  border: 1px solid var(--cp-line); border-radius: var(--cp-radius); overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.cp-news-mini:hover { transform: translateY(-4px); box-shadow: var(--cp-shadow-lg); }
+.cp-news-mini__media { display: block; aspect-ratio: 4 / 3; background: var(--cp-surface); overflow: hidden; }
+.cp-news-mini__media img { width: 100%; height: 100%; object-fit: cover; }
+.cp-news-mini__title { font-size: 15.5px; font-weight: 600; line-height: 1.45; margin: 14px 16px 8px; }
+.cp-news-mini__title a:hover { color: var(--cp-primary-dark); }
+.cp-news-mini__date { margin: auto 16px 16px; font-size: 12.5px; color: var(--cp-muted); }
+
+/* ---- Responsive ---- */
+@media (max-width: 1200px) {
+  .cp-news-related__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 1024px) {
+  .cp-news-related__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .cp-article { padding: 18px 16px 22px; }
+  .cp-article__content { font-size: 16px; line-height: 1.8; }
+  .cp-article__content h2 { margin-top: 28px; }
+  .cp-article__thumb { margin-bottom: 18px; }
+  .cp-news-related { padding: 30px 0 36px; }
+}
+@media (max-width: 600px) {
+  .cp-news-related__grid { grid-template-columns: minmax(0, 1fr); }
+  /* 1 cột: mục điều hướng lẻ không cần đẩy sang cột 2 (nếu giữ `grid-column: 2` sẽ tràn) */
+  .cp-article-nav { grid-template-columns: minmax(0, 1fr); }
+  .cp-article-nav__item--next:only-child { grid-column: auto; }
+}
+
+/* ==========================================================================
+   CP2.4 + CP2.5 — Khối trang chủ theo danh mục: lưới sản phẩm / tin tức + cuộn ngang
+   Số cột điều khiển bằng biến `--cp-cols` (Admin chọn bố cục trong Customizer) — PHẢI khai lại
+   trong media query vì `.cp-cat-block .cp-products` (0,2,0) mạnh hơn `.cp-products` (0,1,0)
+   dùng ở các breakpoint cũ (bẫy: rule mạnh hơn ở cuối file đè rule trong @media).
+   ========================================================================== */
+.cp-cat-block { --cp-cols: 4; }
+.cp-cat-block--cols-3 { --cp-cols: 3; }
+.cp-cat-block--cols-2 { --cp-cols: 2; }
+
+.cp-cat-block .cp-products { grid-template-columns: repeat(var(--cp-cols), minmax(0, 1fr)); }
+.cp-cat-block .cp-cat-news {
+  display: grid; grid-template-columns: repeat(var(--cp-cols), minmax(0, 1fr)); gap: 20px;
+}
+
+/* Bố cục "Cuộn ngang": dải cuộn + scroll-snap (giống dải liên quan CP3.2 / CP5.2) */
+.cp-cat-block--scroll .cp-products,
+.cp-cat-block--scroll .cp-cat-news {
+  display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  /* `contain: paint` là BẮT BUỘC: thiếu nó, overflow của RIÊNG dải cuộn lan ra document →
+     đo ở 390px `scrollWidth` **557** (tràn) trong khi container vẫn 350/1550 (cuộn nội bộ OK);
+     thêm `contain: paint` → document còn **390**. Đã A/B loại trừ: bỏ `scroll-snap-type`,
+     bỏ `grid-template-columns`, `max-width: 100%`, `overflow-y: hidden`, `width: 100%`
+     đều KHÔNG sửa được (đều 557) — chỉ `contain` là đủ. `padding: 8px 0` để bóng/nhấc thẻ
+     không bị cắt bởi containment. */
+  contain: paint; padding: 8px 0;
+}
+.cp-cat-block--scroll .cp-products .cp-card { flex: 0 0 250px; scroll-snap-align: start; }
+.cp-cat-block--scroll .cp-cat-news .cp-news-mini { flex: 0 0 300px; scroll-snap-align: start; }
+
+/* ==========================================================================
+   CP2.8 — Bố cục "Cuộn ngang": ẨN thanh trượt + nút cuộn ‹ › ở hai đầu danh sách
+   ========================================================================== */
+.cp-cat-block--scroll .cp-products,
+.cp-cat-block--scroll .cp-cat-news {
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* Edge cũ */
+}
+.cp-cat-block--scroll .cp-products::-webkit-scrollbar,
+.cp-cat-block--scroll .cp-cat-news::-webkit-scrollbar { display: none; }  /* Chrome · Safari */
+
+.cp-scroller { position: relative; }
+.cp-scroller__btn {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
+  width: 40px; height: 40px; padding: 0; cursor: pointer;
+  display: grid; place-items: center;
+  font: inherit; font-size: 22px; line-height: 1;
+  color: var(--cp-text); background: #fff;
+  border: 1px solid var(--cp-line); border-radius: 50%;
+  box-shadow: var(--cp-shadow);
+  transition: opacity .18s ease, background .18s ease, color .18s ease, border-color .18s ease;
+}
+.cp-scroller__btn:hover { background: var(--cp-primary); border-color: var(--cp-primary); color: var(--cp-on-primary); }
+.cp-scroller__btn--prev { left: -18px; }
+.cp-scroller__btn--next { right: -18px; }
+/* Ẩn nút khi dải đã ở đầu/cuối (JS gắn `.is-start` / `.is-end`) hoặc không cuộn được */
+.cp-scroller.is-start .cp-scroller__btn--prev,
+.cp-scroller.is-end .cp-scroller__btn--next,
+.cp-scroller--static .cp-scroller__btn { opacity: 0; pointer-events: none; }
+
+@media (max-width: 768px) {
+  .cp-scroller__btn { width: 34px; height: 34px; font-size: 19px; }
+  /* Tỷ lệ theo desktop (-18px × 34/40 ≈ -15px) — 2 nút vẫn đối xứng 2 đầu */
+  .cp-scroller__btn--prev { left: -15px; }
+  .cp-scroller__btn--next { right: -15px; }
+}
+
+/* ==========================================================================
+   CP2.5 — Bố cục "Nổi bật" của khối tin trang chủ: 1 bài LỚN bên TRÁI + danh sách bên PHẢI
+   (Customize → "Trang chủ — Khối tin tức theo chuyên mục" → Bố cục = "Nổi bật — 1 bài trái,
+   còn lại bên phải"). "Số lượng" của khối là TỔNG số bài: bài 1 → cột trái, các bài còn lại
+   → cột phải. Yêu cầu Tùng 2026-09-15 (dựng theo demo).
+   KHÔNG dùng lại `.cp-news-card` (CP5.1): thẻ ở đây là `h3` (vì `h2` của khối đứng trên) và cần
+   `sizes` ảnh riêng cho cột ~700px.
+   CAO BẰNG NHAU (yêu cầu Tùng): `align-items: stretch` → 2 cột luôn cùng chiều cao; phần chênh được
+   hấp thụ có chủ đích thay vì hở nền trắng — cột TRÁI cho ẢNH giãn (`flex: 1 1 auto`, ảnh crop nhẹ),
+   cột PHẢI dãn đều các dòng (`justify-content: space-between`). ≤1024px (1 cột) không bị ảnh hưởng
+   vì mỗi khối là 1 hàng lưới riêng (chiều cao = nội dung).
+   ========================================================================== */
+.cp-news-feature {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* ---- Cột TRÁI: thẻ lớn (ảnh trên / chữ dưới, có trích đoạn) ---- */
+.cp-news-feature__main {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.cp-news-feature__main:hover { transform: translateY(-3px); box-shadow: var(--cp-shadow-lg); border-color: var(--cp-primary); }
+.cp-news-feature__media { display: block; aspect-ratio: 16 / 9; overflow: hidden; background: var(--cp-surface); }
+/* ẢNH hấp thụ phần chênh chiều cao (cột trái cao bằng cột phải): `flex: 1 1 auto` cho ảnh giãn thêm,
+   `object-fit: cover` crop nhẹ thay vì hở dải nền trắng dưới thẻ. Cột trái vốn ĐÃ cao hơn thì rule này
+   không đổi gì (ảnh giữ đúng 16:9).
+   `max-height: 520px` = TRẦN giãn: nếu danh sách phải quá dài ("Số lượng" 7–12 → 6–11 dòng) mà không có
+   trần, ảnh sẽ bị kéo thành ảnh DỌC (đo 11 dòng: ảnh tỉ lệ 0.75 — trông lỗi). Hết trần thì phần chênh
+   còn lại dồn xuống `.cp-news-feature__body` (`flex: 1 1 auto`) → thẻ vẫn cao BẰNG cột phải. */
+.cp-news-feature__main .cp-news-feature__media { flex: 1 1 auto; min-height: 0; max-height: 520px; }
+.cp-news-feature__main .cp-news-feature__body { flex: 1 1 auto; }
+.cp-news-feature__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.cp-news-feature__main:hover .cp-news-feature__media img { transform: scale(1.04); }
+.cp-news-feature__body { display: flex; flex-direction: column; gap: 10px; padding: 20px 22px 22px; }
+.cp-news-feature__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+/* `.cp a` = (0,1,1) → nhãn chuyên mục phải khai `.cp a.<class>` mới ăn màu accent */
+.cp a.cp-news-feature__cat {
+  font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  color: var(--cp-accent);
+}
+.cp a.cp-news-feature__cat:hover { color: var(--cp-accent-dark); text-decoration: underline; }
+.cp-news-feature__date { color: var(--cp-muted); font-size: 13px; }
+.cp-news-feature__title { margin: 0; font-size: clamp(19px, 1.9vw, 24px); font-weight: 800; line-height: 1.35; }
+.cp-news-feature__title a:hover { color: var(--cp-primary-dark); }
+.cp-news-feature__excerpt {
+  margin: 0; color: var(--cp-muted); font-size: 14.5px; line-height: 1.65;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* ---- Cột PHẢI: danh sách dọc — ảnh nhỏ + tiêu đề + ngày, gạch phân cách giữa các dòng ---- */
+.cp-news-feature__list {
+  display: flex; flex-direction: column; justify-content: space-between;
+  background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+  padding: 4px 18px;
+}
+.cp-news-row {
+  display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 14px; align-items: center;
+  padding: 14px 0; border-bottom: 1px solid var(--cp-line);
+}
+.cp-news-row:last-child { border-bottom: 0; }
+/* Bài không có ảnh đại diện → chỉ 1 cột. Thiếu rule này, `.cp-news-row__body` (con DUY NHẤT) rơi vào
+   cột `108px` của lưới → đo ở 1440: body rộng **108** (thay vì 547.5), tiêu đề cao 65px vì bị dồn.
+   PHẢI là 2 class (0,2,0): rule `.cp-news-row { grid-template-columns: 88px 1fr }` trong
+   `@media (max-width: 768px)` nằm SAU trong file, cùng 0,1,0 → sẽ đè lại và lỗi quay về ở mobile. */
+.cp-news-row.cp-news-row--noimg { grid-template-columns: minmax(0, 1fr); }
+.cp-news-row__media {
+  display: block; aspect-ratio: 4 / 3; overflow: hidden;
+  border-radius: var(--cp-radius-sm); background: var(--cp-surface);
+}
+.cp-news-row__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.cp-news-row:hover .cp-news-row__media img { transform: scale(1.05); }
+.cp-news-row__body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cp-news-row__title {
+  margin: 0; font-size: 15px; font-weight: 600; line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.cp-news-row__title a:hover { color: var(--cp-primary-dark); }
+.cp-news-row__date { color: var(--cp-muted); font-size: 12.5px; }
+
+/* ---- Responsive: ≤1024px xếp DỌC (thẻ lớn trên — danh sách dưới) ---- */
+@media (max-width: 1024px) {
+  .cp-news-feature { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  /* Full chiều ngang rồi nên ảnh ngang hơn (21/9) cho khỏi chiếm hết màn hình */
+  .cp-news-feature__media { aspect-ratio: 21 / 9; }
+}
+@media (max-width: 768px) {
+  .cp-news-feature__body { padding: 16px; }
+  .cp-news-feature__title { font-size: 18.5px; }
+  .cp-news-feature__excerpt { font-size: 14px; }
+  .cp-news-feature__list { padding: 2px 14px; }
+  .cp-news-row { grid-template-columns: 88px minmax(0, 1fr); gap: 12px; padding: 12px 0; }
+  .cp-news-row__title { font-size: 14.5px; -webkit-line-clamp: 2; }
+}
+
+@media (max-width: 1024px) {
+  .cp-cat-block { --cp-cols: 3; }
+  .cp-cat-block--cols-2 { --cp-cols: 2; }
+}
+@media (max-width: 768px) {
+  .cp-cat-block { --cp-cols: 2; }
+  .cp-cat-block .cp-products,
+  .cp-cat-block .cp-cat-news { gap: 10px; }
+
+  /* CP2.4/2.5 — mobile: link "Xem thêm →" của khối danh mục chuyển XUỐNG DƯỚI list và canh giữa.
+     Dùng `display: contents` cho `.cp-section-head` để link (đang là con của head) trở thành con
+     trực tiếp của `.cp-container` (flex column) → mới `order` được mà KHÔNG phải đổi DOM/JS. */
+  .cp-cat-block .cp-container { display: flex; flex-direction: column; }
+  .cp-cat-block .cp-section-head { display: contents; }
+  .cp-cat-block .cp-section-head > div { order: 1; margin-bottom: 20px; }
+  .cp-cat-block > .cp-container > .cp-products,
+  .cp-cat-block > .cp-container > .cp-scroller,
+  .cp-cat-block > .cp-container > .cp-cat-news,
+  .cp-cat-block > .cp-container > .cp-news-feature { order: 2; }
+  .cp-cat-block .cp-section-head .cp-link-more { order: 3; align-self: center; margin-top: 20px; }
+}
+
+/* ==========================================================================
+   CP2.2 — MOBILE trang chủ (≤768px): tiêu đề khối (`.cp-section-head`) nổi bật hơn
+   + link "Xem thêm →" thành BUTTON. Yêu cầu Tùng 2026-09-15.
+   Lý do: cỡ h2 mobile là `clamp(24px, 3vw, 34px)` → 24px nhưng chưa có điểm nhấn, còn
+   "Xem thêm" chỉ là chữ vàng (khó thấy là bấm được). Nay: h2 20px + gạch nhấn vàng
+   46×3px dưới tiêu đề; head xếp DỌC (tiêu đề trên — nút dưới) để không bị chen ở 360px;
+   nút pill nền primary `#fbaf02` + chữ `--cp-on-primary` (8.9:1) cao 44px (đủ tap target).
+   CHỈ mobile — desktop ≥769px giữ nguyên (đã đo lại ở 1440px).
+   Lưu ý specificity: `.cp-section-head .cp-link-more` = (0,2,0) → thắng `.cp a` (0,1,1)
+   (rule `.cp-link-more` một class (0,1,0) KHÔNG đủ, chữ bị `color: inherit` của `.cp a`).
+   Khối danh mục (CP2.4/2.5) đã tách head bằng `display: contents` ở block trên → nút của
+   chúng vẫn nằm DƯỚI list và canh giữa, không bị xếp dọc ảnh hưởng.
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Reset các thuộc tính CHỈ dùng cho desktop ở rule gốc (kẻ mảnh dưới head + padding đáy) */
+  .cp-section-head { flex-direction: column; align-items: flex-start; gap: 14px; padding-bottom: 0; border-bottom: 0; margin-bottom: 20px; }
+
+  .cp-section-head h2 { font-size: 20px; line-height: 1.35; letter-spacing: -.2px; }
+  /* Gạch nhấn vàng dưới tiêu đề — tạo điểm nhấn mà KHÔNG cần tăng cỡ chữ */
+  .cp-section-head h2::after {
+    content: ""; display: block;
+    width: 46px; height: 3px; margin-top: 9px;
+    border-radius: 2px; background: var(--cp-primary);
+  }
+  .cp-section-head .cp-eyebrow { padding: 4px 11px; font-size: 11px; letter-spacing: 1.3px; margin-bottom: 6px; }
+  .cp-section-head p { margin-top: 8px; font-size: 14px; }
+
+  /* "Xem thêm →" → BUTTON (pill) thay vì chữ link */
+  .cp-section-head .cp-link-more {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 0 20px;
+    font-size: 14px; font-weight: 700;
+    color: var(--cp-on-primary);
+    background: var(--cp-primary); border: 1px solid var(--cp-primary);
+    border-radius: 999px;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .cp-section-head .cp-link-more:active { background: var(--cp-primary-dark); border-color: var(--cp-primary-dark); }
+}
+
+/* ==========================================================================
+   CP6.1 + CP6.2 — Trang nội dung tĩnh (`page.php`): hero + thẻ nội dung + sidebar sub-nav
+   Tái dùng: `.cp-pagehero` / `.cp-breadcrumb` (CP3.1), lưới `.cp-news-layout` / `.cp-news-aside`
+   (CP5.1, gồm cả 3 breakpoint), typography `.cp-article__content` (CP5.2, gắn thêm class trong
+   markup), hộp `.cp-side-box` / `.cp-side-cats` (CP3.2) → khối này CHỈ bổ sung phần riêng của trang.
+   ========================================================================== */
+.cp-page-section { padding: 28px 0 44px; }
+
+.cp-page {
+  background: #fff; border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius); box-shadow: var(--cp-shadow);
+  padding: 26px 28px 30px;
+}
+/* `.cp-page__content` là hook tinh chỉnh; typography thật lấy từ `.cp-article__content` (CP5.2) */
+.cp-page__content > :last-child { margin-bottom: 0; }
+.cp-page__content img { border-radius: var(--cp-radius-sm); }
+.cp-page__content iframe { max-width: 100%; }
+
+/* Ảnh caption kiểu WordPress cũ: `[caption width="1000"]` in ra
+   `<figure class="wp-caption aligncenter" style="width: 1000px">` → ở 390px figure vẫn rộng
+   1000px, đo được `scrollWidth` **1037** (tràn 647px) ở cả 1024/768/390. Inline style chỉ bị đè
+   bởi `!important` của author CSS → đây là 1 trong 2 chỗ ĐƯỢC PHÉP dùng `!important` trong skin
+   (chỗ còn lại: chặn nền autofill của Chrome). Áp cho CẢ nội dung bài viết vì bài viết cũng có
+   thể chứa caption cùng kiểu. */
+.cp-article__content .wp-caption,
+.cp-page__content .wp-caption { max-width: 100% !important; width: auto !important; }
+.cp-article__content .wp-caption img,
+.cp-page__content .wp-caption img { width: auto; max-width: 100%; height: auto; }
+
+/* CP6.2 — sub-nav "Trong mục này": WordPress tự gắn `current_page_item` / `current_page_ancestor` */
+.cp-page-nav .current_page_item > a { color: var(--cp-primary-dark); font-weight: 700; }
+.cp-page-nav .current_page_ancestor > a { font-weight: 600; color: var(--cp-text); }
+
+@media (max-width: 768px) {
+  .cp-page { padding: 18px 16px 22px; }
+}
+
+/* ==========================================================================
+   CP2.9 — Khối "tab sản phẩm" trên trang chủ (4 tab cố định: Mới · Bán chạy · Hot · Khuyến mãi)
+   Tab = nút pill; tab đang xem nền `--cp-primary` + chữ `--cp-on-primary` (8.9:1).
+   Panel TÁI DÙNG `.cp-cat-block` / `.cp-cat-block--cols-*` / `.cp-cat-block--scroll` của CP2.4
+   + `.cp-scroller` của CP2.8 → lưới, dải cuộn, nút ‹ › chạy y như khối sản phẩm theo danh mục.
+   ⚠️ KHÔNG dùng tên `.cp-tabs` / `.cp-tab-panel` / `.cp-tab-nav`: đã bị hệ tab CŨ (mockup,
+   hiện không template nào dùng) chiếm ở dòng ~747 — `.cp-tab-panel { display: none }` + `.cp-tabs
+   { margin-top: 56px }` sẽ đè lên khối này (đã dính thật: tab hiện ra cao 0px).
+   ========================================================================== */
+.cp-tablist { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 26px; }
+.cp-tablist__btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 42px; padding: 0 18px;
+  font: inherit; font-size: 14.5px; font-weight: 600; line-height: 1.2;
+  color: var(--cp-text); background: #fff;
+  border: 1px solid var(--cp-line); border-radius: 999px;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+/* Icon SVG inline (16px) — `stroke: currentColor` nên tự đổi màu theo tab active */
+.cp-tablist__icon { display: inline-flex; flex: 0 0 auto; }
+.cp-tablist__icon svg { width: 16px; height: 16px; display: block; }
+.cp-tablist__btn:hover { border-color: var(--cp-primary); color: var(--cp-primary-dark); }
+.cp-tablist__btn.is-active { background: var(--cp-primary); border-color: var(--cp-primary); color: var(--cp-on-primary); }
+/* `hidden` của trình duyệt là `display: none` nhưng BẤT KỲ `display` nào của author cũng đè được
+   → khai rõ để panel ẩn chắc chắn không chiếm chỗ (và không bị đo nhầm khi ẩn). */
+.cp-tabpane[hidden] { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .cp-tabpane:not([hidden]) { animation: cp-tab-in .22s ease both; }
+}
+@keyframes cp-tab-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+/* Panel là `.cp-cat-block` nên lưới đã theo `--cp-cols`; chỉ cần canh khoảng cách cho dải cuộn */
+.cp-tabpane { min-height: 1px; }
+@media (max-width: 768px) {
+  /* 2026-09-15 (yêu cầu Tùng): thanh tab trên mobile xếp **1 DÒNG** + TRƯỢT ngang để xem tab còn lại
+     (trước đây `flex-wrap: wrap` làm 4 tab xuống 2 hàng). Ẩn thanh trượt, `contain: paint` BẮT BUỘC
+     (bài học CP2.4: thiếu nó, overflow của dải lan ra document → tràn ngang cả trang).
+     `flex: 0 0 auto` để nút KHÔNG bị co lại (mặc định `flex-shrink: 1` sẽ bóp chữ). */
+  .cp-tablist {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    contain: paint;
+    padding: 4px 2px;
+    gap: 8px;
+    margin-bottom: 18px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .cp-tablist::-webkit-scrollbar { display: none; }
+  .cp-tablist__btn {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 0 13px;
+    font-size: 13.5px;
+    gap: 6px;
+    scroll-snap-align: start;
+  }
+  .cp-tablist__icon svg { width: 14px; height: 14px; }
+}
+

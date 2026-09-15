@@ -31,6 +31,22 @@ $cp_hero_src    = $cp_hero_img ? $cp_hero_img : $cp_img . '/hero.webp';
 $cp_hero_srcset = $cp_hero_img ? '' : $cp_img . '/hero-652.webp 652w, ' . $cp_img . '/hero.webp 1024w';
 $cp_cta_title  = get_theme_mod( 'cp_cta_title' ) ?: __( 'Cần tư vấn chọn cửa phù hợp?', 'tungleads-theme' );
 $cp_cta_desc   = get_theme_mod( 'cp_cta_desc' ) ?: __( 'Đội ngũ Cao Phát Door hỗ trợ đo đạc, báo giá và thi công tận nơi tại TP.HCM.', 'tungleads-theme' );
+/* 2026-09-15 (yêu cầu Tùng) — 2 nút hero + 2 ô số liệu: sửa trong Customize → "Trang chủ Cao Phát".
+   Để trống → dùng lại mặc định dưới đây. */
+$cp_hero_btn1  = get_theme_mod( 'cp_hero_btn1' ) ?: __( 'Xem sản phẩm', 'tungleads-theme' );
+$cp_hero_btn2  = get_theme_mod( 'cp_hero_btn2' ) ?: __( 'Nhận báo giá 24/7', 'tungleads-theme' );
+/* Link của 2 nút — để trống thì nút 1 về trang cửa hàng, nút 2 gọi hotline (tel:). */
+$cp_hero_btn1_url = get_theme_mod( 'cp_hero_btn1_url' ) ?: $cp_shop;
+$cp_hero_btn2_url = get_theme_mod( 'cp_hero_btn2_url' ) ?: 'tel:' . $cp_tel;
+$cp_stat1_val  = get_theme_mod( 'cp_hero_stat1_value' ) ?: __( '10+ năm', 'tungleads-theme' );
+$cp_stat1_lbl  = get_theme_mod( 'cp_hero_stat1_label' ) ?: __( 'Kinh nghiệm thi công', 'tungleads-theme' );
+$cp_stat2_val  = get_theme_mod( 'cp_hero_stat2_value' ) ?: __( '5.000+', 'tungleads-theme' );
+$cp_stat2_lbl  = get_theme_mod( 'cp_hero_stat2_label' ) ?: __( 'Công trình hoàn thiện', 'tungleads-theme' );
+/* CP2.6 — 2 dòng chữ khối "Danh mục nổi bật": Appearance → Customize → "Trang chủ — Danh mục
+   nổi bật" (setting `cp_cats_label` / `cp_cats_title`); để trống → dùng lại mặc định dưới đây.
+   Khối này đã BỎ dòng mô tả phụ + link "Xem tất cả →" theo yêu cầu Tùng 2026-09-15. */
+$cp_cats_label = get_theme_mod( 'cp_cats_label' ) ?: __( 'Danh mục nổi bật', 'tungleads-theme' );
+$cp_cats_title = get_theme_mod( 'cp_cats_title' ) ?: __( 'Khám phá theo dòng sản phẩm', 'tungleads-theme' );
 ?>
 <main id="main">
 
@@ -45,8 +61,8 @@ $cp_cta_desc   = get_theme_mod( 'cp_cta_desc' ) ?: __( 'Đội ngũ Cao Phát Do
 				<h1><?php echo wp_kses_post( $cp_hero_title ); ?></h1>
 				<p><?php echo esc_html( $cp_hero_desc ); ?></p>
 				<div class="cp-hero-actions">
-					<a class="cp-btn cp-btn-primary" href="<?php echo esc_url( $cp_shop ); ?>"><?php esc_html_e( 'Xem sản phẩm', 'tungleads-theme' ); ?></a>
-					<a class="cp-btn cp-btn-ghost" href="tel:<?php echo esc_attr( $cp_tel ); ?>"><?php esc_html_e( 'Nhận báo giá 24/7', 'tungleads-theme' ); ?></a>
+					<a class="cp-btn cp-btn-primary" href="<?php echo esc_url( $cp_hero_btn1_url ); ?>"><?php echo esc_html( $cp_hero_btn1 ); ?></a>
+					<a class="cp-btn cp-btn-ghost" href="<?php echo esc_url( $cp_hero_btn2_url ); ?>"><?php echo esc_html( $cp_hero_btn2 ); ?></a>
 				</div>
 			</div>
 			<div class="cp-hero-media">
@@ -54,8 +70,8 @@ $cp_cta_desc   = get_theme_mod( 'cp_cta_desc' ) ?: __( 'Đội ngũ Cao Phát Do
 					<?php if ( $cp_hero_srcset ) : ?>srcset="<?php echo esc_attr( $cp_hero_srcset ); ?>" sizes="(max-width: 900px) 100vw, 652px"<?php endif; ?>
 					alt="<?php esc_attr_e( 'Showroom cửa gỗ công nghiệp Cao Phát Door', 'tungleads-theme' ); ?>" fetchpriority="high" decoding="async">
 				<div class="cp-hero-float">
-					<div><b>10+ <?php esc_html_e( 'năm', 'tungleads-theme' ); ?></b><small><?php esc_html_e( 'Kinh nghiệm thi công', 'tungleads-theme' ); ?></small></div>
-					<div><b>5.000+</b><small><?php esc_html_e( 'Công trình hoàn thiện', 'tungleads-theme' ); ?></small></div>
+					<div><b><?php echo esc_html( $cp_stat1_val ); ?></b><small><?php echo esc_html( $cp_stat1_lbl ); ?></small></div>
+					<div><b><?php echo esc_html( $cp_stat2_val ); ?></b><small><?php echo esc_html( $cp_stat2_lbl ); ?></small></div>
 				</div>
 			</div>
 		</div>
@@ -86,29 +102,23 @@ $cp_cta_desc   = get_theme_mod( 'cp_cta_desc' ) ?: __( 'Đội ngũ Cao Phát Do
 		<div class="cp-container">
 			<div class="cp-section-head">
 				<div>
-					<span class="cp-eyebrow"><?php esc_html_e( 'Danh mục nổi bật', 'tungleads-theme' ); ?></span>
-					<h2><?php esc_html_e( 'Khám phá theo dòng sản phẩm', 'tungleads-theme' ); ?></h2>
-					<p><?php esc_html_e( 'Đầy đủ các dòng cửa cho phòng ngủ, nhà vệ sinh, chung cư và công trình.', 'tungleads-theme' ); ?></p>
+					<span class="cp-eyebrow"><?php echo esc_html( $cp_cats_label ); ?></span>
+					<h2><?php echo esc_html( $cp_cats_title ); ?></h2>
 				</div>
-				<a class="cp-link-more" href="<?php echo esc_url( $cp_shop ); ?>"><?php esc_html_e( 'Xem tất cả →', 'tungleads-theme' ); ?></a>
 			</div>
 			<?php get_template_part( 'template-parts/home-categories' ); ?>
 		</div>
 	</section>
 
-	<!-- BÁN CHẠY -->
-	<section class="cp-section alt">
-		<div class="cp-container">
-			<div class="cp-section-head">
-				<div>
-					<span class="cp-eyebrow"><?php esc_html_e( 'Bán chạy nhất', 'tungleads-theme' ); ?></span>
-					<h2><?php esc_html_e( 'Sản phẩm được ưa chuộng', 'tungleads-theme' ); ?></h2>
-				</div>
-				<a class="cp-link-more" href="<?php echo esc_url( $cp_shop ); ?>"><?php esc_html_e( 'Xem thêm →', 'tungleads-theme' ); ?></a>
-			</div>
-			<?php get_template_part( 'template-parts/home-products', null, array( 'type' => 'best' ) ); ?>
-		</div>
-	</section>
+	<!-- CP2.9 — KHỐI TAB SẢN PHẨM (Customize → "Trang chủ — Khối tab sản phẩm") -->
+	<?php get_template_part( 'template-parts/home-tabs' ); ?>
+
+	<!-- CP2.4 — KHỐI SẢN PHẨM THEO DANH MỤC (Customize → "Trang chủ — Khối sản phẩm theo danh mục") -->
+	<?php get_template_part( 'template-parts/home-cat-products' ); ?>
+
+	<!-- 2026-09-15 (yêu cầu Tùng): đã XOÁ 2 khối "BÁN CHẠY" + "KHUYẾN MÃI" ở đây —
+	     nội dung 2 nhóm này nay nằm trong khối tab sản phẩm CP2.9 phía trên.
+	     `template-parts/home-products.php` (chỉ 2 khối này dùng) cũng đã xoá theo. -->
 
 	<!-- CTA -->
 	<section class="cp-section">
@@ -123,33 +133,12 @@ $cp_cta_desc   = get_theme_mod( 'cp_cta_desc' ) ?: __( 'Đội ngũ Cao Phát Do
 		</div>
 	</section>
 
-	<!-- KHUYẾN MÃI -->
-	<section class="cp-section alt">
-		<div class="cp-container">
-			<div class="cp-section-head">
-				<div>
-					<span class="cp-eyebrow"><?php esc_html_e( 'Khuyến mãi', 'tungleads-theme' ); ?></span>
-					<h2><?php esc_html_e( 'Sản phẩm đang giảm giá', 'tungleads-theme' ); ?></h2>
-				</div>
-				<a class="cp-link-more" href="<?php echo esc_url( $cp_shop ); ?>"><?php esc_html_e( 'Xem thêm →', 'tungleads-theme' ); ?></a>
-			</div>
-			<?php get_template_part( 'template-parts/home-products', null, array( 'type' => 'sale' ) ); ?>
-		</div>
-	</section>
+	<!-- CP2.5 — KHỐI TIN TỨC THEO CHUYÊN MỤC (Customize → "Trang chủ — Khối tin tức theo chuyên mục") -->
+	<?php get_template_part( 'template-parts/home-cat-news' ); ?>
 
-	<!-- BLOG -->
-	<section class="cp-section">
-		<div class="cp-container">
-			<div class="cp-section-head">
-				<div>
-					<span class="cp-eyebrow"><?php esc_html_e( 'Kiến thức & báo giá', 'tungleads-theme' ); ?></span>
-					<h2><?php esc_html_e( 'Bài viết mới nhất', 'tungleads-theme' ); ?></h2>
-				</div>
-				<a class="cp-link-more" href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ? get_permalink( get_option( 'page_for_posts' ) ) : home_url( '/' ) ); ?>"><?php esc_html_e( 'Xem tất cả →', 'tungleads-theme' ); ?></a>
-			</div>
-			<?php get_template_part( 'template-parts/home-blog' ); ?>
-		</div>
-	</section>
+	<!-- 2026-09-15 (yêu cầu Tùng): đã XOÁ khối "BLOG" ("Kiến thức & báo giá" / "Bài viết mới nhất")
+	     — tin tức trên trang chủ nay do khối CP2.5 ("Khối tin tức theo chuyên mục") đảm nhiệm.
+	     `template-parts/home-blog.php` (chỉ khối này dùng) cũng đã xoá theo. -->
 
 </main>
 <?php

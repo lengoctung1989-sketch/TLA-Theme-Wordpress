@@ -5,7 +5,7 @@ applyTo: "**/*.php"
 
 # PHP — child theme Cao Phát Door
 
-Luật chung ở `AGENTS.md`; danh sách file của từng số nằm ở `.ai/FEATURE_MAP.md`. Đây chỉ là luật ngắn khi sửa `.php`.
+Luật chung ở `AGENTS.md` (bản tóm tắt); bảng số + quy ước chi tiết ở `CLAUDE.md`; danh sách file của từng số nằm ở `.ai/FEATURE_MAP.md`. Đây chỉ là luật ngắn khi sửa `.php`.
 
 ## Ranh giới (không thương lượng)
 
@@ -16,9 +16,9 @@ Luật chung ở `AGENTS.md`; danh sách file của từng số nằm ở `.ai/F
 
 ## Trước khi viết code
 
-1. Số `CP<nhóm>.<số>` phải **có sẵn** trong bảng của `AGENTS.md` / `CLAUDE.md`. Chưa có → định nghĩa số trước, rồi mới code.
+1. Số `CP<nhóm>.<số>` phải **có sẵn** trong bảng của `CLAUDE.md`. Chưa có → định nghĩa số trước, rồi mới code.
 2. Tìm chỗ đã chạm để không làm trùng/lạc: `grep -rn "CP3.1" .`
-3. Đọc mục `CPx.y` tương ứng trong bảng `AGENTS.md` trước khi sửa khối đã có — nhiều thứ trông "thừa" nhưng là **quyết định đã chốt sau khi đo** (nhãn nút mua, icon 35px, `max-width` 1 chiều của logo, `pointer-events` của panel menu…). Đừng revert.
+3. Đọc mục `CPx.y` tương ứng trong bảng `CLAUDE.md` trước khi sửa khối đã có — nhiều thứ trông "thừa" nhưng là **quyết định đã chốt sau khi đo** (nhãn nút mua, icon 35px, `max-width` 1 chiều của logo, `pointer-events` của panel menu…). Đừng revert.
 
 ## Quy ước code
 
@@ -34,6 +34,6 @@ Luật chung ở `AGENTS.md`; danh sách file của từng số nằm ở `.ai/F
 
 - `php -l <file>` sạch cho **mọi** file PHP vừa sửa (`php` có sẵn trên máy).
 - Tải lại trang local với `WP_DEBUG` bật → không có PHP notice/warning mới.
-- Đồng bộ **3 lớp**: bảng số trong `AGENTS.md` + `CLAUDE.md` · tag trong code · dòng trong `.ai/FEATURE_MAP.md`.
+- Đồng bộ **3 lớp**: bảng số trong `CLAUDE.md` · tag trong code · dòng trong `.ai/FEATURE_MAP.md`.
 - Cập nhật `.ai/WORKLOG.md` (§1 + 1 dòng §2). Có thể dùng lệnh `/cp-wrapup`.
 - Gợi ý Tùng chạy `/ponytail-review` sau khi xong 1 page/module.

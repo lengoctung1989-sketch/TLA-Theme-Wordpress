@@ -1,111 +1,61 @@
-# tungleads-theme-cp — hướng dẫn dự án cho DeepSeek
+# AGENTS.md — Hướng dẫn bắt buộc cho mọi AI agent làm việc trên repo này
 
-**Child theme** của `tungleads-theme` (parent, `Template:` trong `style.css`). Skin site-specific cho **caophat.vn** — cửa gỗ công nghiệp / cửa nhựa / cửa chống cháy.
+**Repo:** child theme `tungleads-theme-cp` (site **caophat.vn** — cửa gỗ công nghiệp / cửa nhựa / cửa chống cháy). Child theme chỉ **trình bày** (skin CSS + template override + hook); **business logic → plugin `tl-site-caophat`**; nền tảng → parent `tungleads-theme`.
+**Deploy:** `deploy-caophat.sh` (parent + child + plugin) — **chỉ chạy khi Tùng yêu cầu rõ ràng**, không tự ý.
 
-- **Base:** `tungleads-theme@v0.1.0` (git tag trên repo parent). Nâng parent là hành động có chủ đích: đổi số ở đây + `README.md` → test lại toàn bộ child.
-- **Ranh giới:** child chỉ trình bày (skin CSS + template override + hook). Business logic (CPT, taxonomy, API riêng) → plugin **`tl-site-caophat`** (`wordpress/wp-content/plugins/tl-site-caophat/`, có repo git riêng), KHÔNG cho vào child theme.
-- **Deploy:** ship cả parent + child + plugin `tl-site-caophat` + `assets/dist/` của parent qua `deploy-caophat.sh` (gốc repo). **Chỉ đẩy production (`--go`) khi Tùng yêu cầu rõ ràng** — không tự ý chạy.
-- **⚠️ PHẠM VI CỦA DEEPSEEK (Tùng chốt 2026-09-14):** DeepSeek **chỉ xây dựng/sửa chức năng** (code, CSS, JS, template ở local) + **commit LOCAL**. Việc **push/deploy production do Tùng + Claude Code làm** → DeepSeek **KHÔNG đề xuất, không chờ duyệt, không hỏi lại** về deploy. Các việc chỉ chạy được trên production (regenerate thumbnail, đối chiếu ảnh 404/`.webp` do LiteSpeed sinh, thao tác dữ liệu trên host…) cũng thuộc phần bàn giao đó.
+Repo dùng **2 model chạy TUẦN TỰ: `claude` (Claude Code) và `deepseek` (DeepSeek)** — **không bao giờ chạy song song**. Model sau chỉ bắt đầu khi model trước đã dừng hẳn và để lại nhật ký trong `.ai/WORKLOG.md`. Nhãn commit chỉ được là 1 trong 2 tên này — phiên chạy model khác (vd `cline`) → **hỏi Tùng trước khi commit**.
 
-- Không business logic, không build step (CSS tĩnh `assets/caophat.css`).
-- Parent lo: boot, FeatureRegistry, SiteMode, Setup, Enqueue, Performance, Security, SEO, WooCommerce integration, templates blog/archive/page.
-- Child override: `header.php`, `footer.php`, `front-page.php`, `woocommerce.php`/hook shop, `assets/caophat.css`, template-parts trang chủ.
-- Font: Be Vietnam Pro. Palette: **primary vàng nghệ `#fbaf02`** (tông chủ đạo, chữ trên nền primary dùng `--cp-on-primary` `#241d05`) · accent cam đất `#c8471f` (CTA/hotline, tương phản) · kem `#f6f4f1` (biến `--cp-*` trong `caophat.css`). Link có class nút (`.cp-btn-*`, `.cp-buynow`, `.cp-single-hotline`, `.cp-side-support-tel`) cần selector `.cp a.<class>` để thắng `.cp a{color:inherit}`.
-- Hotline mặc định `0834.021.021` — filter `cp_hotline_display` / `cp_hotline_tel`.
+**Quy tắc chi tiết nằm ở `CLAUDE.md`** (bảng số `CPx.y` + quyết định đã chốt · quy ước code · môi trường · kiểm chứng). File này là **bản tóm tắt bắt buộc** — KHÔNG thêm chi tiết/số đo vào đây để khỏi tốn token mỗi phiên.
 
-## Môi trường & lệnh chạy
+## TRƯỚC khi code (mỗi phiên)
 
-Site local = WordPress + WooCommerce trong **Docker**, chạy từ **repo gốc** (`TLA Theme/`), không phải từ thư mục theme.
+1. **Đọc `.ai/WORKLOG.md`**: khối **§1 TRẠNG THÁI HIỆN TẠI** (việc đang làm · file đã chạm · việc tiếp theo) + **10 dòng cuối §2**. Trạng thái repo lấy từ §1 — KHÔNG lấy từ ghi chú của phiên cũ (có thể đã lỗi thời).
+2. **Sửa khối đã có số CP → mở `CLAUDE.md`, đọc đúng mục `CPx.y`** — nhiều quyết định đã chốt SAU KHI ĐO (nhãn nút, icon 35px, `pointer-events` panel menu…) ⇒ **không được revert**.
+3. Tra `.ai/FEATURE_MAP.md` — danh sách file thật của số CP đang sửa.
+4. `git status` + `git --no-pager log --oneline -5` — xác nhận trạng thái repo.
+5. Sửa file khớp `**/*.php` / `assets/**` → `.github/instructions/*.instructions.md` (tương đương `.ai/rules/` ở dự án khác) **tự gắn** — theo luật ở đó.
 
-- Bật môi trường: `cd "/Volumes/DATA/Claude-Code/TLA Theme" && docker compose up -d` → http://localhost:8888 (MariaDB `127.0.0.1:3307`).
-- `wp-cli`: `docker compose run --rm -T wpcli <lệnh>` — luôn có `-T`. VD: `wpcli post list --post_type=product --fields=ID,post_title,url`.
-- **Không có build step**: CSS/JS enqueue bằng `filemtime()` → sửa file rồi hard-reload (Cmd+Shift+R) là thấy ngay.
-- Kiểm cú pháp trên máy (không cần Docker): `php -l <file.php>` · `node --check <file.js>`.
-- `WP_DEBUG` + `WP_DEBUG_DISPLAY` = 1 ở local → PHP notice hiện trực tiếp trên trang.
-- Trong container: theme `wp-content/themes/tungleads-theme-cp` · plugin `wp-content/plugins/tl-site-caophat`.
-- **Repo không có remote git** → chỉ commit LOCAL (xem mục phạm vi bên trên).
+## Làn thay đổi — CHỌN LÀN TRƯỚC KHI LÀM
 
-## Kiểm chứng trước khi báo xong (bắt buộc)
+| Làn | Khi nào | Đo | Tài liệu | Báo cáo |
+| :--- | :--- | :--- | :--- | :--- |
+| **A — 1 thuộc tính** | ≤3 dòng CSS/JS/HTML, **không** đổi `@media`/DOM/z-index | tái dùng script đo có sẵn (`/tmp/cp-pw/`), **2–3 mức**: 1440 · 390 · breakpoint liên quan | **chỉ 1 dòng §2 ≤ ~300 ký tự**; không đụng `CLAUDE.md` / FEATURE_MAP | **1–2 dòng** |
+| **B — 1 khối** | 1 khối CSS hoặc 1 template-part, có responsive/hành vi | 4–6 mức + `elementFromPoint` nếu có phần tử tương tác | 1 dòng §2 + cập nhật mục `CPx.y` trong `CLAUDE.md` (+ FEATURE_MAP nếu đổi file) | 3–5 dòng |
+| **C — tính năng / đổi mô hình** | nhiều file, đổi cấu trúc, thêm UI | đầy đủ + E2E (Customizer/Playwright) | 3 lớp: `CLAUDE.md` + FEATURE_MAP + §1/§2 | báo cáo có cấu trúc |
 
-Đừng suy luận CSS/JS từ code — **đo bằng trình duyệt rồi mới kết luận**. Đây là nguồn lỗi lặp lại nhiều nhất của repo: nhiều kết luận trước đây SAI vì chỉ đọc code (panel menu tự mở, logo đè nút search, rule mobile bị rule cuối file đè, giá card bị WooCommerce ép màu olive).
+**Luôn giữ ở MỌI làn (không cắt):** `scrollWidth <= innerWidth` ở mobile khi đụng kích thước/nội dung · `php -l` file PHP có sửa · `node --check` file JS có sửa · **1 dòng §2 ngay khi xong**.
+**Cắt ở làn A/B:** sweep 6–13 mức · ảnh chụp (chỉ khi Tùng yêu cầu) · quét nhiều URL chỉ để tìm PHP notice · viết script đo MỚI · đọc file dài (dùng `grep -n` + `sed -n` đúng cửa sổ).
+**Yêu cầu mơ hồ → hỏi 1 câu ngắn có lựa chọn TRƯỚC khi làm** — làm sai rồi đo lại + viết lại tài liệu là khoản lãng phí lớn nhất.
+**Đo bằng trình duyệt rồi mới kết luận** (không suy luận từ code) — quy trình + snippet: `.github/skills/cp-ui-verify/SKILL.md`.
 
-- Thay đổi UI: mở http://localhost:8888 bằng Playwright → đo `getBoundingClientRect` / `getComputedStyle` → dán **số đo thật** vào báo cáo + §2 WORKLOG.
-- Nút/phần tử tương tác: kiểm `document.elementFromPoint(x, y)` — phần tử rộng đè lên nút nhỏ mà ảnh chụp vẫn "nhìn ổn".
-- Dải bề rộng tối thiểu: **1440 · 1280 · 1100 · 1024 · 768 · 390**, kiểm cả `scrollWidth <= innerWidth`.
-- Đè CSS của WooCommerce: **đếm độ ưu tiên trước**, **đo lại computed style sau**; thêm 1 class thay vì `!important`.
-- Quy trình đầy đủ + snippet: skill **`cp-ui-verify`**.
+## SAU khi xong (trước khi dừng phiên)
 
-## File huấn luyện agent (`.github/`)
+1. Kiểm chứng phần vừa sửa cho XANH (theo làn ở trên) — không để lại lỗi đã biết mà không ghi.
+2. Đồng bộ **3 lớp**: `CLAUDE.md` (định nghĩa + quyết định của số CP) → tag `// CPx.y` trong code → dòng tương ứng trong `.ai/FEATURE_MAP.md`.
+3. Commit kèm nhãn model: `feat(CP3.1)[deepseek]: ...` · `fix(CP2.5)[claude]: ...`.
+4. Ghi `.ai/WORKLOG.md`: **1 dòng vào cuối §2** (chỉ ghi thêm, không sửa dòng cũ) + **ghi đè §1** (trạng thái + việc tiếp theo).
+5. Kết thúc phiên ở trạng thái SẠCH: working tree không còn thay đổi chưa commit.
+6. Việc dở dang **phải** nằm trong §1 — không có việc nào "bỏ lửng" mà không ghi.
 
-Thư mục `.github/` **bị `deploy-caophat.sh` loại trừ** → không lên production. Luật ở đó là luật ngắn cho agent; nguồn sự thật vẫn là file này + `.ai/FEATURE_MAP.md`.
+## Quy trình 1 khung chát = 1 chức năng (Tùng dùng)
 
-| File | Khi nào áp dụng |
+Tùng làm **tuần tự**: mỗi chức năng (1 số CP) nằm trong 1 khung chát riêng, **không mở 2 khung cùng lúc**; khung mới chỉ mở khi khung trước đã SẠCH.
+
+| Tùng gõ | Agent phải làm |
 | :--- | :--- |
-| `.github/instructions/theme-php-conventions.instructions.md` | Tự gắn khi tạo/sửa `**/*.php` |
-| `.github/instructions/theme-assets.instructions.md` | Tự gắn khi sửa `assets/**` (CSS/JS) |
-| `.github/skills/cp-ui-verify/` | Quy trình đo & kiểm chứng UI trước khi báo xong |
-| `.github/prompts/cp-wrapup.prompt.md` | Lệnh `/cp-wrapup` — chốt phiên: WORKLOG + đồng bộ 3 lớp + commit |
+| **“Chốt phiên CPx.y”** | Đồng bộ 3 lớp → `php -l` / `node --check` file có sửa → commit `feat(CPx.y)[model]: …` → 1 dòng §2 + ghi đè §1 → xác nhận `git status` sạch. (Tương đương lệnh `/cp-wrapup`.) |
+| **“Tạm dừng CPx.y, commit dở dang”** | Ghi §1: đang ở đâu · còn file nào phải sửa · lưu ý → commit `wip(CPx.y)[model]: <mô tả>` → xác nhận `git status` sạch. Không cần xanh 100% nhưng phải ghi rõ chỗ đang dở/đỏ. |
 
-Nhãn model khi commit: child theme hiện chỉ chấp nhận `claude` / `deepseek`. Phiên do model khác chạy → **hỏi Tùng** trước khi commit.
+## Luật bất biến
 
-## Phối hợp giữa các model (BẮT BUỘC)
+- **Chỉ MỘT model làm việc tại một thời điểm** — model sau đọc §1 WORKLOG trước, tiếp tục mục dở dang nếu có.
+- **Không tự deploy / push production**, không tự chạy `deploy-caophat.sh --go` (chỉ khi Tùng yêu cầu rõ ràng). Việc chỉ chạy được trên prod (regenerate thumbnail, ảnh `.webp` do LiteSpeed sinh, sửa dữ liệu host) là phần bàn giao của Tùng.
+- Child theme **không chứa business logic**, không thêm build step; không sửa plugin `tl-site-caophat` / parent nếu không được yêu cầu.
+- Không commit file nhạy cảm; **không revert quyết định đã chốt sau khi đo**.
+- **Không thêm chi tiết vào file này** — chi tiết thuộc `CLAUDE.md`, `.ai/FEATURE_MAP.md`, `.ai/WORKLOG.md`.
 
-Repo này chỉ dùng **2 model: `claude` (Claude Code) và `deepseek` (DeepSeek)** — **chạy tuần tự, không đồng thời**. Nhãn model chỉ được là 1 trong 2 tên này.
-Trạng thái bàn giao nằm ở `.ai/WORKLOG.md` — không script, không cài thêm gì.
+## Môi trường (local)
 
-1. **Đầu phiên:** đọc `.ai/WORKLOG.md` (§1 ĐANG LÀM + 10 dòng cuối §2) trước khi làm bất cứ việc gì.
-2. **Bắt đầu việc:** cập nhật §1 — model, việc đang làm, file sẽ chạm, trạng thái.
-3. **Hết việc / hết phiên:** cập nhật lại §1 (xong / dang dở + việc tiếp theo) và ghi 1 dòng vào §2 (bảng nhật ký).
-4. §1 **ghi đè** (chỉ giữ khối mới nhất) · §2 **chỉ ghi thêm**, không sửa/xoá dòng cũ.
-5. §1 đang ghi việc **dang dở của model khác** → không tự sửa tiếp file đó, hỏi người dùng trước.
-6. Commit kèm nhãn model — chỉ `[claude]` hoặc `[deepseek]`: `feat(CP3.2)[deepseek]: ...`
-
-## P-index — quy ước riêng của child: tiền tố **`CP`**
-
-`CP<nhóm>.<số>`. Tách khỏi P-index của parent (P1–P7) để `grep` không lẫn.
-3 lớp đồng bộ: file này (nghĩa) · tag `// CPx.y` ở entry point · `.ai/FEATURE_MAP.md` (file).
-
-### Nhóm
-
-| Nhóm | Phạm vi |
-| :--- | :--- |
-| **CP1** | Khung/chrome — bootstrap child, header, footer, hotline, logo |
-| **CP2** | Trang chủ — `front-page.php`, template-part, Customizer |
-| **CP3** | WooCommerce skin — trang danh mục/cửa hàng, chi tiết sản phẩm |
-| **CP4** | Assets — `caophat.css`, ảnh |
-
-### Số đã đặt
-
-| Số | Nghĩa | Trạng thái |
-| :--- | :--- | :--- |
-| `CP1.1` | Bootstrap child — enqueue font + `caophat.css` (sau bundle parent), `add_theme_support('custom-logo')`, body class `cp`, helper `cp_hotline_*()`, `cp_product_card()` | ✅ |
-| `CP1.2` | Header — topbar, header sticky (logo `the_custom_logo`/fallback, `wp_nav_menu` primary → `.cp-nav`, hotline) | ✅ |
-| `CP1.2b` | **Header mobile (≤768px) — 1 HÀNG:** burger trái · logo giữa · icon search + icon giỏ phải · **ẩn hotline** (trước là 3 hàng / 163px → nay 1 hàng / 65px). Logo căn ĐÚNG TÂM container — 2 cách SAI đã đo được: (a) `position: absolute; left: 50%` → logo 188px ĐÈ lên icon search, icon không bấm được; (b) `flex: 1 1 auto; justify-content: center` → vẫn lệch vì khối phải (2 icon 80px) ≠ burger (44px) **và** `a.custom-logo-link` bị KÉO GIÃN hết khung nên ảnh nằm ở ĐẦU khung (đo: `a` 361px / ảnh 160px → lệch −157px ở 768px). Đang dùng: `.cp-logo { flex: 1 1 auto; min-width: 0; justify-content: center; padding-left: 36px }` (36 = khối phải 80 − burger 44, bù phần lệch) + `margin: 0 auto` cho ảnh → **lệch tâm = 0** ở 320/360/390/414/600/768. Kích thước ảnh `.cp-header .cp-logo .custom-logo` (0,3,0) — buộc mạnh hơn rule `.cp-header .custom-logo` (0,2,0) ở CUỐI file (`width: 250px`), **chỉ clamp 1 chiều** `max-width: min(160px, 100%)` (clamp thêm `max-height` → box 169×26 méo tỉ lệ 5.44 → 6.5) + `object-fit: contain` phòng hờ → logo 81×15 / 121×22 / 151×28 / 160×29 theo bề rộng. Icon search + giỏ hàng = **35×35px** (yêu cầu Tùng 23:35; trước 44px — nay dưới mức tap target 44px khuyến nghị — **TÙNG ĐÃ CHỐT GIỮ 35px (2026-09-14)**, không thêm lớp phủ 44px; muốn tăng lại thì sửa `.cp-cart-link`/`.cp-search-toggle`): nút `.cp-search-toggle` (base `display: none`, ≤768px `display: grid`) đứng ngay TRƯỚC icon giỏ trong `.cp-header-cta`; bấm → JS (`assets/nav-menu.js` bước 4) gắn `.cp-header.is-search-open` + `aria-expanded` + focus input → ô search trượt xuống **dải riêng full chiều ngang** (`position: absolute; left/right: 0; top: 100%` — KHÔNG cho `flex-wrap`: `.cp-header-cta` bị đẩy xuống hàng mới làm vỡ layout, header 111px); đóng bằng Esc (trả focus về nút) / click ngoài / bấm lại nút. KHÔNG khai báo trùng `gap`/`min-height` của `.cp-header .cp-container` (rule cuối media query đã đặt `12px`/`64px`) | ✅ |
-| `CP1.3` | Footer — footer tối 4 cột (menu `footer`, contact), footer-bottom, nút hotline nổi (FAB) | ✅ |
-| `CP2.1` | Trang chủ — `front-page.php`: hero + 4 feature + CTA (chuỗi i18n / theme_mod) + gọi 3 template-part động | ✅ |
-| `CP2.2` | Khối động trang chủ — `home-categories` (6 product_cat), `home-products` (best=total_sales \| sale), `home-blog` (3 bài mới) | ✅ |
-| `CP2.3` | Customizer — section `cp_home`: hero (nhãn/tiêu đề `<em>`/mô tả/ảnh) + CTA (tiêu đề/mô tả). `front-page.php` đọc `get_theme_mod` fallback default i18n | ✅ |
-| `CP3.1` | Trang danh mục / cửa hàng — hook `woocommerce_before/after_main_content` dựng pagehero + layout 2 cột (sidebar `product_cat` tái dùng `.cp-side-box`/`.cp-side-cats` của CP3.2 + lưới **4 cột × 5 dòng = 20 sp/trang** qua `loop_shop_per_page`). Loop item bọc `.cp-card` qua hook. Card **KHÔNG** có nút nào (20:05 ngày 2026-09-14: bỏ cả nút "Thêm vào giỏ hàng" mặc định của WooCommerce lẫn link "Xem chi tiết" cũ) — ảnh + tiêu đề vẫn là link tới sản phẩm. Mô tả danh mục (`woocommerce_archive_description`) gỡ khỏi header mặc định → render DƯỚI lưới trong `.cp-shop-desc` (thu gọn sẵn + nút "Xem thêm/Thu gọn", ~8 dòng JS inline). `woocommerce_show_page_title` = false (pagehero đã có H1). Thanh công cụ `.cp-shop-toolbar` (bọc `woocommerce_before_shop_loop` @19/@35): `[số kết quả]` … `.cp-price-filter` (nút Tất cả / 1–3tr / 3–5tr / >5tr qua query var `min_price`/`max_price` sẵn có, bấm nút đang chọn = bỏ lọc, giữ `orderby`; cũng in ở `woocommerce_no_products_found` để bỏ lọc khi 0 kết quả) `[sắp xếp]` (`select` reskin, mũi tên SVG data-URI). `.cp-shop-main` = thẻ trắng shadow như `.cp-side-box`. Phân trang reskin căn giữa, nút bo tròn 42px, mũi tên ‹ ›. **Giá card:** selector phải đủ 5 class `.woocommerce .cp-shop-main ul.products li.product .price` — WooCommerce có rule `.woocommerce:where(...) ul.products li.product .price` = (0,4,2) đè rule 3-class → ép giá về màu olive `rgb(149,142,9)` + `font-size:.857em` (13.71px); `ins` cần `text-decoration:none` (mặc định trình duyệt gạch chân, `.cp-price` trang chủ đã tắt). Card **KHÔNG** in nhãn danh mục (`.cp-card-cat`) — nhãn này chỉ còn ở đầu trang chi tiết SP. KHÔNG copy template WooCommerce | ✅ |
-| `CP3.2` | Chi tiết sản phẩm (layout theo demo moderndoor.vn) — breadcrumb mảnh + lưới 9/3 `.cp-single-layout`: `.cp-single-main` (thẻ trắng `div.product` gallery\|summary + `.cp-spec` thông số + ô tabs riêng `.cp-single-tabs.cp-card`) \| `.cp-single-side` (box "Hỗ trợ trực tuyến" `cp_single_support_box()` — số chính + `.cp-side-branches` danh sách hotline chi nhánh (mỗi dòng tên bên trái — số bên phải, canh đều 2 mép, không icon, `tel:`; dữ liệu đọc từ plugin `tl-site-caophat` — Settings → Cao Phát, option `tlcp_support_branches`; plugin tắt thì dùng mặc định tại chỗ; ghi đè bằng filter `cp_support_branches`) + box "Cam kết Cao Phát" `cp_trust_box()` — icon + chữ hoa, filter `cp_trust_items` + box "Sản phẩm mới" `cp_single_new_products_box()` (5 SP mới nhất)). Hộp giá `.cp-price-box` (cột dọc): giá + tag `.cp-price-off` "Tiết kiệm &lt;số tiền&gt;" (= giá gốc − giá bán). Badge sale trên ảnh (shop / trang chủ / liên quan / chi tiết) đổi qua filter `woocommerce_sale_flash` + helper `cp_sale_percent()` → **tag chữ nhật `-N%`** đỏ tươi (`--cp-sale` `#e30613`), dính sát góc trái-trên ảnh, chỉ bo góc dưới-phải; fallback `SALE` khi không tính được %. Trang chủ: `cp_product_card()` in `.cp-badge` cũng dùng `cp_sale_percent()`. Mô tả ngắn → hộp `.cp-short-desc` nổi bật + thu gọn `max-height:15em` (nút Xem thêm/Thu gọn). Dòng "Thẻ:" (`.tagged_as`) ẩn bằng CSS. Nút `.cp-buynow` (tel:, icon túi) cạnh nút mua — **nhãn "ĐẶT HÀNG NHANH"** (đổi từ "Mua hàng" và bỏ dòng phụ "Gọi điện xác nhận…" 22:30 ngày 2026-09-14) — nhãn nút mua lấy MẶC ĐỊNH của WooCommerce (`Thêm vào giỏ hàng`), CSS `text-transform: uppercase` hiển thị "THÊM VÀO GIỎ HÀNG" (icon giỏ qua `::before`) — 19:55 ngày 2026-09-14 đã **BỎ filter `woocommerce_product_single_add_to_cart_text`** (trước đó rút ngắn thành "Thêm giỏ hàng"); hệ quả: chữ dài hơn ~43px nên nút cần ~195px trong khi cột chỉ 152px → đang xuống 2 dòng, → **Tùng đã chốt GIỮ NGUYÊN 50/50 (2026-09-14)**: chấp nhận nhãn xuống 2 dòng ở 769–1280px, KHÔNG sửa thêm; dưới là hàng `.cp-contact-row` = "Gọi ngay" (cam, số hotline bọc `.cp-tel-num` ẩn ở `≤768px` — mobile và nút CTA cuối trang chỉ còn "Gọi ngay") + "Chat Zalo" (xanh `#0068ff`, `zalo.me/<số>`, filter `cp_zalo_url`), mỗi nút có icon. Ẩn ô số lượng, nút hotline phụ full-width. Gallery bật mũi tên flexslider (`woocommerce_single_product_carousel_options`); `single-gallery.js` tách dải thumbnail ra ô riêng `.cp-thumbs` dưới ảnh chính + 2 nút mũi tên cuộn. Related tách khỏi `div.product` → dải `.cp-related-band` nền xám, carousel cuộn ngang (scroll-snap). Dải CTA cuối. Ngay dưới ô tabs: thẻ `.cp-spec` "Thông số kỹ thuật" (`cp_single_spec_table()`) — đọc 8 meta `_tlcp_spec_*` do plugin `tl-site-caophat` lưu, lưới 2 cột, mỗi dòng 1 hàng ngang (nhãn + giá trị cùng dòng qua `dt`/`dd` `display:inline`, nhãn thêm `": "` bằng `::after`) + icon SVG inline. KHÔNG copy template · **Nút zoom gallery** (`.woocommerce-product-gallery__trigger`): WooCommerce đặt `z-index: 99` — cao hơn cả header (`50`) lẫn panel menu cấp 2-3 (`60`, nằm TRONG stacking context của header) → nút zoom vẽ ĐÈ lên menu khi menu xổ xuống; đã hạ về **`z-index: 9`** bằng selector `.woocommerce div.product div.images .woocommerce-product-gallery__trigger` (0,4,2 > 0,1,0 của WooCommerce). ⚠️ Phải hạ xuống DƯỚI 50, không phải chỉ dưới 60 — vì panel menu nằm trong stacking context của `.cp-header`. Đo `elementFromPoint` tại tâm nút: menu MỞ → trả về phần tử trong `.cp-nav` ✅ · menu ĐÓNG → chính nút zoom + vẫn bấm được (tạo `.pswp`) ✅ | ✅ |
-| `CP3.3` | Đặt hàng nhanh — nút "Mua hàng" (chỉ trang chi tiết SP) mở popup form (họ tên / SĐT / địa chỉ / số lượng / ghi chú) → gửi AJAX tạo **đơn WooCommerce thật** (không phải CPT riêng). UI (popup + CSS `.cp-quick-order*` + JS) ở child theme; xử lý đơn (tạo order, gán billing/shipping, thông báo admin) ở plugin `tl-site-caophat` (handler `tlcp_quick_order_handle()` — nonce + honeypot + rate-limit 5 đơn/IP/10 phút). JS tắt → nút vẫn là link `tel:` (progressive enhancement); đặt thành công → plugin trả về `get_checkout_order_received_url()` và JS chuyển trang sang trang hoàn tất đơn (CP3.6) | ✅ |
-| `CP3.4` | Trang giỏ hàng (`/cart/`) — hero `.cp-pagehero` (breadcrumb + H1 "Giỏ hàng") + bọc nội dung shortcode trong `.cp-section > .cp-container.cp-cart` bằng filter `the_content` (KHÔNG copy template — `page.php` theme cha không có container, không in tiêu đề). Lưới 2 cột giỏ \| khối tổng tiền (grid đặt trên `div.woocommerce` vì shortcode bọc thêm wrapper này); skin bảng giỏ (card trắng, thumb 72px, nút xoá tròn, ô số lượng), coupon/actions, `.cart_totals` card + nút "Tiến hành thanh toán" | ✅ |
-| `CP3.5` | Trang thanh toán (`/checkout/`) — hero `.cp-pagehero` (breadcrumb + H1 "Thanh toán") + container qua filter `the_content` (dùng chung helper `cp_woo_page_wrap()` với CP3.4); lưới 2 cột `#customer_details` \| `#order_review`; skin form (input 44px, nhãn đậm), card đơn hàng, danh sách phương thức thanh toán, nút "Đặt hàng" accent; guard **loại trừ trang "đơn đã nhận"** (`is_order_received_page()`) | ✅ |
-
-| `CP3.6` | Trang hoàn tất đơn hàng (`/checkout/order-received/`) — WooCommerce tách trang này khỏi `is_checkout()` nên trước đây không có container/hero (chữ sát mép). Bọc bằng cùng helper `cp_woo_page_wrap()` với guard mới `cp_is_order_received_page()`: khối "Cảm ơn" nổi bật + tóm tắt đơn 4 ô (mã đơn/ngày/tổng/phương thức) + card "Chi tiết đơn hàng" + nút "Về trang chủ". Đây cũng là đích chuyển trang sau khi đặt hàng nhanh (CP3.3) | ✅ |
-
-| `CP1.4` | Menu chính (desktop) — dropdown 2 cấp: mục cha có mũi tên chi dấu, submenu nền trắng bo góc nổi trên header, mở bằng `:hover` (trễ 120ms) + `:has(:focus-visible)` cho bàn phím — KHÔNG dùng `:focus-within` (click chuột làm panel dính mở mãi); link trong submenu hover dùng nền kem thay vì gạch chân. `depth => 3` nên menu in đủ 3 cấp. Panel ĐÓNG có `pointer-events: none` (`opacity: 0` KHÔNG chặn chuột → thiếu dòng này thì dải panel full-width tự bắt hover, menu mở dù chưa tới chữ; mobile bật lại `auto`). | ✅ |
-| `CP1.5` | Menu mobile — nút burger mở panel dọc (`.cp-nav.is-open`) qua `assets/nav-menu.js`: `aria-expanded` + `aria-controls`, đóng bằng Esc / click ngoài / resize lên desktop, khoá cuộn body; mục cha có nút mở menu con riêng (`.cp-nav__toggle`, JS tạo — KHÔNG lồng `<button>` trong `<a>`) dạng accordion · kích thước nút **30×30px**, neo `position: absolute; top: 11px; right: 8px; z-index: 2` trong `<li>` (`.cp-nav li { position: relative }` ở rule base — thiếu nó là absolute neo sai chỗ) + lớp phủ trong suốt `.cp-nav__toggle::before` **44×44** căn giữa nút để **vùng bấm đạt 44px** trong khi nút vẫn hiển thị 30px · `top` PHẢI là số CỐ ĐỊNH, KHÔNG dùng `top: 50%` (khi mở menu con `<li>` cao thêm cả submenu → nút bị đẩy xuống giữa submenu) | ✅ |
-
-| `CP1.6` | Ô tìm kiếm trên header — form GET về trang chủ với `post_type=product` (chỉ tìm sản phẩm), pill bo tròn, icon kính lúp là nút submit. Nằm **TRONG khối `.cp-header-cta`** (đứng ĐẦU khối → desktop vẫn ở ngay trái hotline) — 20:20 ngày 2026-09-14 chuyển vào theo yêu cầu; ≤1024px khối cta `flex: 1 1 100%` + `flex-wrap` + `justify-content: flex-end` → hàng 1 = hotline/giỏ/burger canh phải, hàng 2 = search full chiều ngang; bỏ `margin-left: 20px` của `.cp-search` (dùng `gap: 14px` của khối cta). Ô search có `autocomplete="off" autocapitalize="off" spellcheck="false"` để Chrome không gợi ý/autofill giá trị đã gõ (nền xanh `#e8f0fe`), + rule đè riêng `.cp-search input[type=search]:-webkit-autofill { box-shadow: 0 0 0 1000px var(--cp-surface) inset !important }` (màu pill, KHÔNG dùng `#fff` như rule chung). Nút xoá nhanh (×) của Chrome/Safari đã ẩn: input có `-webkit-appearance: none` (điều kiện bắt buộc từ Chrome 83) + `::-webkit-search-cancel-button/-decoration/-results-button/-results-decoration { display: none }` · ≤768px ô search **ẩn hẳn**, mở bằng nút `.cp-search-toggle` (xem `CP1.2b`) | ✅ |
-| `CP1.7` | Icon giỏ hàng trên header (bên phải khối hotline) — link `wc_get_cart_url()` + badge số lượng (`cp_cart_count()`), badge ẩn khi giỏ trống; tự cập nhật sau khi thêm giỏ bằng AJAX qua filter `woocommerce_add_to_cart_fragments` (fragment `a.cp-cart-link`, hàm in `cp_header_cart_link()` trong `inc/woocommerce.php`) | ✅ |
-
-| `CP1.4b` | Mega menu 3 cấp (mục "Các Loại Cửa") — mục cấp 1 có menu 3 cấp: JS gắn `.cp-mega` + `.sub-menu--mega`, CSS xếp cấp 2 thành **cột** (tiêu đề chữ hoa + gạch chân vàng), cấp 3 là danh sách phẳng trong cột; panel là dải ngang full chiều rộng dưới header (`depth => 3`). Link cấp 3 dài quá bề ngang cột thì cắt đuôi `…` (`overflow:hidden` + `text-overflow:ellipsis`); cột đầu của HÀNG mới (khi panel xuống dòng) được JS gắn `.cp-row-start` để bỏ vạch dọc + thụt lề — grid `auto-fit` nên CSS không tự biết cột nào xuống hàng | ✅ |
-| `CP4.1` | Skin trong `caophat.css` — màu nút/thông báo + tinh chỉnh khung: `.cp-btn-accent` nền `#000000` (hover `#333333` — **Tùng giao DeepSeek quyết 2026-09-14: GIỮ**: cả 2 chỗ dùng nút (dải CTA trang chủ + dải CTA trang chi tiết SP) đều nằm trên nền cam gradient nên hover sang `--cp-accent` sẽ chìm vào nền; convention theme là hover cùng tông; đo Playwright: hover `rgb(51,51,51)` + nhấc 1px, chữ trắng không bị rule `a:hover` ghi đè, tương phản 21:1 → 12.6:1), `.woocommerce-message` viền trên + icon `#fbaf02`, `.cp-single-side` sticky `top:100px`, `.cp-topbar .cp-container` `min-height:30px`, `.cp-nav` `padding-right:20px` (khoảng cách menu ↔ ô search). Nền xanh autofill của Chrome bị chặn bằng `input:-webkit-autofill { box-shadow: 0 0 0 1000px #fff inset !important; -webkit-text-fill-color: var(--cp-text) !important }` — rule `input:-internal-autofill-selected` là của trình duyệt, KHÔNG xoá/sửa được. **Loạt fix theo review (22:00 ngày 2026-09-14):** dải CTA đổi nền sang `--cp-accent-dark`→`--cp-accent` để chữ trắng đạt AA (4.8–6.6:1); focus ring 2px vàng cho `a`/`button:focus-visible`; tôn trọng `prefers-reduced-motion`; tap target ≥44px (hotline/giỏ/burger/ô search ≤1024px); `hero.png` 986KB → `hero.webp` 37KB (+ bản 652px 18KB, có `srcset` + `fetchpriority=high`); `door-hdf.png` 656KB → `.webp` 24KB; **6 bản PNG gốc không còn file nào tham chiếu → đã xoá 2026-09-14** (`git rm`, còn trong lịch sử git; `assets/images/` 2.8MB → 84KB); `alt` cho ảnh (card: `wp_get_attachment_image_attributes`; ảnh trong nội dung: thêm `alt=""` bằng `WP_HTML_Tag_Processor` trong `the_content`); `.cp-thankyou-section` chừa 120px đáy cho FAB | ✅ |
-
-## Quy trình / DoD
-
-- Thêm số: định nghĩa ở bảng trên → tag `// CPx.y` → thêm dòng `.ai/FEATURE_MAP.md`.
-- DoD: `php -l` sạch · không PHP notice khi `WP_DEBUG` · chuỗi bọc i18n (text domain `tungleads-theme`) · giữ phong cách CSS `.cp-*` · commit message `feat(CP3.1): ...`.
-- DoD cho thay đổi UI: có **số đo trước/sau** + đã kiểm dải bề rộng (mục "Kiểm chứng trước khi báo xong" ở trên).
-- Chốt phiên: cập nhật `.ai/WORKLOG.md` (§1 ghi đè + 1 dòng §2) và đồng bộ 3 lớp rồi commit LOCAL — dùng lệnh `/cp-wrapup`.
-- Sửa file thuộc khối đã có số CP: **đọc mục `CPx.y` tương ứng ở bảng trên trước** — không revert quyết định đã chốt sau khi đo (nhãn nút, icon 35px, `pointer-events` của panel menu…).
+- Bật: `cd "/Volumes/DATA/Claude-Code/TLA Theme" && docker compose up -d` → http://localhost:8888 (MariaDB `127.0.0.1:3307`).
+- wp-cli: `docker compose run --rm -T wpcli <lệnh>` — **luôn có `-T`**. VD: `wpcli theme mod list`.
+- **Không có build step**: CSS/JS enqueue theo `filemtime()` → sửa file rồi hard-reload (Cmd+Shift+R).

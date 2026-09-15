@@ -15,7 +15,7 @@ Chốt phiên làm việc cho child theme `tungleads-theme-cp` (caophat.vn).
 
 | Lớp | Ở đâu | Kiểm gì |
 |---|---|---|
-| Nghĩa | bảng số trong `AGENTS.md` **và** `CLAUDE.md` | 2 file phải khớp nhau |
+| Nghĩa | bảng số trong `CLAUDE.md` | nguồn duy nhất |
 | File thuộc số nào | tag `// CPx.y` ở entry point trong code | `grep -rn "CPx.y" .` |
 | File + chi tiết kỹ thuật | `.ai/FEATURE_MAP.md` | có dòng cho số đó |
 

@@ -73,4 +73,4 @@ Ghi vào câu trả lời **và** §2 `.ai/WORKLOG.md`: file đã sửa · số 
 | CSS đè plugin "không ăn" | Chưa đếm độ ưu tiên — WooCommerce dùng tới (0,4,2) / (1,2,0). Xem `.github/instructions/theme-assets.instructions.md` |
 | Nút trong `<li>` nhảy vị trí khi mở submenu | `top: 50%` tính lại theo chiều cao mới → dùng `top` cố định |
 
-Bản án đã chốt + danh sách đầy đủ: bảng `CP…` trong `AGENTS.md` và `.ai/FEATURE_MAP.md`.
+Bản án đã chốt + danh sách đầy đủ: bảng `CP…` trong `CLAUDE.md` và `.ai/FEATURE_MAP.md`.
