@@ -3,7 +3,7 @@
 **Child theme** của `tungleads-theme` (parent, `Template:` trong `style.css`). Skin site-specific cho **caophat.vn** — cửa gỗ công nghiệp / cửa nhựa / cửa chống cháy.
 
 - **Base:** `tungleads-theme@v0.1.0` (git tag trên repo parent). Nâng parent là hành động có chủ đích: đổi số ở đây + `README.md` → test lại toàn bộ child.
-- **Ranh giới:** child chỉ trình bày (skin CSS + template override + hook). Business logic (CPT, taxonomy, API riêng) → plugin `tl-site-plugin`, KHÔNG cho vào child theme.
+- **Ranh giới:** child chỉ trình bày (skin CSS + template override + hook). Business logic (CPT, taxonomy, API riêng) → plugin **`tl-site-caophat`** (`wordpress/wp-content/plugins/tl-site-caophat/`, có repo git riêng), KHÔNG cho vào child theme.
 - **Deploy:** ship cả parent + child + plugin `tl-site-caophat` + `assets/dist/` của parent qua `deploy-caophat.sh` (gốc repo). **Chỉ đẩy production (`--go`) khi Tùng yêu cầu rõ ràng** — không tự ý chạy.
 - **⚠️ PHẠM VI CỦA DEEPSEEK (Tùng chốt 2026-09-14):** DeepSeek **chỉ xây dựng/sửa chức năng** (code, CSS, JS, template ở local) + **commit LOCAL**. Việc **push/deploy production do Tùng + Claude Code làm** → DeepSeek **KHÔNG đề xuất, không chờ duyệt, không hỏi lại** về deploy. Các việc chỉ chạy được trên production (regenerate thumbnail, đối chiếu ảnh 404/`.webp` do LiteSpeed sinh, thao tác dữ liệu trên host…) cũng thuộc phần bàn giao đó.
 
@@ -12,6 +12,41 @@
 - Child override: `header.php`, `footer.php`, `front-page.php`, `woocommerce.php`/hook shop, `assets/caophat.css`, template-parts trang chủ.
 - Font: Be Vietnam Pro. Palette: **primary vàng nghệ `#fbaf02`** (tông chủ đạo, chữ trên nền primary dùng `--cp-on-primary` `#241d05`) · accent cam đất `#c8471f` (CTA/hotline, tương phản) · kem `#f6f4f1` (biến `--cp-*` trong `caophat.css`). Link có class nút (`.cp-btn-*`, `.cp-buynow`, `.cp-single-hotline`, `.cp-side-support-tel`) cần selector `.cp a.<class>` để thắng `.cp a{color:inherit}`.
 - Hotline mặc định `0834.021.021` — filter `cp_hotline_display` / `cp_hotline_tel`.
+
+## Môi trường & lệnh chạy
+
+Site local = WordPress + WooCommerce trong **Docker**, chạy từ **repo gốc** (`TLA Theme/`), không phải từ thư mục theme.
+
+- Bật môi trường: `cd "/Volumes/DATA/Claude-Code/TLA Theme" && docker compose up -d` → http://localhost:8888 (MariaDB `127.0.0.1:3307`).
+- `wp-cli`: `docker compose run --rm -T wpcli <lệnh>` — luôn có `-T`. VD: `wpcli post list --post_type=product --fields=ID,post_title,url`.
+- **Không có build step**: CSS/JS enqueue bằng `filemtime()` → sửa file rồi hard-reload (Cmd+Shift+R) là thấy ngay.
+- Kiểm cú pháp trên máy (không cần Docker): `php -l <file.php>` · `node --check <file.js>`.
+- `WP_DEBUG` + `WP_DEBUG_DISPLAY` = 1 ở local → PHP notice hiện trực tiếp trên trang.
+- Trong container: theme `wp-content/themes/tungleads-theme-cp` · plugin `wp-content/plugins/tl-site-caophat`.
+- **Repo không có remote git** → chỉ commit LOCAL (xem mục phạm vi bên trên).
+
+## Kiểm chứng trước khi báo xong (bắt buộc)
+
+Đừng suy luận CSS/JS từ code — **đo bằng trình duyệt rồi mới kết luận**. Đây là nguồn lỗi lặp lại nhiều nhất của repo: nhiều kết luận trước đây SAI vì chỉ đọc code (panel menu tự mở, logo đè nút search, rule mobile bị rule cuối file đè, giá card bị WooCommerce ép màu olive).
+
+- Thay đổi UI: mở http://localhost:8888 bằng Playwright → đo `getBoundingClientRect` / `getComputedStyle` → dán **số đo thật** vào báo cáo + §2 WORKLOG.
+- Nút/phần tử tương tác: kiểm `document.elementFromPoint(x, y)` — phần tử rộng đè lên nút nhỏ mà ảnh chụp vẫn "nhìn ổn".
+- Dải bề rộng tối thiểu: **1440 · 1280 · 1100 · 1024 · 768 · 390**, kiểm cả `scrollWidth <= innerWidth`.
+- Đè CSS của WooCommerce: **đếm độ ưu tiên trước**, **đo lại computed style sau**; thêm 1 class thay vì `!important`.
+- Quy trình đầy đủ + snippet: skill **`cp-ui-verify`**.
+
+## File huấn luyện agent (`.github/`)
+
+Thư mục `.github/` **bị `deploy-caophat.sh` loại trừ** → không lên production. Luật ở đó là luật ngắn cho agent; nguồn sự thật vẫn là file này + `.ai/FEATURE_MAP.md`.
+
+| File | Khi nào áp dụng |
+| :--- | :--- |
+| `.github/instructions/theme-php-conventions.instructions.md` | Tự gắn khi tạo/sửa `**/*.php` |
+| `.github/instructions/theme-assets.instructions.md` | Tự gắn khi sửa `assets/**` (CSS/JS) |
+| `.github/skills/cp-ui-verify/` | Quy trình đo & kiểm chứng UI trước khi báo xong |
+| `.github/prompts/cp-wrapup.prompt.md` | Lệnh `/cp-wrapup` — chốt phiên: WORKLOG + đồng bộ 3 lớp + commit |
+
+Nhãn model khi commit: child theme hiện chỉ chấp nhận `claude` / `deepseek`. Phiên do model khác chạy → **hỏi Tùng** trước khi commit.
 
 ## Phối hợp giữa các model (BẮT BUỘC)
 
@@ -71,3 +106,6 @@ Trạng thái bàn giao nằm ở `.ai/WORKLOG.md` — không script, không cà
 
 - Thêm số: định nghĩa ở bảng trên → tag `// CPx.y` → thêm dòng `.ai/FEATURE_MAP.md`.
 - DoD: `php -l` sạch · không PHP notice khi `WP_DEBUG` · chuỗi bọc i18n (text domain `tungleads-theme`) · giữ phong cách CSS `.cp-*` · commit message `feat(CP3.1): ...`.
+- DoD cho thay đổi UI: có **số đo trước/sau** + đã kiểm dải bề rộng (mục "Kiểm chứng trước khi báo xong" ở trên).
+- Chốt phiên: cập nhật `.ai/WORKLOG.md` (§1 ghi đè + 1 dòng §2) và đồng bộ 3 lớp rồi commit LOCAL — dùng lệnh `/cp-wrapup`.
+- Sửa file thuộc khối đã có số CP: **đọc mục `CPx.y` tương ứng ở bảng trên trước** — không revert quyết định đã chốt sau khi đo (nhãn nút, icon 35px, `pointer-events` của panel menu…).

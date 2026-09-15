@@ -2,8 +2,10 @@
 
 **Child theme** của `tungleads-theme` (parent, `Template:` trong `style.css`). Skin site-specific cho **caophat.vn** — cửa gỗ công nghiệp / cửa nhựa / cửa chống cháy.
 
+> **Môi trường + lệnh chạy**, **quy trình kiểm chứng UI trước khi báo xong** và **luật sửa file theo loại** (`.github/instructions/`, skill `cp-ui-verify`, prompt `/cp-wrapup`) nằm ở **`AGENTS.md`** — đọc các mục đó trước khi code, để 2 file không lệch nhau.
+
 - **Base:** `tungleads-theme@v0.1.0` (git tag trên repo parent). Nâng parent là hành động có chủ đích: đổi số ở đây + `README.md` → test lại toàn bộ child.
-- **Ranh giới:** child chỉ trình bày (skin CSS + template override + hook). Business logic (CPT, taxonomy, API riêng) → plugin `tl-site-plugin`, KHÔNG cho vào child theme.
+- **Ranh giới:** child chỉ trình bày (skin CSS + template override + hook). Business logic (CPT, taxonomy, API riêng) → plugin **`tl-site-caophat`** (`wordpress/wp-content/plugins/tl-site-caophat/`, có repo git riêng), KHÔNG cho vào child theme.
 - **Deploy:** ship cả parent + child + plugin `tl-site-caophat` + `assets/dist/` của parent qua `deploy-caophat.sh` (gốc repo). **Chỉ đẩy production (`--go`) khi Tùng yêu cầu rõ ràng** — không tự ý chạy.
 - **Phân vai (Tùng chốt 2026-09-14):** `deepseek` **chỉ xây dựng chức năng + commit LOCAL**; **push/deploy production + mọi thao tác trên production là phần của Tùng + `claude`**. Việc production còn tồn đều nằm trong mục "còn lại" của `.ai/WORKLOG.md` — không phải việc của deepseek.
 
