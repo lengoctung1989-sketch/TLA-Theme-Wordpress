@@ -52,7 +52,9 @@ get_header();
 							 * CSS `.cp-article__thumb` / `.cp-article__thumb img` (caophat.css) vẫn giữ nguyên cho ca
 							 * bật lại ⇒ KHÔNG phải CSS mồ côi.
 							 *
-							 * `page.php` (trang tĩnh — CP6.1) VẪN in ảnh đại diện; muốn bỏ luôn ở đó thì nói.
+							 * `page.php` (trang tĩnh — CP6.1): trước đây VẪN in ảnh đại diện, **từ CP6.3 (2026-09-16)
+						 * đã XOÁ HẲN khối đó** (2/2 trang có ảnh đều lỗi file → khung xám) ⇒ hiện không
+						 * template nào in ảnh đại diện mặc định.
 							 */
 							?>
 							<?php if ( apply_filters( 'cp_article_show_thumb', false ) && has_post_thumbnail() ) : ?>

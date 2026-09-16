@@ -10,6 +10,13 @@
  * typography `.cp-article__content` (CP5.2), hộp cột phải (CP3.2). KHÔNG in khối bình luận
  * (giống CP5.2 — trang hiện đều đóng bình luận).
  *
+ * CP6.3 — KHÔNG in ảnh đại diện trang nữa (Tùng chốt 2026-09-16, nối tiếp CP5.4 của bài viết):
+ * khối `<figure class="cp-article__thumb">` đã **XOÁ HẲN** khỏi file. Lý do (đo 2026-09-16):
+ * **2/2 trang** có ảnh đại diện đều **lỗi file** (`naturalWidth = 0×0`) ⇒ chỉ còn khung xám
+ * `--cp-surface` cao **451–620px** ngay trên nội dung. Muốn in lại: xem lại khối cũ bằng
+ * `git log -S'cp-article__thumb' -- page.php` (CSS `.cp-article__thumb*` vẫn giữ trong
+ * `caophat.css` cho ca bật lại ở bài viết).
+ *
  * @package TL\Theme\CP
  */
 
@@ -48,19 +55,14 @@ $cp_is_woo_page = cp_is_woo_endpoint_page();
 							the_post();
 							?>
 							<article id="post-<?php the_ID(); ?>" <?php post_class( 'cp-page' ); ?>>
-								<?php if ( has_post_thumbnail() ) : ?>
-									<figure class="cp-article__thumb">
-										<?php
-										the_post_thumbnail(
-											'large',
-											array(
-												'sizes'    => '(max-width: 768px) 100vw, (max-width: 1200px) 900px, 992px',
-												'decoding' => 'async',
-											)
-										);
-										?>
-									</figure>
-								<?php endif; ?>
+								<?php
+								/* CP6.3 — ẢNH ĐẠI DIỆN TRANG: KHÔNG in (Tùng chốt 2026-09-16).
+								   Khối `<figure class="cp-article__thumb">` + `the_post_thumbnail( 'large', … )`
+								   đã bị XOÁ khỏi đây, KHÔNG giữ lại sau điều kiện `if`. Nối tiếp CP5.4 (bài viết
+								   cũng không in ảnh đại diện — bên đó markup còn nhưng bị chặn bởi filter
+								   `cp_article_show_thumb`). Muốn có lại ở trang: `git log -S'cp-article__thumb'
+								   -- page.php` để lấy lại khối cũ. */
+								?>
 
 								<?php /* `.cp-article__content` = typography rich-text của CP5.2 — cố ý tái dùng
 								           để trang và bài viết không lệch kiểu chữ, không nhân đôi CSS. */ ?>
