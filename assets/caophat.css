@@ -99,7 +99,7 @@ body.cp {
 .cp-topbar {
   background: var(--cp-primary);
   color: var(--cp-on-primary);
-  font-size: 13.5px;
+  font-size: 12px;
 }
 .cp-topbar .cp-container {
   display: flex;
