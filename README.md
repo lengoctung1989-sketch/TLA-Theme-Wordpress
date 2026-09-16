@@ -27,9 +27,12 @@ Widget liên hệ nổi cho **caophat.vn**: cụm nút **Gọi điện + Zalo** 
 **Màu sắc & icon**
 
 - Để **trống cả 2 ô màu** = dùng màu mặc định của kiểu (đỏ cho Gọi · xanh cho Zalo · xanh dương cho Facebook · xám cho Link).
+- **Icon mặc định (v1.1.2):** nút **Gọi** = điện thoại + **2 gợn sóng** (Feather `phone-call`, `tlcz_icon_default()` nhánh `phone`, 3 `path`, `stroke: currentColor` nét 2px/22px); **Zalo** / **Facebook** = ô tròn chữ `Z` / `f`; **Link tuỳ chỉnh** = quả cầu. Muốn xem lại các phương án khác: xem lịch sử phiên 2026-09-16 trong `.ai/WORKLOG.md` của child theme.
 - Nhập màu = đè màu/gradient mặc định; màu chữ cũng đổi luôn ô tròn chữ `Z`/`f` và icon SVG.
 - **Ảnh icon** tải lên (nút *Chọn ảnh* → thư viện Media) sẽ **thay thế** icon mặc định; nên dùng ảnh vuông ~100×100px, nền trong suốt.
 
+> v1.1.2 (2026-09-16): **đổi icon nút GỌI** sang “điện thoại + 2 gợn sóng” (Feather `phone-call`) — Tùng chốt qua trang xem thử 6 phương án (chọn phương án C). Icon cũ là ống nghe nét trơn 1 path.
+>
 > v1.1.1 (2026-09-16): thêm header `Author URI: https://tungleads.com/` ⇒ ở **/wp-admin/plugins.php**, dòng `Phiên bản 1.1.1 | Bởi Tung Le Ads` có **“Tung Le Ads” là link** (WP core tự bọc `<a>` khi có Author URI — xem `class-wp-plugins-list-table.php`).
 >
 > v1.1.0 (2026-09-16): thêm kiểu **Facebook** + **Link tuỳ chỉnh**, **màu nút/màu chữ riêng cho từng nút**, **upload ảnh icon**, **Custom CSS/JS**, và 2 dòng ghi công (xem cuối trang Settings).

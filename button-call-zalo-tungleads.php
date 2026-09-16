@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  Button call/zalo - TungLeAds
  * Description:  Widget liên hệ nổi (Gọi điện · Zalo · Facebook · Link tuỳ chỉnh) neo sát lề phải, giữ nguyên thiết kế “Tùng Lê Ads — Contact Floating Widget v1.3”. Nhập nút ở Settings → Button Call/Zalo (màu nút/màu chữ + ảnh icon riêng cho từng nút, custom CSS/JS).
- * Version:      1.1.1
+ * Version:      1.1.2
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
  * Author URI:   https://tungleads.com/
@@ -239,7 +239,10 @@ function tlcz_icon_default( string $type ): string {
 				. '<path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg>';
 
 		default:
+			/* “Đang gọi”: 2 gợn sóng (Feather phone-call) + ống nghe — Tùng chốt 2026-09-16 (phương án C). */
 			return '<svg viewBox="0 0 24 24" aria-hidden="true">'
+				. '<path d="M15.05 5A5 5 0 0 1 19 8.95"/>'
+				. '<path d="M15.05 1A9 9 0 0 1 23 8.94"/>'
 				. '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6'
 				. 'A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81'
 				. '2 2 0 0 1-.45 2.11L8.09 9.91 a16 16 0 0 0 6 6l1.27-1.27 a2 2 0 0 1 2.11-.45'
