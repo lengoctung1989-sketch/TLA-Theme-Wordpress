@@ -1,0 +1,287 @@
+/*
+ * Button call/zalo - TungLeAds — widget liên hệ nổi (Gọi điện + Zalo).
+ *
+ * CSS giữ NGUYÊN thiết kế “TÙNG LÊ ADS — CONTACT FLOATING WIDGET v1.3” (Tùng gửi 2026-09-16):
+ * mỗi nút mở rộng ĐỘC LẬP khi hover, cả cụm luôn neo sát lề phải, mobile giữ nguyên layout desktop.
+ * KHÔNG sửa số đo ở đây trừ khi Tùng yêu cầu.
+ * (Nút pulse dùng `:first-child` — chỉ chạy khi nút ĐẦU TIÊN là loại “Gọi điện”; đổi thứ tự trong
+ *  Settings → Button Call/Zalo.)
+ */
+
+.wd-contact-widget,
+.wd-contact-widget * {
+    box-sizing: border-box;
+}
+
+.wd-contact-widget {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    z-index: 999999;
+
+    /*
+     * QUAN TRỌNG:
+     * Container có chiều rộng cố định bằng kích thước lớn nhất
+     * của nút khi hover.
+     *
+     * Nhờ vậy khi 1 nút mở rộng, 3 nút còn lại KHÔNG bị
+     * thay đổi vị trí theo chiều ngang.
+     */
+    width: 210px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+
+    transform: translateY(-50%);
+
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    pointer-events: none;
+}
+
+.wd-contact-item {
+    position: relative;
+
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+
+    width: 58px;
+    height: 58px;
+
+    padding: 7px;
+
+    overflow: hidden;
+
+    color: #fff;
+    text-decoration: none;
+
+    border-radius: 14px 0 0 14px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, .16);
+
+    /*
+     * Width của từng item thay đổi độc lập.
+     * Không dùng margin / position làm ảnh hưởng item khác.
+     */
+    transition:
+        width .35s cubic-bezier(.4, 0, .2, 1),
+        transform .25s ease,
+        box-shadow .25s ease;
+
+    pointer-events: auto;
+}
+
+/*
+ * CHỈ item đang hover thay đổi.
+ * 3 item còn lại vẫn giữ width 58px và vị trí sát bên phải.
+ */
+.wd-contact-item:hover {
+    width: 210px;
+    transform: translateX(-8px);
+    z-index: 2;
+
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, .22);
+}
+
+/* =========================
+   ICON
+   ========================= */
+
+.wd-contact-icon {
+    position: relative;
+
+    flex: 0 0 44px;
+
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: rgba(255, 255, 255, .18);
+
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+
+    transition: transform .3s ease;
+}
+
+.wd-contact-item:hover .wd-contact-icon {
+    transform: scale(1.05);
+}
+
+.wd-contact-icon svg {
+    width: 22px;
+    height: 22px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* =========================
+   ZALO ICON
+   ========================= */
+
+.wd-contact-zalo-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 27px;
+    height: 27px;
+
+    border: 2px solid #fff;
+    border-radius: 50%;
+
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1;
+
+    color: #fff;
+}
+
+/* =========================
+   LABEL
+   ========================= */
+
+.wd-contact-label {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 145px;
+
+    margin-left: 10px;
+
+    opacity: 0;
+    transform: translateX(15px);
+
+    transition:
+        opacity .2s ease,
+        transform .3s ease;
+}
+
+.wd-contact-item:hover .wd-contact-label {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.wd-contact-label small {
+    margin-bottom: 2px;
+
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
+
+    opacity: .82;
+}
+
+.wd-contact-label strong {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+
+    white-space: nowrap;
+}
+
+/* =========================
+   PHONE - RED
+   ========================= */
+
+.wd-contact-phone {
+    background:
+        linear-gradient(
+            135deg,
+            #d71920 0%,
+            #ef4444 100%
+        );
+}
+
+/* =========================
+   ZALO - BLUE
+   ========================= */
+
+.wd-contact-zalo {
+    background:
+        linear-gradient(
+            135deg,
+            #0084ff 0%,
+            #006de0 100%
+        );
+}
+
+/* =========================
+   PULSE
+   ========================= */
+
+.wd-contact-phone:first-child::before {
+    content: "";
+
+    position: absolute;
+
+    top: 7px;
+    left: 7px;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 11px;
+
+    border: 1px solid rgba(255, 255, 255, .55);
+
+    animation: wd-contact-pulse 2s infinite;
+
+    pointer-events: none;
+}
+
+@keyframes wd-contact-pulse {
+    0% {
+        transform: scale(1);
+        opacity: .65;
+    }
+
+    70% {
+        transform: scale(1.45);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1.45);
+        opacity: 0;
+    }
+}
+
+/*
+ * KHÔNG có media query thay đổi style.
+ * Mobile giữ nguyên đúng layout Desktop theo yêu cầu.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+    .wd-contact-item,
+    .wd-contact-icon,
+    .wd-contact-label {
+        transition: none;
+    }
+
+    .wd-contact-phone:first-child::before {
+        animation: none;
+    }
+}
