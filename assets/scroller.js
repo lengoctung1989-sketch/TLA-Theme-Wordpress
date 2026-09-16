@@ -9,8 +9,11 @@
 
 	var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-	// CP2.8 + danh mục nổi bật (`.cp-cats`): list nằm trong `.cp-scroller` là 1 trong các selector này
-	var LIST_SEL = '.cp-products, .cp-cat-news, .cp-cats';
+	// CP2.8 / CP3.7 — list nằm trong `.cp-scroller`: khối trang chủ dùng `.cp-products` / `.cp-cat-news` /
+	// `.cp-cats`; dải "Sản phẩm tương tự" (CP3.7) là `ul.products` của WooCommerce. KHÔNG gắn thêm class
+	// `.cp-products` cho `ul.products`: `.cp-products` là GRID 4 cột, gắn vào sẽ phải đấu specificity với
+	// `.woocommerce .cp-related-band ul.products` (đang set flex + cuộn ngang).
+	var LIST_SEL = '.cp-products, .cp-cat-news, .cp-cats, ul.products';
 
 	function step(list) {
 		var first = list.firstElementChild;

@@ -4,6 +4,8 @@
  *
  *   CP3.1 — trang cửa hàng / lưu trữ product_cat|product_tag
  *   CP3.2 — trang chi tiết sản phẩm
+ *   CP3.3 — popup "Đặt hàng nhanh" · CP3.4 — giỏ hàng · CP3.5 — thanh toán
+ *   CP3.7 — dải "Sản phẩm tương tự": 10 SP + nút cuộn ‹ › (tái dùng CP2.8)
  *
  * @package TL\Theme\CP
  */
@@ -392,10 +394,15 @@ function cp_single_close(): void {
 	echo '</div>'; // .cp-single-layout
 	echo '</div></section>'; // .cp-container / .cp-single-section
 
-	// Sản phẩm liên quan — dải full-width nền xám (carousel cuộn ngang).
+	// CP3.7 — Sản phẩm liên quan: dải full-width nền xám, CUỘN NGANG + nút ‹ › (tái dùng CP2.8).
+	// Cờ `cp_related_scroller_flag( true )` bật cho 2 filter `woocommerce_product_loop_start/_end`:
+	// nhờ vậy bọc được ĐÚNG `ul.products` (nút nằm giữa chiều cao dải SP, không phải giữa tiêu đề + dải)
+	// mà KHÔNG phải copy template `single-product/related.php` của WooCommerce.
 	if ( function_exists( 'woocommerce_output_related_products' ) ) {
 		echo '<section class="cp-section cp-related-band"><div class="cp-container">';
+		cp_related_scroller_flag( true );
 		woocommerce_output_related_products();
+		cp_related_scroller_flag( false );
 		echo '</div></section>';
 	}
 
@@ -412,6 +419,65 @@ function cp_single_close(): void {
 }
 
 /** Nhãn danh mục phía trên tiêu đề sản phẩm. */
+/* ========================= CP3.7 — "SẢN PHẨM TƯƠNG TỰ": 10 SP + NÚT CUỘN ‹ › ========================= */
+
+/**
+ * CP3.7 — Dải "Sản phẩm tương tự" hiển thị bao nhiêu sản phẩm.
+ *
+ * WooCommerce mặc định **4** (`woocommerce_output_related_products()` → `posts_per_page = 4`) — đo
+ * TRƯỚC CP3.7 ở 1440: dải `1400 / 1400px` ⇒ **không cuộn được**, không có nút nào để bấm.
+ * Yêu cầu Tùng 2026-09-16: **10** sản phẩm. 10 thẻ × 250px + gap 20 = **2700px > 1360px** ⇒ dải
+ * cuộn được và nút ‹ › mới có việc. Đổi số bằng filter `cp_related_per_page`.
+ */
+function cp_related_per_page(): int {
+	return max( 1, (int) apply_filters( 'cp_related_per_page', 10 ) );
+}
+
+/** CP3.7 — Số sản phẩm tương tự (WC đọc `posts_per_page` tại filter này). */
+add_filter(
+	'woocommerce_output_related_products_args',
+	static function ( $cp_args ) {
+		$cp_args['posts_per_page'] = cp_related_per_page();
+		return $cp_args;
+	}
+);
+
+/**
+ * CP3.7 — Cờ "đang in dải Sản phẩm tương tự" cho 2 filter bên dưới.
+ *
+ * KHÔNG thay được bằng `is_product()`: `woocommerce_product_loop_start` chạy cho **mọi** vòng lặp sản
+ * phẩm (shop, lưới shortcode, upsell…) nên phải bật/tắt quanh ĐÚNG một lệnh gọi related.
+ */
+function cp_related_scroller_flag( ?bool $cp_set = null ): bool {
+	static $cp_on = false;
+	if ( null !== $cp_set ) {
+		$cp_on = $cp_set;
+	}
+	return $cp_on;
+}
+
+/** CP3.7 — Mở `.cp-scroller` + nút ‹ ngay TRƯỚC `ul.products` của dải tương tự. */
+add_filter(
+	'woocommerce_product_loop_start',
+	static function ( $cp_html ) {
+		if ( ! cp_related_scroller_flag() ) {
+			return $cp_html;
+		}
+		return cp_scroller_open_markup() . $cp_html;
+	}
+);
+
+/** CP3.7 — Nút › + đóng `.cp-scroller` ngay SAU `</ul>`. */
+add_filter(
+	'woocommerce_product_loop_end',
+	static function ( $cp_html ) {
+		if ( ! cp_related_scroller_flag() ) {
+			return $cp_html;
+		}
+		return $cp_html . cp_scroller_close_markup();
+	}
+);
+
 function cp_single_cat_label(): void {
 	global $product;
 	if ( ! $product instanceof WC_Product ) {

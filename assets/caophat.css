@@ -1625,6 +1625,11 @@ body.cp main#main { padding-block: 0; }
   transition: transform .2s ease, box-shadow .2s ease;
 }
 .woocommerce .cp-related-band ul.products li.product:hover { transform: translateY(-4px); box-shadow: var(--cp-shadow-lg); }
+/* CP3.7 — ẩn thanh trượt của dải (giống dải cuộn CP2.8 trang chủ): người dùng cuộn bằng chuột/
+   trackpad hoặc 2 nút ‹ › do JS (`assets/scroller.js`) gắn vào. `scrollbar-width` cho Firefox,
+   `-ms-overflow-style` cho Edge cũ; bản WebKit/Blink ẩn bằng pseudo-element. */
+.woocommerce .cp-related-band ul.products { scrollbar-width: none; -ms-overflow-style: none; }
+.woocommerce .cp-related-band ul.products::-webkit-scrollbar { display: none; }
 .woocommerce .cp-related-band li.product .onsale {
   position: absolute; top: 0; left: 0; right: auto; margin: 0;
   display: inline-flex; align-items: center; justify-content: center;

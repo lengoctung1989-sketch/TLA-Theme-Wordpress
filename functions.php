@@ -487,22 +487,36 @@ function cp_product_card( \WC_Product $product ): void {
 }
 
 /**
- * CP2.8 — Nút cuộn ‹ › cho bố cục "Cuộn ngang" của khối trang chủ.
+ * CP2.8 — Nút cuộn ‹ › cho bố cục "Cuộn ngang" (khối trang chủ + **dải "Sản phẩm tương tự" CP3.7**).
  *
- * Chỉ gọi khi bố cục là `scroll`: mở `.cp-scroller` + nút trái (trước list) và đóng bằng nút phải.
+ * Chỉ gọi khi dải CUỘN ĐƯỢC: mở `.cp-scroller` + nút trái (trước list) và đóng bằng nút phải.
  * CSS ẩn thanh trượt của dải; JS `assets/scroller.js` xử lý cuộn + ẩn nút ở 2 đầu.
+ *
+ * Tách 2 lớp `_markup()` (TRẢ chuỗi) + hàm in (`echo`) để CP3.7 tái dùng được cùng markup trong
+ * filter `woocommerce_product_loop_start` / `_loop_end` — 2 filter đó BẮT BUỘC trả chuỗi, không
+ * được `echo`.
  */
-function cp_scroller_open(): void {
-	echo '<div class="cp-scroller">';
-	echo '<button type="button" class="cp-scroller__btn cp-scroller__btn--prev" aria-label="'
+function cp_scroller_open_markup(): string {
+	return '<div class="cp-scroller">'
+		. '<button type="button" class="cp-scroller__btn cp-scroller__btn--prev" aria-label="'
 		. esc_attr__( 'Cuộn sang trái', 'tungleads-theme' ) . '" aria-hidden="true" tabindex="-1">‹</button>';
+}
+
+/** CP2.8 — In phần mở `.cp-scroller` (nút ‹). */
+function cp_scroller_open(): void {
+	echo cp_scroller_open_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- chuỗi đã escape từng phần ở trên.
+}
+
+/** CP2.8 — Phần ĐÓNG `.cp-scroller` (nút › rồi `</div>`) dạng chuỗi — xem `cp_scroller_open_markup()`. */
+function cp_scroller_close_markup(): string {
+	return '<button type="button" class="cp-scroller__btn cp-scroller__btn--next" aria-label="'
+		. esc_attr__( 'Cuộn sang phải', 'tungleads-theme' ) . '" aria-hidden="true" tabindex="-1">›</button>'
+		. '</div>';
 }
 
 /** CP2.8 — Đóng `.cp-scroller` (đi kèm `cp_scroller_open()`). */
 function cp_scroller_close(): void {
-	echo '<button type="button" class="cp-scroller__btn cp-scroller__btn--next" aria-label="'
-		. esc_attr__( 'Cuộn sang phải', 'tungleads-theme' ) . '" aria-hidden="true" tabindex="-1">›</button>';
-	echo '</div>';
+	echo cp_scroller_close_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- chuỗi đã escape từng phần ở trên.
 }
 
 /* ==========================================================================
