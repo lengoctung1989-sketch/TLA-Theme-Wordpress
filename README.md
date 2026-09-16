@@ -31,6 +31,8 @@ Widget liên hệ nổi cho **caophat.vn**: cụm nút **Gọi điện + Zalo** 
 - Nhập màu = đè màu/gradient mặc định; màu chữ cũng đổi luôn ô tròn chữ `Z`/`f` và icon SVG.
 - **Ảnh icon** tải lên (nút *Chọn ảnh* → thư viện Media) sẽ **thay thế** icon mặc định; nên dùng ảnh vuông ~100×100px, nền trong suốt.
 
+> v1.1.3 (2026-09-16): **hạ cụm nút xuống thấp hơn** — `.wd-contact-widget { top: 50% → 75% }` (yêu cầu Tùng). Cụm 210×256 nằm vừa màn hình ở 1440×900 / 1280×800 / 1024×600 / 390×844 / 390×667; **khung nhìn thấp hơn ~512px thì đáy cụm bị cắt** (cần 0,25×H ≥ 128px).
+>
 > v1.1.2 (2026-09-16): **đổi icon nút GỌI** sang “điện thoại + 2 gợn sóng” (Feather `phone-call`) — Tùng chốt qua trang xem thử 6 phương án (chọn phương án C). Icon cũ là ống nghe nét trơn 1 path.
 >
 > v1.1.1 (2026-09-16): thêm header `Author URI: https://tungleads.com/` ⇒ ở **/wp-admin/plugins.php**, dòng `Phiên bản 1.1.1 | Bởi Tung Le Ads` có **“Tung Le Ads” là link** (WP core tự bọc `<a>` khi có Author URI — xem `class-wp-plugins-list-table.php`).

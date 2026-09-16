@@ -15,7 +15,11 @@
 
 .wd-contact-widget {
     position: fixed;
-    top: 50%;
+    /* 2026-09-16 (yêu cầu Tùng): 50% → 75% — hạ cụm nút xuống thấp hơn (tâm cụm ở 75% chiều cao
+       khung nhìn). `transform: translateY(-50%)` bên dưới giữ nguyên nên `top` = TÂM của cụm.
+       Đo: 1440x900 / 1280x800 / 1024x600 / 390x844 / 390x667 đều vừa màn hình, không tràn ngang.
+       Lưu ý: khung nhìn thấp hơn ~512px thì đáy cụm bị cắt (cụm cao 256px → cần 0,25×H ≥ 128px). */
+    top: 75%;
     right: 0;
     z-index: 999999;
 
