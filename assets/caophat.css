@@ -752,10 +752,9 @@ body.cp {
 .cp-footer-bottom .cp-footer-credit { margin-left: auto; }
 /* 2026-09-16 (Tùng yêu cầu): dòng ghi công HIỂN THỊ SÁT LỀ PHẢI ở MỌI bề rộng (bỏ `padding-right: 84px`,
    thêm `margin-left: auto` cho trường hợp xuống hàng ở ≤560px).
-   ĐÁNH ĐỔI đã đo (chọn theo yêu cầu “sát lề phải”): khi cuộn tới ĐÁY trang, `.cp-fab` (fixed, 54px, cách
-   phải 18px) phủ lên phần PHẢI của link ghi công ở cả 1440/768/390 — giao nhau **832px²**, click vào GIỮA
-   link trúng `A.call` (nút gọi), chỉ mép trái bấm được. Muốn hết hẳn mà vẫn sát phải thì phải nâng `.cp-fab`
-   lên hoặc chừa `padding-bottom` cho `.cp-footer` — CHƯA làm, chờ Tùng quyết. */
+   ĐÁNH ĐỔI cũ (giờ ĐÃ HẾT): `.cp-fab` phủ **832px²** lên link ghi công khi cuộn tới đáy — nút gọi nổi
+   đã bị XOÁ HẲN ở CP1.3 (cùng ngày, cùng yêu cầu) nên link ghi công nay bấm được ở MỌI điểm, kể cả
+   chính giữa (trước đây bấm giữa lại trúng `A.call`). */
 
 /* ---------- Page hero (danh mục · giỏ hàng · thanh toán · hoàn tất đơn) ---------- */
 .cp-pagehero {
@@ -807,24 +806,11 @@ body.cp {
 .cp-tab-panel table th, .cp-tab-panel table td { text-align: left; padding: 11px 14px; border: 1px solid var(--cp-line); font-size: 14.5px; }
 .cp-tab-panel table th { background: var(--cp-surface); color: var(--cp-text); width: 40%; }
 
-/* ---------- Floating hotline ---------- */
-.cp-fab {
-  position: fixed; right: 18px; bottom: 18px; z-index: 60;
-  display: flex; flex-direction: column; gap: 12px;
-}
-.cp-fab a {
-  width: 54px; height: 54px; border-radius: 50%;
-  display: grid; place-items: center; color: #fff;
-  box-shadow: var(--cp-shadow-lg);
-  animation: cp-pulse 2s infinite;
-}
-.cp-fab .call { background: var(--cp-accent); }
-.cp-fab .zalo { background: #0068ff; font-weight: 800; font-size: 13px; }
-@keyframes cp-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(200,71,31,.5); }
-  70% { box-shadow: 0 0 0 14px rgba(200,71,31,0); }
-  100% { box-shadow: 0 0 0 0 rgba(200,71,31,0); }
-}
+/* ---------- Floating hotline — ĐÃ XOÁ (CP1.3, 2026-09-16 theo yêu cầu Tùng) ----------
+   Nút gọi nổi `.cp-fab` (kèm `.cp-fab a`, `.cp-fab .call`, `.cp-fab .zalo`) đã xoá khỏi `footer.php`
+   và xoá khỏi file này; `@keyframes cp-pulse` cũng xoá luôn vì CHỈ `.cp-fab a` dùng nó.
+   Thay thế: plugin riêng `button-call-zalo-tungleads` (widget Gọi/Zalo neo lề phải, số nhập ở
+   Settings → Button Call/Zalo) — không phải CSS mồ côi, đừng khôi phục lại ở đây. */
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1024px) {

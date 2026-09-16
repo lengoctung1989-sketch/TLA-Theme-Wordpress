@@ -1,20 +1,22 @@
 <?php
 /**
- * Footer Cao Phát Door: footer 3–4 CỘT (mỗi cột = tiêu đề + ô soạn thảo văn bản) + nút hotline nổi (FAB).
+ * Footer Cao Phát Door: footer 3–4 CỘT (mỗi cột = tiêu đề + ô soạn thảo văn bản).
  *
  * CP1.3 footer — nền (màu + ảnh + độ đậm lớp màu) và nội dung từng cột đọc từ Customizer
  * "Footer Cao Phát": `cp_footer_columns()` / `cp_footer_get()` / `cp_footer_flag()` /
  * `cp_footer_col_get()` (`functions.php`, 1 nguồn sự thật cho default); dòng bản quyền + ghi công qua
- * `cp_footer_text()`; hotline qua `cp_hotline_display()` / `cp_hotline_tel()`. Ô để trống trong
- * Customizer → dùng lại mặc định nên file này không giữ chuỗi nào.
+ * `cp_footer_text()`. Ô để trống trong Customizer → dùng lại mặc định nên file này không giữ chuỗi nào.
+ *
+ * CP1.3 (2026-09-16, Tùng yêu cầu): **XOÁ nút hotline nổi (FAB)** — cả markup `<div class="cp-fab">`
+ * lẫn CSS `.cp-fab*`. Thay thế: plugin riêng **`button-call-zalo-tungleads`** (widget Gọi/Zalo neo
+ * lề phải, số nhập ở Settings → Button Call/Zalo). Xoá FAB cũng hết lỗi đã đo trước đây: FAB phủ
+ * **832px²** lên link ghi công ở đáy trang (bấm giữa link lại trúng `A.call`).
  *
  * @package TL\Theme\CP
  */
 
 defined( 'ABSPATH' ) || exit;
 
-$cp_tel  = cp_hotline_tel();
-$cp_disp = cp_hotline_display();
 $cp_cols = cp_footer_columns();
 $cp_logo = cp_footer_flag( 'logo' );
 ?>
@@ -94,11 +96,16 @@ $cp_logo = cp_footer_flag( 'logo' );
 	</div>
 </footer>
 
-<div class="cp-fab">
-	<a class="call" href="tel:<?php echo esc_attr( $cp_tel ); ?>" aria-label="<?php esc_attr_e( 'Gọi hotline', 'tungleads-theme' ); ?>">
-		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-	</a>
-</div>
+<?php
+/*
+ * CP1.3 (2026-09-16, Tùng yêu cầu) — ĐÃ XOÁ nút hotline nổi `<div class="cp-fab">` (chỉ 1 nút
+ * `<a class="call" href="tel:…">`) cùng toàn bộ CSS `.cp-fab*` + `@keyframes cp-pulse`.
+ * Chức năng gọi/Zalo nay do plugin riêng **`button-call-zalo-tungleads`** lo (widget neo lề phải,
+ * in ở `wp_footer` prio 5; số nhập ở Settings → Button Call/Zalo). Muốn quay lại: xem git trước
+ * commit này (hoặc tắt plugin mới rồi khôi phục markup trong lịch sử `footer.php`).
+ * Xoá FAB cũng hết lỗi đã đo: FAB phủ 832px² lên link ghi công ở đáy trang (bấm giữa link trúng `A.call`).
+ */
+?>
 
 <?php wp_footer(); ?>
 </body>
