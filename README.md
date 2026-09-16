@@ -21,6 +21,7 @@ Child theme của [`tungleads-theme`](../tungleads-theme). Chỉ chứa **skin r
 | `template-parts/home-cat-news.php` | Khối "Tin tức theo chuyên mục" (repeater trong Customizer) — 4 bố cục: Lưới 3 cột · Lưới 2 cột · Cuộn ngang · **Nổi bật (1 bài lớn bên trái + 5 bài bên phải)** |
 | `assets/caophat.css` | Toàn bộ CSS giao diện (`.cp-*`) + phần thích ứng WordPress |
 | `assets/images/` | 6 ảnh cửa mockup (hero + 5 loại cửa) |
+| `screenshot.jpg` | **Ảnh thumbnail cho `/wp-admin/themes.php`** (yêu cầu Tùng 2026-09-16): ảnh do Tùng gửi, nén còn **1200×675 JPEG ~273KB** (bản gốc 1600×900 PNG 1.6MB ở `/tmp/cp-pw/screenshot-original-backup.png`). ⚠️ Card theme trong WP là khung **3:2** (`padding-top: 66.67%`, `img{position:absolute;top:0;width:100%}`) nên ảnh 16:9 **hụt đáy 41px (~16%)** — muốn đầy khít thì dùng ảnh tỉ lệ **3:2** (VD 1200×800). WordPress ưu tiên `screenshot.png` trước `.jpg` ⇒ **không đặt cả 2 file**. |
 
 ## Cấu hình sau khi kích hoạt
 
