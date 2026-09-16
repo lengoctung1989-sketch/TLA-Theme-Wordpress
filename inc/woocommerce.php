@@ -6,6 +6,7 @@
  *   CP3.2 — trang chi tiết sản phẩm
  *   CP3.3 — popup "Đặt hàng nhanh" · CP3.4 — giỏ hàng · CP3.5 — thanh toán
  *   CP3.7 — dải "Sản phẩm tương tự": 10 SP + nút cuộn ‹ › (tái dùng CP2.8)
+ *   CP3.8 — tab "Mô tả": thu gọn + nút Xem thêm / Thu gọn (tái dùng `.cp-shop-desc` của CP3.1)
  *
  * @package TL\Theme\CP
  */
@@ -477,6 +478,69 @@ add_filter(
 		return $cp_html . cp_scroller_close_markup();
 	}
 );
+
+/* ========================= CP3.8 — TAB "MÔ TẢ": THU GỌN + NÚT XEM THÊM / THU GỌN ========================= */
+
+/**
+ * CP3.8 — Thay callback của tab "Mô tả" bằng bản THU GỌN.
+ *
+ * Đo TRƯỚC CP3.8 (2026-09-16, `/san-pham/bang-gia-cua-nhua-pvc-cao-cap/`): panel `#tab-description`
+ * cao **5229px** với **6430 ký tự / 57 `<p>`** — “bức tường chữ” ngay dưới thanh tabs và **không có
+ * nút thu gọn** (mô tả NGẮN ở cột phải đã có nút từ CP3.2 nên chỗ thiếu đúng là tab này).
+ *
+ * KHÔNG copy template `single-product/tabs/description.php`: chỉ đổi `callback` trong filter
+ * `woocommerce_product_tabs` (H2 “Mô tả” đã bị bỏ từ CP3.2 qua `woocommerce_product_description_heading`).
+ */
+add_filter(
+	'woocommerce_product_tabs',
+	static function ( array $cp_tabs ): array {
+		if ( isset( $cp_tabs['description'] ) ) {
+			$cp_tabs['description']['callback'] = 'cp_single_description_tab';
+		}
+		return $cp_tabs;
+	},
+	20
+);
+
+/**
+ * CP3.8 — Nội dung tab "Mô tả": tái dùng khối thu gọn `.cp-shop-desc` (CP3.1) + modifier
+ * `.cp-single-desc` (CSS riêng cho tab: bỏ kẻ trên/đẩy cách, giữ typography của panel, ngưỡng cao hơn).
+ *
+ * `the_content()` được đệm qua `ob_start()` y như callback gốc của WooCommerce ⇒ shortcode/page-builder
+ * trong mô tả vẫn chạy; guard ẩn nút khi nội dung ngắn là của CP3.2 (JS đo `scrollHeight`).
+ */
+function cp_single_description_tab(): void {
+	ob_start();
+	the_content();
+	$cp_html = trim( (string) ob_get_clean() );
+	if ( '' === $cp_html ) {
+		return;
+	}
+
+	echo '<div class="cp-shop-desc cp-single-desc">';
+	echo '<div class="cp-shop-desc__body">' . $cp_html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- nội dung bài do WordPress render qua `the_content()`.
+	echo '<button type="button" class="cp-shop-desc__toggle" aria-expanded="false">'
+		. '<span class="cp-shop-desc__more">' . esc_html__( 'Xem thêm', 'tungleads-theme' ) . '</span>'
+		. '<span class="cp-shop-desc__less">' . esc_html__( 'Thu gọn', 'tungleads-theme' ) . '</span>'
+		. '</button>';
+	echo '</div>';
+	?>
+<script>
+(function () {
+	var box  = document.currentScript.previousElementSibling;
+	var btn  = box && box.querySelector('.cp-shop-desc__toggle');
+	var body = box && box.querySelector('.cp-shop-desc__body');
+	if (!btn || !body) { return; }
+	// Nội dung vốn ngắn hơn mức thu gọn → không cần nút (giống CP3.2).
+	if (body.scrollHeight <= body.clientHeight + 4) { btn.hidden = true; return; }
+	btn.addEventListener('click', function () {
+		var open = box.classList.toggle('is-open');
+		btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+	});
+})();
+</script>
+	<?php
+}
 
 function cp_single_cat_label(): void {
 	global $product;

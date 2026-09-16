@@ -1579,6 +1579,23 @@ body.cp main#main { padding-block: 0; }
 .woocommerce .cp-single-tabs table.shop_attributes th,
 .woocommerce .cp-single-tabs table.shop_attributes td { border: 1px solid var(--cp-line); padding: 11px 14px; }
 
+/* CP3.8 — Tab "Mô tả" thu gọn sẵn + nút Xem thêm / Thu gọn (tái dùng NGUYÊN khối `.cp-shop-desc`
+   của CP3.1: thanh nút viên, gradient mờ dần, class `is-open`), chỉ chỉnh cho hợp ngữ cảnh TAB:
+   - `.cp-shop-desc` gốc là khối DƯỚI lưới danh mục nên có `margin-top: 36px` + `border-top` + padding
+     trên → trong tab phải bỏ hết;
+   - giữ đúng typography của panel tab (`color: var(--cp-muted)` + `line-height: 1.8` của
+     `.woocommerce-Tabs-panel`) ⇒ KHÔNG để body ăn `font-size: 14.5px` / `line-height: 1.7` của CP3.1;
+   - ngưỡng thu gọn **24em** thay 12em: đo được nội dung mô tả dài 6430 ký tự (panel 5229px) nên 12em
+     quá ngắn, 24em ≈ 12–14 dòng — đủ để "đọc thử" rồi mới bấm Xem thêm. */
+.cp-single-tabs .cp-single-desc { margin-top: 0; border-top: 0; padding-top: 0; }
+.cp-single-tabs .cp-single-desc .cp-shop-desc__body {
+  max-height: 24em; font-size: inherit; line-height: inherit; color: inherit;
+}
+/* BẪY specificity: rule trên (0,3,0) nằm SAU rule gốc `.cp-shop-desc.is-open .cp-shop-desc__body`
+   cũng (0,3,0) của CP3.1 ⇒ `max-height: none` khi mở KHÔNG chạy (đo được: bấm “Xem thêm” nhãn đổi
+   nhưng panel vẫn 499px). Phải nâng lên (0,4,0) cho trạng thái mở. */
+.cp-single-tabs .cp-single-desc.is-open .cp-shop-desc__body { max-height: none; }
+
 /* CP3.2 — Thông số kỹ thuật (thẻ riêng dưới ô mô tả) */
 .cp-spec { padding: 28px; margin-top: 24px; }
 .cp-spec__title {
