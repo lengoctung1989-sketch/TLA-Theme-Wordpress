@@ -190,3 +190,20 @@ Widget liên hệ nổi (Gọi điện + Zalo) neo sát **lề phải**, in ở 
 **Quy tắc breakpoint (Tùng chốt 2026-09-16):** thứ tự **>1024px** · chiều cao + cỡ logo **>768px** · màu sắc + bật/tắt **mọi khổ** · khối HTML mặc định **chỉ >1024px**. **Ẩn mục:** `header.php` gắn `cp-hide-<key>`, `caophat.css` ẩn (`.cp-hide-search` ẩn cả `.cp-search-toggle`, có `!important` để thắng rule mở dải search ở ≤768px).
 
 **Số đo (Playwright):** mặc định không đổi so với trước (1440: logo `250×46`, menu x435, search x958, hotline x1202, giỏ x1385; 390: logo `115,17 160×29`); khi áp cấu hình thử: container `110px`, logo `180×33`, topbar `rgb(18,52,86)` + chữ trắng, header `rgb(17,17,17)`, khối HTML **cùng hàng** (lệch tâm so với logo **0px**), hotline ẩn, thứ tự `logo→html→menu→search→cart`, **overflow 0** ở 1440/1100/1024/768/390. Chi tiết + 4 bẫy ở dòng `CP1.8` trong `CLAUDE.md`.
+
+## CP2.10 — 4 cụm nội dung nổi bật trên trang chủ (quản trị trong Customizer, 2026-09-16)
+
+**Customizer → “4 cụm nổi bật Cao Phát”** (section `cp_features`, priority **36**, **12 control** = 4 cụm × (tiêu đề · mô tả · icon)).
+
+| Việc | File |
+| :--- | :--- |
+| Mặc định + getter + icon | `functions.php` — `cp_features_defaults()` (chữ + **path SVG** của 4 icon gốc; cụm 4 lấy `cp_hotline_display()`), `cp_feature_get()`, `cp_feature_icon()` |
+| Markup dải nổi bật | `front-page.php` — vòng `for (1..4)` gọi `cp_feature_icon()` + `cp_feature_get()` (không giữ chuỗi nào) |
+| UI Customizer | `inc/customizer.php` — section `cp_features`; mỗi cụm: `cp_feature{n}_title` (text) · `cp_feature{n}_text` (text) · `cp_feature{n}_icon` (**`WP_Customize_Media_Control`** = attachment ID) |
+| CSS ảnh icon | `assets/caophat.css` — `.cp-feature .ic img { width/height:100%; object-fit:contain }` |
+
+**Nguồn sự thật:** chữ + icon mặc định chỉ nằm ở `cp_features_defaults()`; ô để trống ⇒ dùng lại mặc định. Cụm 4 để trống mô tả ⇒ tự bám hotline toàn site.
+
+**Số đo (Playwright):** mặc định khớp 100% trước refactor (1440 `20,696 1400×92`; 390 `20,801 350×424`; icon SVG 22×22 trong ô 42×42); sửa chữ + upload icon (id `11661`) ⇒ cụm 1 là `<img>` 42×42, 3 cụm kia giữ SVG; **overflow 0** ở 1440/390 cả 2 trạng thái; 0 lỗi PHP.
+
+**Bẫy đã dính:** xoá `$cp_disp` trong `front-page.php` (tưởng biến chết) nhưng nút CTA `Gọi ngay %s` vẫn dùng ⇒ PHP `Warning: Undefined variable` in vào nhãn nút + `nowrap` ⇒ nút 1065px ⇒ tràn ngang **723px** (đã sửa, biến có ghi chú “KHÔNG xoá”). Chi tiết ở dòng `CP2.10` trong `CLAUDE.md`.
