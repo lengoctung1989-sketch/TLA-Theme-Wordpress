@@ -2311,6 +2311,23 @@ body.cp-qo-open { overflow: hidden; }
 }
 
 /* ==========================================================================
+   CP5.3 — Trang THẺ (tag) — `/the/<slug>/`
+   Thân trang DÙNG CHUNG với trang chuyên mục (`template-parts/news-archive.php`) nên KHÔNG khai lại
+   `.cp-pagehero` / `.cp-news-layout` / `.cp-news-card` / `.cp-side-box` / `.cp-pagination`.
+   Chỉ thêm phần riêng của trang thẻ: hộp cột phải "Từ khoá phổ biến" — chip tái dùng
+   `.cp-article__tag` của CP5.2.
+   ========================================================================== */
+.cp-side-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Selector PHẢI có tiền tố `.cp` + `a` (0,3,1) mới hơn rule gốc `.cp a.cp-article__tag` (0,2,1):
+   ở bài viết chip cao CỐ ĐỊNH 32px + `padding: 0 14px`; trong cột phải 320px tên thẻ dài (site có
+   thẻ ~30 ký tự) sẽ tràn khỏi chip → cho cao theo nội dung, giữ nhịp bằng `min-height`. */
+.cp .cp-side-tags a.cp-article__tag {
+  height: auto; min-height: 32px; max-width: 100%; padding: 5px 12px;
+  line-height: 1.35; white-space: normal;
+}
+.cp-side-tags__count { font-size: 11.5px; font-weight: 400; color: var(--cp-muted); }
+
+/* ==========================================================================
    CP5.2 — Trang chi tiết tin tức (`single.php`): breadcrumb mảnh + thẻ bài + nội dung
    Tái dùng lưới `.cp-news-layout` / `.cp-news-aside` của CP5.1 (không khai lại).
    ========================================================================== */

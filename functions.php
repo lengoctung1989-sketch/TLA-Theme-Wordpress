@@ -343,11 +343,21 @@ add_action(
 );
 
 /**
- * Theme cha đã lo title-tag/appearance-tools. Child chỉ thêm custom-logo.
+ * Theme support: `custom-logo` + **`title-tag`**.
+ *
+ * CP1.1 (2026-09-16 — phát hiện khi làm CP5.3): `Features\SEO::shouldBoot()` của theme cha trả FALSE
+ * khi có plugin SEO active (site này bật **Rank Math**) ⇒ `add_theme_support('title-tag')` của cha
+ * KHÔNG chạy, mà Rank Math **chỉ lọc** nội dung tiêu đề (`document_title_parts`) chứ **không tự in**
+ * thẻ `<title>` ⇒ **toàn site mất `<title>`** (đo 2026-09-16: `/the/cua-nhua-gia-go/`,
+ * `/chuyen-muc/tin-tuc/`, trang chủ đều **0 thẻ `<title>`** — có cả ở production).
+ * Child khai lại ở đây: `add_theme_support()` là idempotent nên khi parent sửa xong cũng không trùng,
+ * và Rank Math vẫn ghi đè nội dung qua filter nên không mất tính năng SEO.
  */
 add_action(
 	'after_setup_theme',
 	static function (): void {
+		add_theme_support( 'title-tag' );
+
 		add_theme_support(
 			'custom-logo',
 			array(

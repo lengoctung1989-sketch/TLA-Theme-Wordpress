@@ -34,6 +34,10 @@ function cp_news_archive_url(): string {
 
 /**
  * CP5.1 — Breadcrumb "Trang chủ / … / <chuyên mục đang xem>".
+ * CP5.3 — Nhánh THẺ: "Trang chủ / Tin tức / Từ khoá: <thẻ>". Thẻ KHÔNG có tổ tiên nên phải rẽ nhánh
+ *         sớm: gọi `get_ancestors( $term_id, 'category' )` / `get_cat_name()` bằng ID thẻ sẽ ra chuỗi RỖNG
+ *         (crumb trắng). Mục "Tin tức" chỉ chèn khi trang danh sách tin KHÁC trang chủ (nếu không sẽ có
+ *         2 crumb cùng trỏ về `/`).
  *
  * Tự viết thay vì `woocommerce_breadcrumb()`: trang tin tức không thuộc WooCommerce (hàm đó còn
  * phụ thuộc plugin đang bật).
@@ -41,6 +45,31 @@ function cp_news_archive_url(): string {
 function cp_news_breadcrumb(): void {
 	$cp_term = get_queried_object();
 	if ( ! $cp_term instanceof WP_Term ) {
+		return;
+	}
+
+	$cp_sep = '<span class="cp-breadcrumb__sep" aria-hidden="true">/</span>';
+
+	if ( 'post_tag' === $cp_term->taxonomy ) {
+		echo '<nav class="cp-breadcrumb" aria-label="' . esc_attr__( 'Đường dẫn', 'tungleads-theme' ) . '">';
+		echo '<a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Trang chủ', 'tungleads-theme' ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hằng chuỗi.
+		echo $cp_sep; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup cố định.
+
+		$cp_hub = cp_news_archive_url();
+		if ( untrailingslashit( $cp_hub ) !== untrailingslashit( home_url( '/' ) ) ) {
+			echo '<a href="' . esc_url( $cp_hub ) . '">' . esc_html__( 'Tin tức', 'tungleads-theme' ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hằng chuỗi.
+			echo $cp_sep; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup cố định.
+		}
+
+		echo '<span class="cp-breadcrumb__here">'
+			. esc_html(
+				sprintf(
+					/* translators: %s: tên thẻ (tag). */
+					__( 'Từ khoá: %s', 'tungleads-theme' ),
+					$cp_term->name
+				)
+			) . '</span>';
+		echo '</nav>';
 		return;
 	}
 
@@ -150,6 +179,57 @@ function cp_news_cats_box(): void {
 
 	echo '<div class="cp-side-box cp-news-cats-box"><h4>' . esc_html__( 'Chuyên mục', 'tungleads-theme' ) . '</h4>';
 	echo '<ul class="cp-side-cats cp-news-cats">' . $cp_items . '</ul></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup do `wp_list_categories()` sinh.
+}
+
+/**
+ * CP5.3 — Hộp "Từ khoá phổ biến" cho cột phải TRANG THẺ: các thẻ nhiều bài nhất, bỏ chính thẻ đang xem.
+ *
+ * Vì sao KHÔNG dùng `wp_tag_cloud()`: site có **483 thẻ**, trong đó **354 thẻ chỉ gắn 1 bài** (đo
+ * 2026-09-16) → đổ hết ra là rác và loãng link nội bộ. Ở đây lấy theo SỐ BÀI giảm dần và chỉ nhận
+ * thẻ có `count >= 2` ⇒ 12 thẻ "nặng" nhất (mỗi thẻ 5–25 bài).
+ * Chip tái dùng `.cp-article__tag` của CP5.2 (không khai CSS trùng); số bài in kèm để biết thẻ nào
+ * nhiều nội dung. Đổi số lượng bằng filter `cp_news_tags_box_number`.
+ */
+function cp_news_tags_box(): void {
+	$cp_current = get_queried_object();
+	$cp_exclude = $cp_current instanceof WP_Term && 'post_tag' === $cp_current->taxonomy ? array( (int) $cp_current->term_id ) : array();
+
+	$cp_tags = get_terms(
+		array(
+			'taxonomy'   => 'post_tag',
+			'hide_empty' => true,
+			'orderby'    => 'count',
+			'order'      => 'DESC',
+			// Lấy dư 30 rồi mới lọc `count >= 2`: `number` của `get_terms()` đếm cả thẻ 1 bài nằm xen
+			// giữa bảng xếp hạng nên không thể đặt đúng 12 ngay từ truy vấn.
+			'number'     => 30,
+			'exclude'    => $cp_exclude,
+		)
+	);
+	if ( is_wp_error( $cp_tags ) || ! $cp_tags ) {
+		return;
+	}
+
+	$cp_limit = max( 1, (int) apply_filters( 'cp_news_tags_box_number', 12 ) );
+	$cp_tags  = array_slice(
+		array_values( array_filter( $cp_tags, static fn ( WP_Term $cp_item ): bool => (int) $cp_item->count >= 2 ) ),
+		0,
+		$cp_limit
+	);
+	if ( ! $cp_tags ) {
+		return;
+	}
+
+	echo '<div class="cp-side-box cp-news-tags-box"><h4>' . esc_html__( 'Từ khoá phổ biến', 'tungleads-theme' ) . '</h4>';
+	echo '<div class="cp-side-tags">';
+	foreach ( $cp_tags as $cp_tag ) {
+		echo '<a class="cp-article__tag" href="' . esc_url( (string) get_tag_link( (int) $cp_tag->term_id ) ) . '">'
+			. esc_html( $cp_tag->name )
+			// Dấu cách đầu chuỗi: `.textContent` không có khoảng trắng nên tên đọc liền số bài
+			// ("cửa gỗ công nghiệp25") — thêm space để tên đọc/trình đọc màn hình tách đúng.
+			. '<span class="cp-side-tags__count"> ' . esc_html( number_format_i18n( (int) $cp_tag->count ) ) . '</span></a>';
+	}
+	echo '</div></div>';
 }
 
 /** CP5.1 — Hộp "Tin mới nhất": 5 bài mới nhất toàn site, tái dùng list `.cp-side-news` của CP3.2. */
