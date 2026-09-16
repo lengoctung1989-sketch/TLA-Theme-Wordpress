@@ -29,14 +29,22 @@ $cp_logo = cp_footer_flag( 'logo' );
 				?>
 				<div class="cp-foot-col">
 					<?php if ( 0 === $cp_i && $cp_logo ) : ?>
-						<a class="cp-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>">
-							<?php if ( has_custom_logo() ) : ?>
-								<?php the_custom_logo(); ?>
-							<?php else : ?>
+						<?php
+						/*
+						 * CP1.3 — DOM: `the_custom_logo()` in ra `<a class="custom-logo-link">`; nếu bọc nó
+						 * trong `<a class="cp-logo">` thì HTML lồng thẻ <a> KHÔNG hợp lệ → trình duyệt tự đóng
+						 * thẻ ngoài, để lại `<a class="cp-logo">` RỖNG (đo 2026-09-16: cao 0px) và ảnh logo
+						 * thành CON của `.cp-foot-col` ⇒ nay in THẲNG logo khi có logo, chỉ bọc `<a>` cho bản chữ.
+						 */
+						?>
+						<?php if ( has_custom_logo() ) : ?>
+							<?php the_custom_logo(); ?>
+						<?php else : ?>
+							<a class="cp-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>">
 								<span class="cp-logo-mark">CP</span>
 								<span class="cp-logo-text"><b><?php bloginfo( 'name' ); ?></b><span><?php esc_html_e( 'Thế giới cửa gỗ', 'tungleads-theme' ); ?></span></span>
-							<?php endif; ?>
-						</a>
+							</a>
+						<?php endif; ?>
 					<?php endif; ?>
 
 					<?php if ( '' !== $cp_col['title'] ) : ?>

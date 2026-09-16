@@ -666,6 +666,14 @@ body.cp {
 .cp-footer li { margin-bottom: 9px; }
 .cp-footer .cp-logo-text b { color: var(--cp-footer-title, #fff); }
 .cp-footer .cp-logo-text span { color: var(--cp-footer-muted, #9a8f80); }
+/* 2026-09-16 (yêu cầu Tùng): logo ở footer **CÙNG CỠ với logo header** — header là `width: 250px`
+   (≤768px: `max-width: min(160px, 100%)`). Trước đây logo footer ăn cỡ GỐC của ảnh (473px — chiếm gần
+   hết cột) hoặc bị bóp theo bề rộng cột. Selector PHẢI là `.cp-footer .custom-logo` (ảnh không nằm
+   trong `.cp-logo` — xem ghi chú ở `footer.php`). */
+.cp-footer .custom-logo { width: 250px; height: auto; max-width: 100%; display: block; }
+@media (max-width: 768px) {
+  .cp-footer .custom-logo { max-width: min(160px, 100%); }
+}
 .cp-footer p { color: var(--cp-footer-muted, #9a8f80); line-height: 1.7; }
 
 /* CP1.3 — mỗi cột = tiêu đề + 1 ô soạn thảo (TinyMCE) → chuẩn hoá lại các thẻ HTML trong ô đó:
@@ -676,7 +684,13 @@ body.cp {
    nếu không sẽ đẩy tràn ngang cả trang (đo ở 390px: `caophatdoor@gmail.com` rộng **183px** trong cột
    157px → `scrollWidth` 396 > 390). `break-word` chỉ cắt khi từ không vừa dòng. */
 .cp-footer .cp-col__body { min-width: 0; overflow-wrap: break-word; }
-.cp-footer .cp-logo + .cp-col__body { margin-top: 16px; }
+/* 2026-09-16 (yêu cầu Tùng): 20px từ logo xuống nội dung bên dưới. Có 2 DOM:
+   (a) CÓ custom logo → `<a class="custom-logo-link"><img></a>` rồi tới `.cp-col__body`
+       (KHÔNG còn `<a class="cp-logo">` bọc ngoài — xem ghi chú ở `footer.php`);
+   (b) KHÔNG có custom logo → `<a class="cp-logo">` (chữ) rồi tới `.cp-col__body`. */
+.cp-footer .custom-logo-link { display: block; }
+.cp-footer .custom-logo-link + .cp-col__body,
+.cp-footer .cp-logo + .cp-col__body { margin-top: 20px; }
 .cp-footer .cp-col__body > *:first-child { margin-top: 0; }
 .cp-footer .cp-col__body > *:last-child { margin-bottom: 0; }
 .cp-footer .cp-col__body p { margin: 0 0 12px; }
