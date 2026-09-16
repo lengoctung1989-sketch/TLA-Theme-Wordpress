@@ -1088,9 +1088,12 @@ add_action(
 		/* CP1.3 — Dòng "Thiết kế bởi tungleads.com" KHÔNG còn ở đây: nay là markup CỐ ĐỊNH trong
 		   `footer.php` (kèm link tungleads.com) theo yêu cầu Tùng 2026-09-16 → không sửa được từ admin. */
 
-		/* Hotline TOÀN SITE — hiện ở header, footer, nút gọi nổi (FAB) và các nút "Gọi ngay" trong trang
-		   sản phẩm (tất cả đều đi qua `cp_hotline_display()` / `cp_hotline_tel()`). Filter cùng tên
-		   vẫn ghi đè được — không phá code/config đang dùng filter. */
+		/* Hotline TOÀN SITE — hiện ở topbar/header, footer và các nút "Gọi ngay" trong trang sản phẩm
+		   (tất cả đều đi qua `cp_hotline_display()` / `cp_hotline_tel()`). Filter cùng tên vẫn ghi đè
+		   được — không phá code/config đang dùng filter.
+		   2026-09-16 (yêu cầu Tùng): 2 ô này CHUYỂN từ section "Footer Cao Phát" sang **"Trang chủ Cao Phát"**
+		   (`cp_home`) — ID setting GIỮ NGUYÊN nên giá trị đã nhập không mất; đặt `priority => 90` để nằm
+		   CUỐI danh sách của section đó (mặc định của các control còn lại là 10). */
 		$wp_customize->add_setting(
 			'cp_hotline_display',
 			array(
@@ -1102,9 +1105,10 @@ add_action(
 		$wp_customize->add_control(
 			'cp_hotline_display',
 			array(
-				'section'     => 'cp_footer',
+				'section'     => 'cp_home',
+				'priority'    => 90,
 				'label'       => __( 'Hotline — số hiển thị (toàn site)', 'tungleads-theme' ),
-				'description' => __( 'Dùng cho header, footer, nút gọi nổi và các nút “Gọi ngay” ở trang sản phẩm.', 'tungleads-theme' ),
+				'description' => __( 'Dùng cho topbar/header, footer và các nút “Gọi ngay” ở trang sản phẩm.', 'tungleads-theme' ),
 				'type'        => 'text',
 			)
 		);
@@ -1120,7 +1124,8 @@ add_action(
 		$wp_customize->add_control(
 			'cp_hotline_tel',
 			array(
-				'section'     => 'cp_footer',
+				'section'     => 'cp_home',
+				'priority'    => 91,
 				'label'       => __( 'Hotline — số để gọi (link tel:)', 'tungleads-theme' ),
 				'description' => __( 'Khi tạo link gọi chỉ giữ chữ số và dấu +. Trống = 0834021021.', 'tungleads-theme' ),
 				'type'        => 'text',
@@ -1242,7 +1247,7 @@ add_action(
 			array(
 				'section'     => 'cp_header',
 				'label'       => __( 'Topbar — nhãn trước số hotline', 'tungleads-theme' ),
-				'description' => __( 'Số hotline lấy từ "Footer Cao Phát → Hotline toàn site".', 'tungleads-theme' ),
+				'description' => __( 'Số hotline lấy từ "Trang chủ Cao Phát → Hotline toàn site".', 'tungleads-theme' ),
 				'type'        => 'text',
 			)
 		);
