@@ -1168,7 +1168,7 @@ body.cp main#main { padding-block: 0; }
 @keyframes cp-desc-in { from { opacity: .3; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .cp-shop-desc__toggle {
   display: flex; align-items: center; gap: 8px;
-  margin: 18px auto 0; padding: 9px 24px;
+  margin: 18px auto 0; padding: 2px 15px;
   background: #fff; border: 1px solid var(--cp-primary); border-radius: 999px;
   cursor: pointer; font: inherit; font-weight: 700; color: var(--cp-accent);
   transition: background .18s ease, color .18s ease;
