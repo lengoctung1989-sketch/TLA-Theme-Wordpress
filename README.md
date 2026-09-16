@@ -2,7 +2,8 @@
 
 Widget liên hệ nổi cho **caophat.vn**: cụm nút **Gọi điện + Zalo** neo sát **lề phải**, hover để mở rộng; in ở cuối **mọi trang** (hook `wp_footer`, prio 20).
 
-- **Giao diện**: giữ **nguyên** thiết kế “TÙNG LÊ ADS — CONTACT FLOATING WIDGET v1.3” (class `wd-contact-*`) — kể cả mobile giữ đúng layout desktop.
+- **Giao diện**: thiết kế “TÙNG LÊ ADS — CONTACT FLOATING WIDGET v1.3” (class `wd-contact-*`) — nút mở rộng khi hover · **mobile nhỏ còn 3/4** (v1.2.0).
+- **Nhấp 2 lần (v1.2.0)**: lần nhấp 1 nút **di chuyển** (trượt + mở rộng ra hiện nhãn) nhưng **chưa mở link**; nhấp lần 2 mới mở. Bàn phím (Enter) vẫn mở ngay 1 lần.
 - **Dữ liệu**: số điện thoại / Zalo nhập ở **Settings → Button Call/Zalo**, không cần sửa code.
 
 ## Cài đặt
@@ -31,6 +32,11 @@ Widget liên hệ nổi cho **caophat.vn**: cụm nút **Gọi điện + Zalo** 
 - Nhập màu = đè màu/gradient mặc định; màu chữ cũng đổi luôn ô tròn chữ `Z`/`f` và icon SVG.
 - **Ảnh icon** tải lên (nút *Chọn ảnh* → thư viện Media) sẽ **thay thế** icon mặc định; nên dùng ảnh vuông ~100×100px, nền trong suốt.
 
+> v1.2.0 (2026-09-16): **mobile nhỏ còn 3/4** + **nhấp 2 lần mới mở link** (yêu cầu Tùng).
+> * **Mobile ≤768px**: mọi số đo × 0,75 qua `calc(<số desktop> * .75)` — cụm `210 → 157,5px` · nút `58 → 43,5px` · icon `44 → 33px` · chữ nhãn `15 → 11,25px` (chữ nhỏ có sàn `max(9px, …)`). Mobile **trước đây giữ nguyên desktop**, nay khác — lần đầu sửa phần thiết kế gốc, chỉ sửa khi Tùng yêu cầu.
+> * **Nhấp 2 lần**: nhấp 1 thêm class `.is-armed` (hiệu ứng y như `:hover`: trượt trái 8px + mở rộng 210px) và **chặn `preventDefault()`** ⇒ chưa mở link; nhấp 2 mới mở. Quá **3s** (`ARM_MS`) không nhấp lại, **nhấp ra ngoài**, hoặc **Esc** ⇒ huỷ. Click bàn phím (`event.detail === 0`) ⇒ mở ngay, không bắt bấm 2 lần.
+> * **Tracking**: `wd-contact:arm` = lần nhấp đầu · `wd-contact:click` = lần mở link thật (dùng cái này để đếm chuyển đổi, tránh đếm đôi).
+>
 > v1.1.3 (2026-09-16): **hạ cụm nút xuống thấp hơn** — `.wd-contact-widget { top: 50% → 75% }` (yêu cầu Tùng). Cụm 210×256 nằm vừa màn hình ở 1440×900 / 1280×800 / 1024×600 / 390×844 / 390×667; **khung nhìn thấp hơn ~512px thì đáy cụm bị cắt** (cần 0,25×H ≥ 128px).
 >
 > v1.1.2 (2026-09-16): **đổi icon nút GỌI** sang “điện thoại + 2 gợn sóng” (Feather `phone-call`) — Tùng chốt qua trang xem thử 6 phương án (chọn phương án C). Icon cũ là ống nghe nét trơn 1 path.
@@ -68,7 +74,14 @@ add_filter( 'tlcz_button_url', function ( $url, $btn ) {
 
 ## Tracking khi khách bấm
 
-JS bắn sự kiện `wd-contact:click` (bubbles) với `detail = { type: 'phone'|'zalo', phone: '0834021021' }`. Bản trong thiết kế chỉ `console.log` — đã bỏ log ở production:
+JS bắn 2 sự kiện (đều `bubbles: true`, `detail = { type, value, phone }`):
+
+| Sự kiện | Khi nào | Dùng để |
+|---|---|---|
+| `wd-contact:arm` | Nhấp **lần 1** (khách mới chạm nút, **chưa** mở liên hệ) | Đo mức “quan tâm” (tuỳ chọn) |
+| `wd-contact:click` | Nhấp **lần 2** — lúc THẬT SỰ mở link | **Đếm chuyển đổi** (tránh đếm đôi) |
+
+`type` = `phone` \| `zalo` \| `facebook` \| `custom` (link tuỳ chỉnh) — đọc từ `data-tlcz-type` của nút.
 
 ```js
 document.addEventListener('wd-contact:click', function (e) {
