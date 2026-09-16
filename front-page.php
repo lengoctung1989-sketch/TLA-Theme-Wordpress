@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 
 $cp_tel  = cp_hotline_tel();
-$cp_disp = cp_hotline_display();
+$cp_disp = cp_hotline_display(); // dùng ở nút CTA "Gọi ngay %s" (dòng ~127) — KHÔNG xoá.
 $cp_img  = get_stylesheet_directory_uri() . '/assets/images';
 $cp_shop = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
 
@@ -81,19 +81,16 @@ $cp_cats_title = get_theme_mod( 'cp_cats_title' ) ?: __( 'Khám phá theo dòng 
 	<div class="cp-container">
 		<div class="cp-features">
 			<?php
-			$cp_features = array(
-				array( 'M1 3h15v13H1zM16 8h4l3 3v5h-7z', __( 'Miễn phí vận chuyển', 'tungleads-theme' ), __( 'Giao lắp nội thành TP.HCM', 'tungleads-theme' ) ),
-				array( 'M2 5h20v14H2zM2 10h20', __( 'Thanh toán linh hoạt', 'tungleads-theme' ), __( 'Nhiều hình thức tiện lợi', 'tungleads-theme' ) ),
-				array( 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', __( 'Bảo hành 24 tháng', 'tungleads-theme' ), __( 'Cam kết chính hãng', 'tungleads-theme' ) ),
-				array( 'M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 3 5.18 2 2 0 0 1 5 3h3a2 2 0 0 1 2 1.72', __( 'Báo giá 24/7', 'tungleads-theme' ), $cp_disp ),
-			);
-			foreach ( $cp_features as $cp_f ) :
+			/* CP2.10 — 4 cụm nổi bật: TIÊU ĐỀ + MÔ TẢ + ICON đều quản trị ở Customizer →
+			   “4 cụm nổi bật Cao Phát”; mặc định nằm ở `cp_features_defaults()` (`functions.php`).
+			   Icon mặc định = SVG inline; upload ảnh ở Customizer thì ảnh THAY thế (xem `cp_feature_icon()`). */
+			for ( $cp_f = 1; $cp_f <= 4; $cp_f++ ) :
 				?>
 				<div class="cp-feature">
-					<span class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="<?php echo esc_attr( $cp_f[0] ); ?>"/></svg></span>
-					<div><b><?php echo esc_html( $cp_f[1] ); ?></b><span><?php echo esc_html( $cp_f[2] ); ?></span></div>
+					<span class="ic" aria-hidden="true"><?php echo cp_feature_icon( $cp_f ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG hằng hoặc ảnh do `wp_get_attachment_image()` sinh. ?></span>
+					<div><b><?php echo esc_html( cp_feature_get( $cp_f, 'title' ) ); ?></b><span><?php echo esc_html( cp_feature_get( $cp_f, 'text' ) ); ?></span></div>
 				</div>
-			<?php endforeach; ?>
+			<?php endfor; ?>
 		</div>
 	</div>
 

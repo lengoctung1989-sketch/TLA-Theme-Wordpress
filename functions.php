@@ -853,3 +853,89 @@ function cp_header_style(): void {
 }
 add_action( 'wp_head', 'cp_header_style', 100 );
 
+/*
+ * ---------------------------------------------------------------------------
+ * CP2.10 — 4 CỤM NỘI DUNG NỔI BẬT (feature strip trang chủ) QUẢN TRỊ TRONG CUSTOMIZER
+ * Mỗi cụm: tiêu đề + mô tả (sửa được) + ICON (upload ảnh thay icon SVG mặc định).
+ *
+ * 1 NGUỒN SỰ THẬT cho mặc định: `cp_features_defaults()` — `front-page.php` không giữ chuỗi nào;
+ * điền ở Customizer (section `cp_features`) thì đè, để trống thì dùng lại mặc định ở đây.
+ * Cụm 4 (Báo giá 24/7): mô tả mặc định LUÔN lấy `cp_hotline_display()` ⇒ đổi số hotline toàn site
+ * (Customizer → “Trang chủ Cao Phát”) là cụm 4 tự đổi theo; muốn chữ khác thì điền đè.
+ * ---------------------------------------------------------------------------
+ */
+
+/**
+ * CP2.10 — Mặc định của 4 cụm nổi bật (key 1–4 theo đúng thứ tự hiển thị).
+ *
+ * `icon` = path SVG 24×24 của icon mặc định (dùng khi chưa upload ảnh).
+ *
+ * @return array<int,array<string,string>>
+ */
+function cp_features_defaults(): array {
+	return array(
+		1 => array(
+			'title' => 'Miễn phí vận chuyển',
+			'text'  => 'Giao lắp nội thành TP.HCM',
+			'icon'  => 'M1 3h15v13H1zM16 8h4l3 3v5h-7z',
+		),
+		2 => array(
+			'title' => 'Thanh toán linh hoạt',
+			'text'  => 'Nhiều hình thức tiện lợi',
+			'icon'  => 'M2 5h20v14H2zM2 10h20',
+		),
+		3 => array(
+			'title' => 'Bảo hành 24 tháng',
+			'text'  => 'Cam kết chính hãng',
+			'icon'  => 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+		),
+		4 => array(
+			'title' => 'Báo giá 24/7',
+			'text'  => cp_hotline_display(), // bám theo hotline toàn site (xem docblock trên).
+			'icon'  => 'M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 3 5.18 2 2 0 0 1 5 3h3a2 2 0 0 1 2 1.72',
+		),
+	);
+}
+
+/**
+ * CP2.10 — Đọc 1 trường của cụm thứ $n (`title` / `text`). Ô để trống ⇒ mặc định.
+ */
+function cp_feature_get( int $n, string $field ): string {
+	$cp_defaults = cp_features_defaults();
+	$cp_default  = (string) ( $cp_defaults[ $n ][ $field ] ?? '' );
+	$cp_value    = get_theme_mod( 'cp_feature' . $n . '_' . $field, $cp_default );
+	$cp_value    = is_scalar( $cp_value ) ? trim( (string) $cp_value ) : '';
+
+	return '' !== $cp_value ? $cp_value : $cp_default;
+}
+
+/**
+ * CP2.10 — Icon của cụm thứ $n: ảnh đã upload (`cp_feature{n}_icon` = attachment ID) hay SVG mặc định.
+ *
+ * Trả về markup ĐÃ escape; ảnh do `wp_get_attachment_image()` sinh (có `srcset`).
+ */
+function cp_feature_icon( int $n ): string {
+	$cp_id = (int) get_theme_mod( 'cp_feature' . $n . '_icon', 0 );
+	if ( $cp_id > 0 ) {
+		$cp_img = wp_get_attachment_image(
+			$cp_id,
+			'thumbnail',
+			false,
+			array(
+				'alt'      => '',
+				'class'    => 'cp-feature__img',
+				'loading'  => 'lazy',
+				'decoding' => 'async',
+			)
+		);
+		if ( '' !== $cp_img ) {
+			return $cp_img;
+		}
+	}
+
+	$cp_defaults = cp_features_defaults();
+	$cp_path     = (string) ( $cp_defaults[ $n ]['icon'] ?? '' );
+
+	return '' === $cp_path ? '' : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' . esc_attr( $cp_path ) . '"/></svg>';
+}
+

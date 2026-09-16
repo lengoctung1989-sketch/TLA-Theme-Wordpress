@@ -440,6 +440,9 @@ body.cp {
 }
 .cp-feature b { display: block; font-size: 15.5px; }
 .cp-feature span { font-size: 13px; color: var(--cp-muted); }
+/* CP2.10 — ảnh icon upload ở Customizer THAY icon SVG mặc định: lấp đầy ô 42×42, giữ tỉ lệ ảnh.
+   (Khác `.cp-feature span` ở trên: ảnh không bị ép `font-size`/màu chữ.) */
+.cp-feature .ic img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; }
 
 /* ---------- Section ---------- */
 /* 2026-09-15 (yêu cầu Tùng): `64px 0` → `40px 0` — áp cho các khối DÙNG rule gốc này:

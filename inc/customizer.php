@@ -1415,3 +1415,100 @@ add_action(
 	}
 );
 
+/**
+ * CP2.10 — Section "4 cụm nổi bật Cao Phát": 4 cụm (tiêu đề + mô tả + icon) của dải nổi bật trang chủ.
+ *
+ * Mỗi cụm 3 control: TIÊU ĐỀ (text) · MÔ TẢ (text) · ICON (`WP_Customize_Media_Control` → attachment
+ * ID; upload ảnh thì ảnh THAY icon SVG mặc định). Mặc định lấy `cp_features_defaults()`
+ * (`functions.php`) — ô để trống dùng lại mặc định; riêng **cụm 4 “Báo giá 24/7”: mô tả để trống =
+ * tự lấy số hotline toàn site** (Customizer → “Trang chủ Cao Phát”) nên phải để `default => ''`.
+ */
+add_action(
+	'customize_register',
+	static function ( \WP_Customize_Manager $wp_customize ): void {
+		$cp_defaults = cp_features_defaults();
+
+		$wp_customize->add_section(
+			'cp_features',
+			array(
+				'title'       => __( '4 cụm nổi bật Cao Phát', 'tungleads-theme' ),
+				'description' => __( 'Dải 4 cụm nổi bật trên trang chủ (dưới khối hero). Mỗi cụm sửa được tiêu đề + mô tả, và có thể tải ảnh icon lên để THAY icon mặc định. Ô để trống thì dùng lại mặc định.', 'tungleads-theme' ),
+				'priority'    => 36,
+			)
+		);
+
+		for ( $cp_n = 1; $cp_n <= 4; $cp_n++ ) {
+			$cp_key = 'cp_feature' . $cp_n;
+
+			// Tiêu đề.
+			$wp_customize->add_setting(
+				$cp_key . '_title',
+				array(
+					'default'           => (string) $cp_defaults[ $cp_n ]['title'],
+					'transport'         => 'refresh',
+					'sanitize_callback' => 'sanitize_text_field',
+				)
+			);
+			$wp_customize->add_control(
+				$cp_key . '_title',
+				array(
+					'section'     => 'cp_features',
+					'priority'    => $cp_n * 10 + 1,
+					/* translators: %d: số thứ tự cụm (1–4). */
+					'label'       => sprintf( __( 'Cụm %d — tiêu đề', 'tungleads-theme' ), $cp_n ),
+					'type'        => 'text',
+					'input_attrs' => array( 'placeholder' => (string) $cp_defaults[ $cp_n ]['title'] ),
+				)
+			);
+
+			// Mô tả (cụm 4 để trống = lấy số hotline toàn site).
+			$wp_customize->add_setting(
+				$cp_key . '_text',
+				array(
+					'default'           => 4 === $cp_n ? '' : (string) $cp_defaults[ $cp_n ]['text'],
+					'transport'         => 'refresh',
+					'sanitize_callback' => 'sanitize_text_field',
+				)
+			);
+			$wp_customize->add_control(
+				$cp_key . '_text',
+				array(
+					'section'     => 'cp_features',
+					'priority'    => $cp_n * 10 + 2,
+					/* translators: %d: số thứ tự cụm (1–4). */
+					'label'       => sprintf( __( 'Cụm %d — mô tả', 'tungleads-theme' ), $cp_n ),
+					'description' => 4 === $cp_n
+						? __( 'Để trống = tự lấy số hotline toàn site (Customizer → “Trang chủ Cao Phát” → “Hotline — số hiển thị”).', 'tungleads-theme' )
+						: '',
+					'type'        => 'text',
+					'input_attrs' => array( 'placeholder' => (string) $cp_defaults[ $cp_n ]['text'] ),
+				)
+			);
+
+			// Icon (upload thay icon mặc định).
+			$wp_customize->add_setting(
+				$cp_key . '_icon',
+				array(
+					'default'           => 0,
+					'transport'         => 'refresh',
+					'sanitize_callback' => static fn ( $value ): int => absint( $value ),
+				)
+			);
+			$wp_customize->add_control(
+				new \WP_Customize_Media_Control(
+					$wp_customize,
+					$cp_key . '_icon',
+					array(
+						'section'     => 'cp_features',
+						'priority'    => $cp_n * 10 + 3,
+						'mime_type'   => 'image',
+						/* translators: %d: số thứ tự cụm (1–4). */
+						'label'       => sprintf( __( 'Cụm %d — icon (ảnh thay icon mặc định)', 'tungleads-theme' ), $cp_n ),
+						'description' => __( 'Không chọn ảnh = dùng icon mặc định. Ảnh nên là PNG/SVG nền trong suốt, cạnh ~100px.', 'tungleads-theme' ),
+					)
+				)
+			);
+		}
+	}
+);
+
