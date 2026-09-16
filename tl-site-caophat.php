@@ -2,9 +2,10 @@
 /**
  * Plugin Name:  TL Site — Cao Phát
  * Description:  Tầng dữ liệu / hành vi riêng của caophat.vn (tracking, sau này: CPT, taxonomy, form). Tách khỏi theme để đổi giao diện không mất data.
- * Version:      0.1.1
+ * Version:      0.1.2
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
+ * Author URI:   https://tungleads.com/
  *
  * @package TL\Site\CaoPhat
  */
