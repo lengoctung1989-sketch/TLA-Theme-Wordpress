@@ -155,7 +155,7 @@ function cp_search_product_card( WC_Product $product ): void {
 
 		<div class="cp-news-card__body">
 			<div class="cp-news-card__meta">
-				<?php if ( $cp_cat instanceof WP_Term ) : ?>
+				<?php if ( $cp_cat instanceof WP_Term && '' !== $cp_link ) : ?>
 					<a class="cp-news-card__cat" href="<?php echo esc_url( $cp_link ); ?>"><?php echo esc_html( $cp_cat->name ); ?></a>
 				<?php endif; ?>
 				<span class="cp-search-card__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></span>
