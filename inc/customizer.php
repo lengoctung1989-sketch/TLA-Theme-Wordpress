@@ -288,6 +288,75 @@ if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'CP_Blocks_Repeat
 	}
 }
 
+if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'CP_Header_Items_Control' ) ) {
+
+	/**
+	 * CP1.8 — Control "bật/tắt + kéo thả thứ tự" cho 6 mục của header.
+	 *
+	 * Danh sách cố định (logo · menu · search · hotline · giỏ · HTML): mỗi mục có 1 checkbox
+	 * (bật/tắt — áp MỌI khổ màn hình) + tay nắm kéo thả (thứ tự — chỉ áp desktop >1024px).
+	 * Giá trị setting = **CSV key theo đúng thứ tự hiển thị, chỉ gồm mục đang BẬT**
+	 * (giống `CP_Term_Order_Control` của CP2.6) → `cp_header_items()` (`functions.php`) đọc lại.
+	 */
+	class CP_Header_Items_Control extends WP_Customize_Control {
+
+		/** @var string */
+		public $type = 'cp_header_items';
+
+		/** @var array<string,string> key => nhãn hiển thị. */
+		public $items = array();
+
+		/** @var array<string,string> key => gợi ý ngắn bên cạnh nhãn. */
+		public $hints = array();
+
+		/**
+		 * In nội dung control.
+		 */
+		public function render_content(): void {
+			$cp_on      = cp_header_items();
+			$cp_ordered = array();
+
+			// Mục đang bật xếp trước theo đúng thứ tự đã lưu, phần còn lại theo thứ tự gốc.
+			foreach ( $cp_on as $cp_key ) {
+				if ( isset( $this->items[ $cp_key ] ) ) {
+					$cp_ordered[] = $cp_key;
+				}
+			}
+			foreach ( array_keys( $this->items ) as $cp_key ) {
+				if ( ! in_array( $cp_key, $cp_ordered, true ) ) {
+					$cp_ordered[] = $cp_key;
+				}
+			}
+			?>
+			<?php if ( $this->label ) : ?>
+				<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
+			<?php endif; ?>
+			<?php if ( $this->description ) : ?>
+				<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+			<?php endif; ?>
+
+			<ul class="cp-horder">
+				<?php foreach ( $cp_ordered as $cp_key ) : ?>
+					<?php $cp_is_on = in_array( $cp_key, $cp_on, true ); ?>
+					<li class="cp-horder__item<?php echo $cp_is_on ? '' : ' cp-horder_off'; ?>">
+						<label class="cp-horder__label">
+							<input type="checkbox" value="<?php echo esc_attr( $cp_key ); ?>" <?php checked( $cp_is_on ); ?>>
+							<span class="cp-horder__name"><?php echo esc_html( $this->items[ $cp_key ] ); ?></span>
+							<?php if ( ! empty( $this->hints[ $cp_key ] ) ) : ?>
+								<span class="cp-horder__hint"><?php echo esc_html( $this->hints[ $cp_key ] ); ?></span>
+							<?php endif; ?>
+						</label>
+						<span class="cp-horder__handle" aria-hidden="true" title="<?php esc_attr_e( 'Kéo để sắp thứ tự', 'tungleads-theme' ); ?>">⋮⋮</span>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+
+			<input class="cp-horder__value" type="hidden" <?php $this->link(); ?> value="<?php echo esc_attr( implode( ',', $cp_on ) ); ?>">
+			<?php
+		}
+	}
+}
+
 add_action(
 	'customize_controls_enqueue_scripts',
 	static function (): void {
@@ -351,6 +420,21 @@ add_action(
 			array( 'jquery', 'customize-controls', 'editor' ),
 			file_exists( $cp_dir . '/assets/customizer-footer.js' ) ? (string) filemtime( $cp_dir . '/assets/customizer-footer.js' ) : $cp_ver,
 			true
+		);
+
+		// CP1.8 — control "bật/tắt + kéo thả thứ tự mục header" (dùng chung jQuery UI sortable).
+		wp_enqueue_script(
+			'cp-customizer-header',
+			$cp_uri . '/assets/customizer-header.js',
+			array( 'jquery', 'jquery-ui-sortable', 'customize-controls' ),
+			file_exists( $cp_dir . '/assets/customizer-header.js' ) ? (string) filemtime( $cp_dir . '/assets/customizer-header.js' ) : $cp_ver,
+			true
+		);
+		wp_enqueue_style(
+			'cp-customizer-header',
+			$cp_uri . '/assets/customizer-header.css',
+			array(),
+			file_exists( $cp_dir . '/assets/customizer-header.css' ) ? (string) filemtime( $cp_dir . '/assets/customizer-header.css' ) : $cp_ver
 		);
 	}
 );
@@ -1040,6 +1124,287 @@ add_action(
 				'label'       => __( 'Hotline — số để gọi (link tel:)', 'tungleads-theme' ),
 				'description' => __( 'Khi tạo link gọi chỉ giữ chữ số và dấu +. Trống = 0834021021.', 'tungleads-theme' ),
 				'type'        => 'text',
+			)
+		);
+	}
+);
+
+/**
+ * CP1.8 — Section "Header & Topbar Cao Phát": màu topbar/header · chiều cao header · cỡ logo ·
+ * bật/tắt + kéo thả thứ tự 6 mục · 1 khối HTML cùng hàng.
+ *
+ * Mặc định lấy từ `cp_header_defaults()` (`functions.php`) — 1 nguồn sự thật cho cả 3 chỗ
+ * (default của setting · fallback khi ô trống · tài liệu). Ô MÀU để trống = KHÔNG in CSS ⇒ giữ
+ * nguyên màu gốc trong `caophat.css` (mở Customizer lần đầu không đổi gì so với trước).
+ */
+add_action(
+	'customize_register',
+	static function ( \WP_Customize_Manager $wp_customize ): void {
+		$cp_defaults = cp_header_defaults();
+
+		$wp_customize->add_section(
+			'cp_header',
+			array(
+				'title'       => __( 'Header & Topbar Cao Phát', 'tungleads-theme' ),
+				'description' => __( 'Màu sắc, chiều cao, cỡ logo và bố cục hàng header (logo · menu · ô tìm kiếm · tư vấn/hotline · giỏ hàng · khối HTML).', 'tungleads-theme' ),
+				'priority'    => 25,
+			)
+		);
+
+		/* ---------------------------------------------------------------- TOPBAR ---- */
+		$wp_customize->add_setting(
+			'cp_header_topbar_show',
+			array(
+				'default'           => $cp_defaults['topbar_show'] ? 1 : 0,
+				'transport'         => 'refresh',
+				'sanitize_callback' => static fn ( $value ): int => $value ? 1 : 0,
+			)
+		);
+		$wp_customize->add_control(
+			'cp_header_topbar_show',
+			array(
+				'section'     => 'cp_header',
+				'label'       => __( 'Hiện thanh trên cùng (topbar)', 'tungleads-theme' ),
+				'description' => __( 'Topbar vốn tự ẩn ở mobile (≤768px).', 'tungleads-theme' ),
+				'type'        => 'checkbox',
+			)
+		);
+
+		$wp_customize->add_setting(
+			'cp_header_topbar_bg',
+			array(
+				'default'           => '',
+				'transport'         => 'refresh',
+				'sanitize_callback' => static fn ( $value ): string => (string) ( sanitize_hex_color( (string) $value ) ?? '' ),
+			)
+		);
+		$wp_customize->add_control(
+			new \WP_Customize_Color_Control(
+				$wp_customize,
+				'cp_header_topbar_bg',
+				array(
+					'section'     => 'cp_header',
+					'label'       => __( 'Topbar — màu nền', 'tungleads-theme' ),
+					'description' => __( 'Để trống = giữ màu gốc (vàng). Bấm “Xoá” để về mặc định.', 'tungleads-theme' ),
+				)
+			)
+		);
+
+		$wp_customize->add_setting(
+			'cp_header_topbar_fg',
+			array(
+				'default'           => '',
+				'transport'         => 'refresh',
+				'sanitize_callback' => static fn ( $value ): string => (string) ( sanitize_hex_color( (string) $value ) ?? '' ),
+			)
+		);
+		$wp_customize->add_control(
+			new \WP_Customize_Color_Control(
+				$wp_customize,
+				'cp_header_topbar_fg',
+				array(
+					'section'     => 'cp_header',
+					'label'       => __( 'Topbar — màu chữ', 'tungleads-theme' ),
+					'description' => __( 'Áp cho cả chữ và link (số hotline) trong topbar. Để trống = màu gốc.', 'tungleads-theme' ),
+				)
+			)
+		);
+
+		$wp_customize->add_setting(
+			'cp_header_topbar_items',
+			array(
+				'default'           => (string) $cp_defaults['topbar_items'],
+				'transport'         => 'refresh',
+				'sanitize_callback' => 'sanitize_textarea_field',
+			)
+		);
+		$wp_customize->add_control(
+			'cp_header_topbar_items',
+			array(
+				'section'     => 'cp_header',
+				'label'       => __( 'Topbar — chữ bên trái (mỗi dòng 1 mục)', 'tungleads-theme' ),
+				'description' => __( 'Xoá hết để ẩn phần chữ bên trái. Dòng trống bị bỏ qua.', 'tungleads-theme' ),
+				'type'        => 'textarea',
+				'input_attrs' => array( 'rows' => 4 ),
+			)
+		);
+
+		$wp_customize->add_setting(
+			'cp_header_topbar_label',
+			array(
+				'default'           => (string) $cp_defaults['topbar_label'],
+				'transport'         => 'refresh',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		$wp_customize->add_control(
+			'cp_header_topbar_label',
+			array(
+				'section'     => 'cp_header',
+				'label'       => __( 'Topbar — nhãn trước số hotline', 'tungleads-theme' ),
+				'description' => __( 'Số hotline lấy từ "Footer Cao Phát → Hotline toàn site".', 'tungleads-theme' ),
+				'type'        => 'text',
+			)
+		);
+	}
+);
+
+/**
+ * CP1.8 (tiếp) — Section "Header & Topbar Cao Phát": phần HÀNG HEADER (nền · chiều cao · cỡ logo ·
+ * bật/tắt + kéo thả 6 mục · khối HTML).
+ *
+ * Section này đăng ký ở 2 callback cho dễ đọc (topbar ở trên, hàng header ở đây) — WordPress cho
+ * phép thêm setting/control vào section đã tạo.
+ */
+add_action(
+	'customize_register',
+	static function ( \WP_Customize_Manager $wp_customize ): void {
+		$cp_defaults = cp_header_defaults();
+
+		/* ---------------------------------------------------------------- NỀN + CHIỀU CAO ---- */
+		$wp_customize->add_setting(
+			'cp_header_header_bg',
+			array(
+				'default'           => '',
+				'transport'         => 'refresh',
+				'sanitize_callback' => static fn ( $value ): string => (string) ( sanitize_hex_color( (string) $value ) ?? '' ),
+			)
+		);
+		$wp_customize->add_control(
+			new \WP_Customize_Color_Control(
+				$wp_customize,
+				'cp_header_header_bg',
+				array(
+					'section'     => 'cp_header',
+					'label'       => __( 'Header — màu nền', 'tungleads-theme' ),
+					'description' => __( 'Để trống = giữ nền trắng mờ gốc. Màu đặc sẽ làm mất hiệu ứng trong mờ (blur).', 'tungleads-theme' ),
+				)
+			)
+		);
+
+		$wp_customize->add_setting(
+			'cp_header_header_height',
+			array(
+				'default'           => (int) $cp_defaults['header_height'],
+				'transport'         => 'refresh',
+				'sanitize_callback' => static fn ( $value ): int => max( 56, min( 140, absint( $value ) ) ),
+			)
+		);
+		$wp_customize->add_control(
+			'cp_header_header_height',
+			array(
+				'section'     => 'cp_header',
+				'label'       => __( 'Header — chiều cao (px)', 'tungleads-theme' ),
+				'description' => __( 'Chiều cao tối thiểu của hàng header. Mặc định 76px.', 'tungleads-theme' ),
+				'type'        => 'range',
+				'input_attrs' => array(
+					'min'  => 56,
+					'max'  => 140,
+					'step' => 2,
+				),
+			)
+		);
+
+		/* ---------------------------------------------------------------- CỠ LOGO ---- */
+		$wp_customize->add_setting(
+			'cp_header_logo_width',
+			array(
+				'default'           => (int) $cp_defaults['logo_width'],
+				'transport'         => 'refresh',
+				'sanitize_callback' => static fn ( $value ): int => max( 80, min( 400, absint( $value ) ) ),
+			)
+		);
+		$wp_customize->add_control(
+			'cp_header_logo_width',
+			array(
+				'section'     => 'cp_header',
+				'label'       => __( 'Logo — độ lớn (px)', 'tungleads-theme' ),
+				'description' => __( 'Kéo thanh để chỉnh bề ngang logo. Áp cho màn hình >768px; mobile giữ cỡ đã thiết kế (tối đa 160px).', 'tungleads-theme' ),
+				'type'        => 'range',
+				'input_attrs' => array(
+					'min'  => 80,
+					'max'  => 400,
+					'step' => 5,
+				),
+			)
+		);
+
+		/* ------------------------------------------------- BỐ CỤC: BẬT/TẮT + KÉO THẢ ---- */
+		$wp_customize->add_setting(
+			'cp_header_items',
+			array(
+				'default'           => (string) $cp_defaults['items'],
+				'transport'         => 'refresh',
+				'sanitize_callback' => static function ( $value ): string {
+					$cp_known = array_keys( cp_header_items_all() );
+					$cp_out   = array();
+					foreach ( explode( ',', (string) $value ) as $cp_key ) {
+						$cp_key = sanitize_key( $cp_key );
+						if ( in_array( $cp_key, $cp_known, true ) && ! in_array( $cp_key, $cp_out, true ) ) {
+							$cp_out[] = $cp_key;
+						}
+					}
+
+					return implode( ',', $cp_out );
+				},
+			)
+		);
+		$wp_customize->add_control(
+			new \CP_Header_Items_Control(
+				$wp_customize,
+				'cp_header_items',
+				array(
+					'section'     => 'cp_header',
+					'label'       => __( 'Các mục trên hàng header — bật/tắt & kéo thả thứ tự', 'tungleads-theme' ),
+					'description' => __( 'Tích để HIỆN (áp mọi khổ màn hình). Kéo ⋮⋮ để đổi thứ tự — thứ tự chỉ áp cho desktop >1024px; tablet/mobile giữ bố cục đã thiết kế.', 'tungleads-theme' ),
+					'items'       => cp_header_items_all(),
+					'hints'       => array(
+						'logo'    => __( 'ảnh logo', 'tungleads-theme' ),
+						'menu'    => __( 'thanh menu chính', 'tungleads-theme' ),
+						'search'  => __( 'ô tìm kiếm sản phẩm', 'tungleads-theme' ),
+						'hotline' => __( 'số tư vấn', 'tungleads-theme' ),
+						'cart'    => __( 'icon giỏ hàng', 'tungleads-theme' ),
+						'html'    => __( 'dữ liệu HTML ở dưới', 'tungleads-theme' ),
+					),
+				)
+			)
+		);
+
+		/* ---------------------------------------------------------------- KHỐI HTML ---- */
+		$wp_customize->add_setting(
+			'cp_header_html',
+			array(
+				'default'           => '',
+				'transport'         => 'refresh',
+				'sanitize_callback' => static fn ( $value ): string => (string) wp_kses_post( (string) $value ),
+			)
+		);
+		$wp_customize->add_control(
+			'cp_header_html',
+			array(
+				'section'     => 'cp_header',
+				'label'       => __( 'Dữ liệu HTML thêm vào header', 'tungleads-theme' ),
+				'description' => __( 'Ví dụ: <b>Gọi ngay 0834.021.021</b> hoặc <a href="#">Nhận báo giá</a>. Nằm CÙNG HÀNG với logo/menu/search/tư vấn/giỏ (vị trí do mục “Khối HTML” ở trên quyết định).', 'tungleads-theme' ),
+				'type'        => 'textarea',
+				'input_attrs' => array( 'rows' => 3 ),
+			)
+		);
+
+		$wp_customize->add_setting(
+			'cp_header_html_desktop_only',
+			array(
+				'default'           => $cp_defaults['html_desktop_only'] ? 1 : 0,
+				'transport'         => 'refresh',
+				'sanitize_callback' => static fn ( $value ): int => $value ? 1 : 0,
+			)
+		);
+		$wp_customize->add_control(
+			'cp_header_html_desktop_only',
+			array(
+				'section'     => 'cp_header',
+				'label'       => __( 'Khối HTML — chỉ hiện ở desktop (>1024px)', 'tungleads-theme' ),
+				'description' => __( 'Bật (mặc định) để không phá bố cục tablet/mobile. Tắt thì khối HTML hiện ở mọi khổ.', 'tungleads-theme' ),
+				'type'        => 'checkbox',
 			)
 		);
 	}

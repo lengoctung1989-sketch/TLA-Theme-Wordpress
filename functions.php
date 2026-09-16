@@ -664,3 +664,192 @@ add_filter(
 	},
 	20
 );
+
+/*
+ * ---------------------------------------------------------------------------
+ * CP1.8 — HEADER + TOPBAR QUẢN TRỊ TRONG CUSTOMIZER
+ * Màu (topbar nền/chữ · header nền) · chiều cao header · cỡ logo (thanh kéo) ·
+ * bật/tắt + kéo thả sắp xếp 6 mục (logo · menu · search · tư vấn · giỏ · HTML) ·
+ * 1 khối HTML tự do cùng hàng.
+ *
+ * 1 NGUỒN SỰ THẬT cho mặc định: `cp_header_defaults()` (setting trong `inc/customizer.php` lấy
+ * đúng giá trị này → mở Customizer là thấy ngay đang dùng gì).
+ * Màu để TRỐNG = KHÔNG in CSS ⇒ giữ nguyên màu của `caophat.css` (mở Customizer lần đầu không
+ * đổi gì so với trước); đây là lý do mặc định ở đây là `''` chứ không phải mã màu.
+ * ---------------------------------------------------------------------------
+ */
+
+/**
+ * CP1.8 — Mặc định của khối Header/Topbar.
+ *
+ * @return array<string,string|int|bool>
+ */
+function cp_header_defaults(): array {
+	return array(
+		'topbar_show'       => true,
+		'topbar_bg'         => '',
+		'topbar_fg'         => '',
+		'topbar_items'      => "Miễn phí vận chuyển nội thành\nThanh toán linh hoạt\nBảo hành 24 tháng",
+		'topbar_label'      => 'Báo giá online 24/7:',
+		'header_bg'         => '',
+		'header_height'     => 76,
+		'logo_width'        => 250,
+		'items'             => 'logo,menu,search,hotline,cart,html',
+		'html'              => '',
+		'html_desktop_only' => true,
+	);
+}
+
+/**
+ * CP1.8 — 6 mục có thể bật/tắt & kéo thả trong header (thứ tự key = thứ tự mặc định).
+ *
+ * @return array<string,string>
+ */
+function cp_header_items_all(): array {
+	return array(
+		'logo'    => 'Logo',
+		'menu'    => 'Menu chính',
+		'search'  => 'Ô tìm kiếm',
+		'hotline' => 'Tư vấn / Hotline',
+		'cart'    => 'Giỏ hàng',
+		'html'    => 'Khối HTML (mục cuối)',
+	);
+}
+
+/** CP1.8 — Đọc 1 thiết lập header (trống → mặc định). */
+function cp_header_get( string $key ): string {
+	$cp_defaults = cp_header_defaults();
+	$cp_def      = (string) ( $cp_defaults[ $key ] ?? '' );
+	$cp_value    = get_theme_mod( 'cp_header_' . $key, $cp_def );
+	$cp_value    = is_scalar( $cp_value ) ? trim( (string) $cp_value ) : '';
+
+	return '' !== $cp_value ? $cp_value : $cp_def;
+}
+
+/** CP1.8 — Đọc 1 thiết lập dạng bật/tắt. */
+function cp_header_flag( string $key ): bool {
+	$cp_defaults = cp_header_defaults();
+	$cp_default  = (bool) ( $cp_defaults[ $key ] ?? false );
+	$cp_value    = get_theme_mod( 'cp_header_' . $key, $cp_default ? 1 : 0 );
+
+	if ( is_bool( $cp_value ) ) {
+		return $cp_value;
+	}
+
+	return '' === $cp_value ? $cp_default : (bool) absint( $cp_value );
+}
+
+/** CP1.8 — Danh sách mục ĐANG BẬT, theo đúng thứ tự đã kéo thả. */
+function cp_header_items(): array {
+	$cp_known = array_keys( cp_header_items_all() );
+	$cp_out   = array();
+
+	foreach ( explode( ',', cp_header_get( 'items' ) ) as $cp_key ) {
+		$cp_key = sanitize_key( $cp_key );
+		if ( in_array( $cp_key, $cp_known, true ) && ! in_array( $cp_key, $cp_out, true ) ) {
+			$cp_out[] = $cp_key;
+		}
+	}
+
+	return $cp_out;
+}
+
+/** CP1.8 — Mục này có đang bật không. */
+function cp_header_item_on( string $key ): bool {
+	return in_array( $key, cp_header_items(), true );
+}
+
+/** CP1.8 — Các dòng của topbar (mỗi dòng = 1 mục; dòng trống bị bỏ). */
+function cp_topbar_lines(): array {
+	$cp_out = array();
+	foreach ( preg_split( '/\r\n|\r|\n/', cp_header_get( 'topbar_items' ) ) as $cp_line ) {
+		$cp_line = trim( (string) $cp_line );
+		if ( '' !== $cp_line ) {
+			$cp_out[] = $cp_line;
+		}
+	}
+
+	return $cp_out;
+}
+
+/** CP1.8 — Khối HTML tự do trong header (đã qua `wp_kses_post`; rỗng = không có gì). */
+function cp_header_html(): string {
+	$cp_html = (string) get_theme_mod( 'cp_header_html', '' );
+
+	return '' === trim( $cp_html ) ? '' : (string) wp_kses_post( $cp_html );
+}
+
+/**
+ * CP1.8 — In CSS của Header/Topbar ở `wp_head` (prio 100 — sau CSS theme).
+ *
+ * Chỉ in phần ĐANG ĐƯỢC ĐẶT: ô màu để trống ⇒ KHÔNG in ⇒ giữ màu gốc của `caophat.css`.
+ * Khối "BỐ CỤC" (>1024px) LUÔN in: đây là thứ giữ ĐÚNG giao diện hiện tại bằng
+ * `.cp-header-cta { display: contents }` (tách search/hotline/giỏ thành mục riêng của hàng để
+ * `order` xếp được vị trí bất kỳ) + `margin-left: 14px` tái tạo đúng khoảng cách `gap: 14px` cũ.
+ * Tùng chốt 2026-09-16: **thứ tự chỉ áp cho desktop (>1024px)**; ẨN/HIỆN áp MỌI khổ (class
+ * `cp-hide-<key>` do `header.php` gắn + rule tĩnh trong `caophat.css`).
+ */
+function cp_header_style(): void {
+	$cp_css = '';
+
+	/* 1) Topbar — màu nền / màu chữ (màu chữ áp cả link; hover giữ gạch chân, chỉ giảm đậm). */
+	$cp_tb_bg = (string) get_theme_mod( 'cp_header_topbar_bg', '' );
+	$cp_tb_fg = (string) get_theme_mod( 'cp_header_topbar_fg', '' );
+	if ( '' !== $cp_tb_bg ) {
+		$cp_css .= '.cp-topbar{background:' . esc_attr( $cp_tb_bg ) . ';}';
+	}
+	if ( '' !== $cp_tb_fg ) {
+		$cp_css .= '.cp-topbar,.cp-topbar a{color:' . esc_attr( $cp_tb_fg ) . ';}'
+			. '.cp-topbar a:hover{color:' . esc_attr( $cp_tb_fg ) . ';opacity:.72;}';
+	}
+
+	/* 2) Header — màu nền (mọi khổ) + chiều cao. Chiều cao chỉ áp >768px: ở ≤768px hàng header là
+	   thiết kế riêng 64px (CP1.2b) — rule in ở `wp_head` đứng SAU caophat.css nên nếu không chặn
+	   theo breakpoint thì `min-height` của desktop sẽ đè luôn `min-height: 64px` của mobile. */
+	$cp_bg = (string) get_theme_mod( 'cp_header_header_bg', '' );
+	if ( '' !== $cp_bg ) {
+		$cp_css .= '.cp-header{background:' . esc_attr( $cp_bg ) . ';}';
+	}
+	$cp_height = max( 56, min( 140, (int) cp_header_get( 'header_height' ) ) );
+	$cp_css   .= '@media (min-width:769px){.cp-header .cp-container{min-height:' . (string) $cp_height . 'px;}}';
+
+	/* 3) Cỡ logo — chỉ >768px; ≤768 giữ nguyên `max-width: min(160px,100%)` của CP1.2b. */
+	$cp_logo = max( 80, min( 400, (int) cp_header_get( 'logo_width' ) ) );
+	$cp_css .= '@media (min-width:769px){.cp-header .cp-logo .custom-logo{width:' . (string) $cp_logo
+		. 'px;max-width:min(' . (string) $cp_logo . 'px,100%);}}';
+
+	/* 4) Bố cục desktop (>1024px) — `order` từng mục + khoảng cách + mục đẩy nhóm còn lại sang phải. */
+	$cp_items = cp_header_items();
+	if ( array() !== $cp_items ) {
+		$cp_rule = array();
+		foreach ( $cp_items as $cp_i => $cp_key ) {
+			$cp_rule[] = '.cp-header .cp-hitem--' . $cp_key . '{order:' . (string) ( $cp_i + 1 ) . ';}';
+		}
+
+		$cp_cta   = array_values( array_intersect( $cp_items, array( 'search', 'hotline', 'cart' ) ) );
+		$cp_first = (string) ( $cp_cta[0] ?? '' );
+		foreach ( $cp_items as $cp_i => $cp_key ) {
+			// Mục ĐẦU không cần lề; nav tự có `padding-right: 20px`; mục CTA đầu tiên sát nav
+			// (khoảng cách do `padding-right` của nav quyết định — đúng như giao diện gốc).
+			if ( 0 === $cp_i || 'logo' === $cp_key || 'menu' === $cp_key || ( '' !== $cp_first && $cp_key === $cp_first ) ) {
+				continue;
+			}
+			$cp_rule[] = '.cp-header .cp-hitem--' . $cp_key . '{margin-left:14px;}';
+		}
+
+		// "Mỏ neo" đẩy phần còn lại sang phải: menu (như thiết kế gốc); không có menu → mục thứ 2.
+		$cp_anchor = in_array( 'menu', $cp_items, true ) ? 'menu' : (string) ( $cp_items[1] ?? '' );
+		if ( '' !== $cp_anchor ) {
+			$cp_rule[] = '.cp-header .cp-hitem--' . $cp_anchor . '{margin-left:auto;}';
+		}
+		if ( 'menu' !== $cp_anchor ) {
+			$cp_rule[] = '.cp-header .cp-nav{margin-left:0;}';
+		}
+
+		$cp_css .= '@media (min-width:1025px){.cp-header-cta{display:contents;}' . implode( '', $cp_rule ) . '}';
+	}
+
+	echo '<style id="cp-header-css">' . $cp_css . "</style>\n"; // phpcs:ignore WordPress.Security.EscapeOutput -- đã escape từng phần.
+}
+add_action( 'wp_head', 'cp_header_style', 100 );
+

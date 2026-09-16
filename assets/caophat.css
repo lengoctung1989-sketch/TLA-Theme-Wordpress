@@ -2814,3 +2814,36 @@ body.cp-qo-open { overflow: hidden; }
   .cp-tablist__icon svg { width: 14px; height: 14px; }
 }
 
+/* ==========================================================================
+   CP1.8 — HEADER + TOPBAR QUẢN TRỊ TRONG CUSTOMIZER
+   Màu (topbar nền/chữ · header nền) · chiều cao header · cỡ logo (thanh kéo) ·
+   bật/tắt + kéo thả 6 mục (logo · menu · search · tư vấn · giỏ · HTML) · 1 khối HTML cùng hàng.
+
+   Phần ĐỘNG (màu · chiều cao · cỡ logo · `order` từng mục) do `cp_header_style()`
+   (`functions.php`, `wp_head` prio 100) in trong `<style id="cp-header-css">`.
+   Dưới đây CHỈ là rule TĨNH: ẩn mục bị tắt + giao diện khối HTML.
+   ========================================================================== */
+
+/* Ẩn mục bị TẮT trong Customizer — áp MỌI khổ màn hình (Tùng chốt 2026-09-16).
+   `!important` là CẦN cho `.cp-search` / `.cp-search-toggle`: ở ≤768px rule
+   `.cp-header.is-search-open .cp-search` (0,3,0) mạnh hơn selector (0,2,0) ở đây và sẽ mở lại
+   dải search; tắt mục search thì phải tắt luôn nút mở nó. */
+.cp-header.cp-hide-logo .cp-logo,
+.cp-header.cp-hide-menu .cp-nav,
+.cp-header.cp-hide-search .cp-search,
+.cp-header.cp-hide-search .cp-search-toggle,
+.cp-header.cp-hide-hotline .cp-hotline,
+.cp-header.cp-hide-cart .cp-cart-link,
+.cp-header.cp-hide-html .cp-hitem--html { display: none !important; }
+
+/* Khối HTML tự do (Customizer → Header & Topbar → "Dữ liệu HTML thêm vào header").
+   Nội dung đã qua `wp_kses_post()`; các rule dưới chỉ canh hàng cho gọn trong header. */
+.cp-hitem--html { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1.25; }
+.cp-hitem--html p { margin: 0; }
+.cp-hitem--html img { display: block; width: auto; max-height: 42px; }
+.cp-hitem--html a { font-weight: 600; color: var(--cp-accent); }
+.cp-hitem--html a:hover { text-decoration: underline; }
+/* Mặc định khối HTML CHỈ hiện ở desktop (>1024px) để không phá bố cục tablet/mobile đã đo
+   (CP1.2b/CP1.6). Tắt tuỳ chọn "chỉ hiện ở desktop" trong Customizer nếu muốn hiện mọi khổ. */
+@media (max-width: 1024px) { .cp-hitem--html-desk { display: none; } }
+
