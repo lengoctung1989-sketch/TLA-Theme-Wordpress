@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  TL Site — Cao Phát
  * Description:  Tầng dữ liệu / hành vi riêng của caophat.vn (tracking, sau này: CPT, taxonomy, form). Tách khỏi theme để đổi giao diện không mất data.
- * Version:      0.1.0
+ * Version:      0.1.1
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
  *
@@ -250,6 +250,26 @@ add_action(
 	}
 );
 
+/**
+ * Dòng ghi công dùng chung cho **các plugin của theme** (Tùng yêu cầu 2026-09-16):
+ * `Phiên bản <x.y.z> | Bởi <a>Tung Le Ads</a>` — version lấy ĐỘNG từ header plugin nên không lệch
+ * khi bump version. Hiện ở cuối trang Settings của mỗi plugin.
+ */
+function tlcp_credit_line(): string {
+	$data = get_file_data( __FILE__, array( 'Version' => 'Version' ) );
+	$ver  = isset( $data['Version'] ) && '' !== $data['Version'] ? (string) $data['Version'] : '';
+
+	return sprintf(
+		/* translators: %s: số phiên bản của plugin. */
+		esc_html__( 'Phiên bản %s', 'tl-site-caophat' ),
+		esc_html( $ver )
+	) . ' | ' . sprintf(
+		/* translators: %s: tên tác giả (có link website). */
+		esc_html__( 'Bởi %s', 'tl-site-caophat' ),
+		'<a href="https://tungleads.com/" target="_blank" rel="noopener">Tung Le Ads</a>'
+	);
+}
+
 /** Giao diện trang cài đặt. */
 function tlcp_support_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -268,6 +288,10 @@ function tlcp_support_page(): void {
 				<?php esc_html_e( 'Thứ tự dòng = thứ tự hiển thị. Xoá trắng rồi lưu = quay về danh sách mặc định.', 'tl-site-caophat' ); ?>
 			</p>
 			<?php submit_button(); ?>
+
+			<p class="tlcp-credit" style="margin-top:16px;color:#646970;font-style:italic;">
+				<?php echo tlcp_credit_line(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- chuỗi đã escape từng phần, chỉ có 1 link cố định. ?>
+			</p>
 		</form>
 	</div>
 	<?php
