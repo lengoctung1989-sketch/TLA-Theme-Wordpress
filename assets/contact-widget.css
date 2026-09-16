@@ -285,3 +285,61 @@
         animation: none;
     }
 }
+
+/* ==========================================================================
+   v1.1.0 — KIỂU MỚI (Facebook · Link tuỳ chỉnh) + MÀU RIÊNG & ẢNH ICON TỪNG NÚT
+   Phần thiết kế gốc ở trên giữ nguyên; mấy rule dưới đây chỉ THÊM (không sửa số đo gốc).
+   ========================================================================== */
+
+/* Kiểu Facebook: nền xanh Facebook; dùng ô tròn chữ “f” giống ô “Z” của Zalo */
+.wd-contact-facebook {
+    background: linear-gradient(135deg, #1877f2 0%, #0b5ed7 100%);
+}
+
+.wd-contact-fb-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 27px;
+    height: 27px;
+
+    border: 2px solid #fff;
+    border-radius: 50%;
+
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1;
+
+    color: #fff;
+}
+
+/* Kiểu Link tuỳ chỉnh: nền xám trung tính (dễ nhận ra là link ngoài) */
+.wd-contact-custom {
+    background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%);
+}
+
+/* Màu riêng của từng nút (nhập ở Settings) — truyền qua CSS variable ở inline style */
+.wd-contact-item.wd-has-bg {
+    background: var(--wd-bg);
+}
+
+.wd-contact-item.wd-has-fg {
+    color: var(--wd-fg);
+}
+
+/* Ô tròn chữ Z/f phải đổi theo màu chữ, còn icon SVG dùng `currentColor` nên tự đổi */
+.wd-contact-item.wd-has-fg .wd-contact-zalo-text,
+.wd-contact-item.wd-has-fg .wd-contact-fb-text {
+    color: var(--wd-fg);
+    border-color: var(--wd-fg);
+}
+
+/* Ảnh icon tải lên THAY icon mặc định — lấp đầy ô 44×44, giữ tỉ lệ */
+.wd-contact-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: inherit;
+}

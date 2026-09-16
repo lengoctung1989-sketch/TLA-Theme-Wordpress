@@ -12,8 +12,26 @@ Widget liên hệ nổi cho **caophat.vn**: cụm nút **Gọi điện + Zalo** 
 | Mục | Việc |
 |---|---|
 | Hiện widget | Bỏ tick là ẩn cả cụm nút (CSS/JS cũng không nạp) |
-| Nút liên hệ (repeater) | Mỗi dòng: **Kiểu** (Gọi điện / Zalo) · **Nhãn nhỏ** · **Số** · **Bật**; thêm/xoá dòng ngay trong trang |
+| Nút liên hệ (repeater) | Mỗi dòng: **Kiểu** (Gọi điện / Zalo / Facebook / Link tuỳ chỉnh) · **Nhãn nhỏ** · **Giá trị** (số hoặc link) · **Màu sắc** (màu nút + màu chữ) · **Ảnh icon** · **Bật**; thêm/xoá dòng ngay trong trang |
+| Custom CSS / JS | 2 ô nhập riêng cho plugin này; chỉ in ra khi widget đang hiển thị |
 
+**Kiểu & giá trị tương ứng**
+
+| Kiểu | Giá trị cần nhập | Link sinh ra |
+|---|---|---|
+| Gọi điện | số điện thoại (`0834.021.021`) | `tel:0834021021` |
+| Zalo | số điện thoại | `https://zalo.me/0834021021` |
+| Facebook | username/ID trang (`caophatdoor`) **hoặc** dán link fanpage | `https://m.me/caophatdoor` (giữ nguyên nếu bạn dán link `http…`) |
+| Link tuỳ chỉnh | link bất kỳ: `https://…`, `mailto:a@b.com`, `tel:…`, `sms:…` (thiếu scheme ⇒ tự thêm `https://`) | dùng đúng giá trị đã nhập |
+
+**Màu sắc & icon**
+
+- Để **trống cả 2 ô màu** = dùng màu mặc định của kiểu (đỏ cho Gọi · xanh cho Zalo · xanh dương cho Facebook · xám cho Link).
+- Nhập màu = đè màu/gradient mặc định; màu chữ cũng đổi luôn ô tròn chữ `Z`/`f` và icon SVG.
+- **Ảnh icon** tải lên (nút *Chọn ảnh* → thư viện Media) sẽ **thay thế** icon mặc định; nên dùng ảnh vuông ~100×100px, nền trong suốt.
+
+> v1.1.0 (2026-09-16): thêm kiểu **Facebook** + **Link tuỳ chỉnh**, **màu nút/màu chữ riêng cho từng nút**, **upload ảnh icon**, **Custom CSS/JS**, và 2 dòng ghi công (xem cuối trang Settings).
+>
 > v1.0.1 (2026-09-16): bỏ tuỳ chọn “Ẩn nút gọi nổi của theme (`.cp-fab`)” — theme Cao Phát đã **xoá hẳn** nút gọi nổi `.cp-fab` (CP1.3) nên tuỳ chọn đó không còn gì để ẩn.
 
 Khi nhập cần biết:
@@ -59,7 +77,7 @@ document.addEventListener('wd-contact:click', function (e) {
 | `button-call-zalo-tungleads.php` | Option `tlcz_settings`, in widget, trang Settings, sanitize |
 | `assets/contact-widget.css` | CSS **nguyên bản** thiết kế v1.3 (chỉ thêm ghi chú nguồn ở đầu file) |
 | `assets/contact-widget.js` | Bắn `wd-contact:click` |
-| `assets/admin.js` | Thêm/xoá dòng nút (chỉ nạp ở trang cài đặt) |
+| `assets/admin.js` | Thêm/xoá dòng nút · color picker (Iris của WP) cho 2 ô màu · chọn ảnh icon qua thư viện Media · đổi placeholder theo kiểu (chỉ nạp ở trang cài đặt) |
 
 CSS/JS **chỉ nạp khi widget thật sự in** (có ≥ 1 nút đang bật) và version theo `filemtime()` — không cần build step.
 
