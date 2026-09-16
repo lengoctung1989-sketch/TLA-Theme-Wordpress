@@ -30,6 +30,8 @@ Widget liên hệ nổi cho **caophat.vn**: cụm nút **Gọi điện + Zalo** 
 - Nhập màu = đè màu/gradient mặc định; màu chữ cũng đổi luôn ô tròn chữ `Z`/`f` và icon SVG.
 - **Ảnh icon** tải lên (nút *Chọn ảnh* → thư viện Media) sẽ **thay thế** icon mặc định; nên dùng ảnh vuông ~100×100px, nền trong suốt.
 
+> v1.1.1 (2026-09-16): thêm header `Author URI: https://tungleads.com/` ⇒ ở **/wp-admin/plugins.php**, dòng `Phiên bản 1.1.1 | Bởi Tung Le Ads` có **“Tung Le Ads” là link** (WP core tự bọc `<a>` khi có Author URI — xem `class-wp-plugins-list-table.php`).
+>
 > v1.1.0 (2026-09-16): thêm kiểu **Facebook** + **Link tuỳ chỉnh**, **màu nút/màu chữ riêng cho từng nút**, **upload ảnh icon**, **Custom CSS/JS**, và 2 dòng ghi công (xem cuối trang Settings).
 >
 > v1.0.1 (2026-09-16): bỏ tuỳ chọn “Ẩn nút gọi nổi của theme (`.cp-fab`)” — theme Cao Phát đã **xoá hẳn** nút gọi nổi `.cp-fab` (CP1.3) nên tuỳ chọn đó không còn gì để ẩn.

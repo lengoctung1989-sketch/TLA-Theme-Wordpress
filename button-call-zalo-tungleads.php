@@ -2,9 +2,10 @@
 /**
  * Plugin Name:  Button call/zalo - TungLeAds
  * Description:  Widget liên hệ nổi (Gọi điện · Zalo · Facebook · Link tuỳ chỉnh) neo sát lề phải, giữ nguyên thiết kế “Tùng Lê Ads — Contact Floating Widget v1.3”. Nhập nút ở Settings → Button Call/Zalo (màu nút/màu chữ + ảnh icon riêng cho từng nút, custom CSS/JS).
- * Version:      1.1.0
+ * Version:      1.1.1
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
+ * Author URI:   https://tungleads.com/
  * Text Domain:  button-call-zalo-tungleads
  *
  * @package TL\Ads\ContactButton
