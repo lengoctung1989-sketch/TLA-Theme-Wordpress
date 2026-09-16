@@ -2850,3 +2850,36 @@ body.cp-qo-open { overflow: hidden; }
    (CP1.2b/CP1.6). Tắt tuỳ chọn "chỉ hiện ở desktop" trong Customizer nếu muốn hiện mọi khổ. */
 @media (max-width: 1024px) { .cp-hitem--html-desk { display: none; } }
 
+/* ==========================================================================
+   CP7.1 + CP7.2 — Trang hệ thống: 404 (`404.php`) + kết quả tìm kiếm (`search.php`)
+   Tái dùng: `.cp-pagehero` / `.cp-breadcrumb` (CP3.1) · `.cp-page` (CP6.1) · typography
+   `.cp-article__content` (CP5.2) · lưới `.cp-news-layout` + `.cp-news-card` + `.cp-news-empty`
+   (CP5.1) · hộp `.cp-side-box` / `.cp-side-cats` (CP3.2) · nút `.cp-btn*` (CP4.1) · pill
+   `.cp-search` (CP1.6). Khối này CHỈ thêm phần riêng: ô search trong nội dung, nhãn "hoặc",
+   dãy nút nhanh, giá ở kết quả là sản phẩm.
+   ========================================================================== */
+/* Ô search ĐẶT TRONG NỘI DUNG — cùng pill với header (CP1.6) nhưng giãn ra và cao hơn cho dễ bấm.
+   Selector (0,2,0) để chắc thắng `.cp-search { width: 230px; height: 40px }` (0,1,0).
+   ⚠️ `display: flex` là BẮT BUỘC: CP1.6 ẩn `.cp-search` ở ≤768px (`.cp-search { display: none }`) vì
+   header mobile chỉ mở ô search bằng nút `.cp-search-toggle` — nếu không khai lại, ô search TRONG
+   NỘI DUNG cũng bị ẩn theo (đo được `0×0` + `elementFromPoint` bị chặn ở 768/390). Không cần
+   `!important`: rule này (0,2,0) khai SAU rule ẩn (0,1,0) nên thắng. */
+.cp-search.cp-inline-search { display: flex; width: 100%; max-width: 460px; height: 46px; margin: 0 0 20px; }
+.cp-404__lead { margin: 0 0 18px; font-size: 16.5px; }
+.cp-404__or { margin: 0 0 12px; font-weight: 700; }
+.cp-404__links { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; }
+.cp-404__links .cp-btn { min-height: 44px; }
+
+/* Giá trong kết quả tìm kiếm là sản phẩm: cùng hàng với nhãn danh mục, đậm hơn chữ meta.
+   `ins` (giá khuyến mãi) không gạch chân — trình duyệt mặc định gạch, xem luật ở theme-assets. */
+.cp-search-card__price { font-size: 15px; font-weight: 700; color: var(--cp-accent-dark); }
+.cp-search-card__price del { color: var(--cp-muted); font-weight: 400; }
+.cp-search-card__price ins { text-decoration: none; font-weight: 700; }
+
+@media (max-width: 768px) {
+  .cp-search.cp-inline-search { max-width: 100%; }
+  /* Nút nhanh giãn đều 2 bên cho dễ bấm bằng ngón tay (mỗi nút ≥ 44px chiều cao). */
+  .cp-404__links .cp-btn { flex: 1 1 auto; justify-content: center; }
+}
+
+

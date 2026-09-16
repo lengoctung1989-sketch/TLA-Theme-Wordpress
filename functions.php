@@ -18,6 +18,9 @@ require get_stylesheet_directory() . '/inc/news.php';
 // CP6.1 + CP6.2 — trang nội dung tĩnh (dùng cho `page.php`).
 require get_stylesheet_directory() . '/inc/page.php';
 
+// CP7.1 + CP7.2 + CP7.3 — trang hệ thống (404, kết quả tìm kiếm) + bóc shortcode Flatsome còn sót.
+require get_stylesheet_directory() . '/inc/system.php';
+
 // CP2.6 — Customizer: khối "Danh mục nổi bật" (chọn + kéo thả thứ tự + bố cục).
 require get_stylesheet_directory() . '/inc/customizer.php';
 
