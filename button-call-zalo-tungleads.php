@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  Button call/zalo - TungLeAds
  * Description:  Widget liên hệ nổi (Gọi điện + Zalo) neo sát lề phải, giữ nguyên thiết kế “Tùng Lê Ads — Contact Floating Widget v1.3”. Số điện thoại / Zalo nhập ở Settings → Button Call/Zalo.
- * Version:      1.0.0
+ * Version:      1.0.1
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
  * Text Domain:  button-call-zalo-tungleads
@@ -20,13 +20,15 @@ const TLCZ_MAX_ROWS = 8;                // Chặn trên số nút (chống nhậ
 /**
  * Giá trị mặc định — ĐÚNG 4 nút như thiết kế v1.3 Tùng gửi (2 Gọi + 2 Zalo).
  *
- * @return array{enabled:int,hide_theme_fab:int,buttons:array<int,array<string,mixed>>}
+ * 2026-09-16 (v1.0.1): bỏ khoá `hide_theme_fab` — theme Cao Phát đã **xoá hẳn** `.cp-fab`
+ * (CP1.3) nên tuỳ chọn ẩn nó không còn gì để ẩn.
+ *
+ * @return array{enabled:int,buttons:array<int,array<string,mixed>>}
  */
 function tlcz_defaults(): array {
 	return array(
-		'enabled'        => 1,
-		'hide_theme_fab' => 0,
-		'buttons'        => array(
+		'enabled' => 1,
+		'buttons' => array(
 			array(
 				'type'    => 'phone',
 				'label'   => 'Gọi ngay',
@@ -66,15 +68,14 @@ function tlcz_types(): array {
 /**
  * Cài đặt đã trộn default (option lưu thiếu khoá vẫn chạy đúng).
  *
- * @return array{enabled:int,hide_theme_fab:int,buttons:array<int,array<string,mixed>>}
+ * @return array{enabled:int,buttons:array<int,array<string,mixed>>}
  */
 function tlcz_settings(): array {
 	$saved = get_option( TLCZ_OPTION, array() );
 	$saved = is_array( $saved ) ? $saved : array();
 	$out   = tlcz_defaults();
 
-	$out['enabled']        = isset( $saved['enabled'] ) ? (int) $saved['enabled'] : $out['enabled'];
-	$out['hide_theme_fab'] = isset( $saved['hide_theme_fab'] ) ? (int) $saved['hide_theme_fab'] : $out['hide_theme_fab'];
+	$out['enabled'] = isset( $saved['enabled'] ) ? (int) $saved['enabled'] : $out['enabled'];
 
 	if ( isset( $saved['buttons'] ) && is_array( $saved['buttons'] ) ) {
 		$out['buttons'] = array_values( $saved['buttons'] );
@@ -196,11 +197,6 @@ add_action(
 			file_exists( $js_path ) ? (string) filemtime( $js_path ) : '1.0.0',
 			true
 		);
-
-		// Tuỳ chọn trong cài đặt: ẩn nút gọi nổi sẵn có của theme Cao Phát (`.cp-fab`).
-		if ( tlcz_settings()['hide_theme_fab'] > 0 ) {
-			wp_add_inline_style( 'tlcz-widget', '.cp-fab{display:none !important}' );
-		}
 	}
 );
 
@@ -269,7 +265,7 @@ function tlcz_render(): void {
 /*
  * ---------------------------------------------------------------------------
  * ADMIN — Settings → Button Call/Zalo.
- * Một option duy nhất `tlcz_settings` (mảng): `enabled` · `hide_theme_fab` · `buttons[]`.
+ * Một option duy nhất `tlcz_settings` (mảng): `enabled` · `buttons[]`.
  * Bảng nút là REPEATER (thêm/xoá dòng bằng `assets/admin.js`); lưu qua `options.php`
  * (nonce + quyền do Settings API lo) ⇒ mọi dữ liệu đều đi qua `tlcz_sanitize()`.
  * ---------------------------------------------------------------------------
@@ -326,7 +322,7 @@ add_action(
 /**
  * Làm sạch dữ liệu form trước khi lưu.
  *
- * - `enabled` / `hide_theme_fab`: checkbox ⇒ thiếu key = 0.
+ * - `enabled`: checkbox ⇒ thiếu key = 0.
  * - `buttons`: BỎ dòng chưa nhập số (dòng vừa bấm “Thêm nút” mà không điền), cắt tối đa
  *   TLCZ_MAX_ROWS, `array_values` để option luôn là list phẳng (không lỗ index sau khi xoá).
  * - Không còn dòng nào sau khi lọc = quay về 4 số mặc định — cùng quy ước với plugin
@@ -334,15 +330,14 @@ add_action(
  *   mà người dùng không hiểu vì sao.
  *
  * @param mixed $input Dữ liệu POST từ form.
- * @return array{enabled:int,hide_theme_fab:int,buttons:array<int,array<string,mixed>>}
+ * @return array{enabled:int,buttons:array<int,array<string,mixed>>}
  */
 function tlcz_sanitize( $input ): array {
 	$input = is_array( $input ) ? $input : array();
 	$types = array_keys( tlcz_types() );
 	$out   = array(
-		'enabled'        => empty( $input['enabled'] ) ? 0 : 1,
-		'hide_theme_fab' => empty( $input['hide_theme_fab'] ) ? 0 : 1,
-		'buttons'        => array(),
+		'enabled' => empty( $input['enabled'] ) ? 0 : 1,
+		'buttons' => array(),
 	);
 
 	$rows = isset( $input['buttons'] ) && is_array( $input['buttons'] ) ? $input['buttons'] : array();
@@ -452,15 +447,6 @@ function tlcz_settings_page(): void {
 						<label>
 							<input type="checkbox" name="<?php echo esc_attr( TLCZ_OPTION ); ?>[enabled]" value="1" <?php checked( $settings['enabled'], 1 ); ?>>
 							<?php esc_html_e( 'Hiện nút Gọi/Zalo ở mọi trang', 'button-call-zalo-tungleads' ); ?>
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Nút gọi nổi của theme', 'button-call-zalo-tungleads' ); ?></th>
-					<td>
-						<label>
-							<input type="checkbox" name="<?php echo esc_attr( TLCZ_OPTION ); ?>[hide_theme_fab]" value="1" <?php checked( $settings['hide_theme_fab'], 1 ); ?>>
-							<?php esc_html_e( 'Ẩn nút gọi nổi sẵn có của theme (class .cp-fab) — bật nếu thấy bị trùng với widget này', 'button-call-zalo-tungleads' ); ?>
 						</label>
 					</td>
 				</tr>

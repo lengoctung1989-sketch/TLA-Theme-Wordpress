@@ -12,8 +12,9 @@ Widget liên hệ nổi cho **caophat.vn**: cụm nút **Gọi điện + Zalo** 
 | Mục | Việc |
 |---|---|
 | Hiện widget | Bỏ tick là ẩn cả cụm nút (CSS/JS cũng không nạp) |
-| Ẩn nút gọi nổi của theme | Thêm `.cp-fab{display:none !important}` — dùng khi widget bị trùng với nút gọi nổi sẵn có của child theme |
 | Nút liên hệ (repeater) | Mỗi dòng: **Kiểu** (Gọi điện / Zalo) · **Nhãn nhỏ** · **Số** · **Bật**; thêm/xoá dòng ngay trong trang |
+
+> v1.0.1 (2026-09-16): bỏ tuỳ chọn “Ẩn nút gọi nổi của theme (`.cp-fab`)” — theme Cao Phát đã **xoá hẳn** nút gọi nổi `.cp-fab` (CP1.3) nên tuỳ chọn đó không còn gì để ẩn.
 
 Khi nhập cần biết:
 
