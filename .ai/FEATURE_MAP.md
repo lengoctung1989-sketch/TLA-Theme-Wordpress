@@ -151,3 +151,20 @@ Cùng cách tiếp cận CP3.4: `cp_is_checkout_page()` (guard **loại trừ** 
 **Bẫy GỠ field `billing_country` (nặng — đã dính và đã sửa):** `WC_Checkout::get_posted_data()` (`includes/class-wc-checkout.php`, đoạn `if ( in_array( 'shipping', $skipped ) )`) tự copy **billing → shipping** cho mọi field giao hàng bằng `$data[ 'billing_' . … ]`. Bản copy này chạy **TRƯỚC** filter `woocommerce_checkout_posted_data`, nên khi `billing_country` bị gỡ khỏi form thì key đó rỗng → `$data['shipping_country'] = ''` → `WC_Checkout::validate_checkout()` (`class-wc-checkout.php:1020`) chặn đơn với lỗi **"Xin hãy nhập một địa chỉ để tiếp tục."** (chuỗi gốc `Please enter an address to continue.`). Lưu ý `$data['ship_to_different_address']` LUÔN tồn tại (giá trị `false` khi không tick) nên **không** dùng `isset()` để đoán khách có tick hay không. Cách sửa đúng: trong filter điền `billing_country` và **điền luôn `shipping_country` nếu nó đang trống** (khách chọn quốc gia giao khác thì giá trị của khách được giữ nguyên). Cùng cơ chế copy này cũng làm `shipping_company`/`shipping_address_2`/`shipping_postcode`/`shipping_last_name` thành rỗng — vô hại vì VN không bắt buộc các field đó và option `woocommerce_shipping_cost_requires_address` = `no`.
 
 **Bẫy độ ưu tiên CSS (đã dính, đã sửa):** (a) `.cp-checkout .form-row` (0,2,0) **BỊ** `.woocommerce form .form-row-first` (0,2,2) đè → ô nửa hàng co còn 47% (đo được **170px** thay vì 362px); phải ghi rõ `.cp-checkout .form-row.form-row-first` và `-last` (0,3,0). (b) `.cp-checkout .form-row textarea` (0,2,1) **BỊ** `.woocommerce form .form-row textarea` (0,2,2) đè → bo góc còn 4px (`--wc-form-border-radius`) thay vì 10px; phải khai `border-radius` trong `.cp-checkout .form-row.notes textarea` (0,3,1).
+
+---
+
+## Ngoài theme — plugin `button-call-zalo-tungleads` (“Button call/zalo - TungLeAds”)
+
+Widget liên hệ nổi (Gọi điện + Zalo) neo sát **lề phải**, in ở `wp_footer` **prio 5**; số nhập ở **Settings → Button Call/Zalo**. Đây là **repo git riêng** (`wordpress/wp-content/plugins/button-call-zalo-tungleads/`), **KHÔNG** thuộc child theme — điểm chạm duy nhất với theme: tuỳ chọn “Ẩn nút gọi nổi của theme” in thêm `.cp-fab{display:none!important}`.
+
+| Phần | Việc |
+|---|---|
+| `button-call-zalo-tungleads.php` | Option `tlcz_settings` (`enabled` · `hide_theme_fab` · `buttons[]`), `tlcz_render()` in widget ở `wp_footer` prio 5, trang Settings (repeater tối đa 8 nút), `tlcz_sanitize()` (bỏ dòng chưa nhập số · cắt 8 · `array_values` · xoá hết = về 4 số mặc định) |
+| `assets/contact-widget.css` | CSS **nguyên bản** thiết kế “Contact Floating Widget v1.3” (class `.wd-contact-*`): nút 58px, hover mở 210px, chỉ nút đang hover đổi, mobile giữ đúng layout desktop, pulse ở nút đầu nếu là loại Gọi |
+| `assets/contact-widget.js` | Uỷ nhiệm click từ `document` → bắn `wd-contact:click` (`detail.type` = `phone`/`zalo`, `detail.phone` = số đã bỏ ký tự không phải số) để site tự gắn GTM/GA4 |
+| `assets/admin.js` | Thêm/xoá dòng nút ở trang Settings (chỉ nạp ở trang đó) |
+
+**Bẫy đã dính (đã sửa):** widget in ở `wp_footer` **prio 20** = cùng prio với `wp_print_footer_scripts`, mà core đăng ký callback trước plugin ⇒ **script in TRƯỚC markup** ⇒ JS chạy khi `.wd-contact-widget` chưa có trong DOM ⇒ `querySelector` trả `null` ⇒ **sự kiện click không bao giờ bắn** (chỉ đo bằng Playwright mới thấy; đọc code sẽ tưởng đúng). Sửa: in ở **prio 5** + JS uỷ nhiệm từ `document` (không phụ thuộc thứ tự).
+
+**Số đo Playwright (2026-09-16):** 4 loại trang (trang chủ · chi tiết SP · bài viết · trang tĩnh) — 4 nút, hộp `1230..1440 x 322..578`, `z-index 999999`, `overflow 0`; hover nút 1 → rộng `58 → 210px` còn **3 nút kia vẫn 58px** và mép phải không đổi, nhãn `opacity 0 → 1`; click-through: điểm trong hộp nhưng ngoài nút → trúng nội dung trang (container `pointer-events: none`); **không chồng `.cp-fab`** ở 6 kích thước (1440×900 · 1440×600 · 1280×500 · 768×1024 · 390×844 · 390×600); **Admin E2E**: “+ Thêm nút” → lưu → frontend 5 nút, `+84 (909) 123-456` → `https://zalo.me/84909123456`, bỏ tick “Hiện widget” → **0 nút + 0 asset**, xoá dòng → về đúng 4 nút mặc định. Repo plugin: commit baseline `cc1e770`.

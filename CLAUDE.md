@@ -5,8 +5,8 @@
 > **Môi trường + lệnh chạy**, **quy trình kiểm chứng UI trước khi báo xong** và **luật sửa file theo loại** (`.github/instructions/`, skill `cp-ui-verify`, prompt `/cp-wrapup`) nằm ở **`AGENTS.md`** — đọc các mục đó trước khi code, để 2 file không lệch nhau.
 
 - **Base:** `tungleads-theme@v0.1.0` (git tag trên repo parent). Nâng parent là hành động có chủ đích: đổi số ở đây + `README.md` → test lại toàn bộ child.
-- **Ranh giới:** child chỉ trình bày (skin CSS + template override + hook). Business logic (CPT, taxonomy, API riêng) → plugin **`tl-site-caophat`** (`wordpress/wp-content/plugins/tl-site-caophat/`, có repo git riêng), KHÔNG cho vào child theme.
-- **Deploy:** ship cả parent + child + plugin `tl-site-caophat` + `assets/dist/` của parent qua `deploy-caophat.sh` (gốc repo). **Chỉ đẩy production (`--go`) khi Tùng yêu cầu rõ ràng** — không tự ý chạy.
+- **Ranh giới:** child chỉ trình bày (skin CSS + template override + hook). Business logic (CPT, taxonomy, API riêng) → plugin **`tl-site-caophat`** (`wordpress/wp-content/plugins/tl-site-caophat/`, có repo git riêng), KHÔNG cho vào child theme. Widget/chức năng độc lập cũng đi theo đường plugin — ví dụ nút liên hệ nổi **`button-call-zalo-tungleads`** (“Button call/zalo - TungLeAds”, repo git riêng): widget in ở `wp_footer`, số nhập ở **Settings → Button Call/Zalo**; nó có tuỳ chọn ẩn `.cp-fab` của theme nhưng **không** đọc/ghi gì của child.
+- **Deploy:** ship cả parent + child + 2 plugin (`tl-site-caophat`, `button-call-zalo-tungleads`) + `assets/dist/` của parent qua `deploy-caophat.sh` (gốc repo). **Chỉ đẩy production (`--go`) khi Tùng yêu cầu rõ ràng** — không tự ý chạy.
 - **Phân vai (Tùng chốt 2026-09-14):** `deepseek` **chỉ xây dựng chức năng + commit LOCAL**; **push/deploy production + mọi thao tác trên production là phần của Tùng + `claude`**. Việc production còn tồn đều nằm trong mục "còn lại" của `.ai/WORKLOG.md` — không phải việc của deepseek.
 
 - Không business logic, không build step (CSS tĩnh `assets/caophat.css`).
@@ -38,7 +38,7 @@ Site local = WordPress + WooCommerce trong **Docker**, chạy từ **repo gốc*
 - **Không có build step**: CSS/JS enqueue bằng `filemtime()` → sửa file rồi hard-reload (Cmd+Shift+R) là thấy ngay.
 - Kiểm cú pháp trên máy (không cần Docker): `php -l <file.php>` · `node --check <file.js>`.
 - `WP_DEBUG` + `WP_DEBUG_DISPLAY` = 1 ở local → PHP notice hiện trực tiếp trên trang.
-- Trong container: theme `wp-content/themes/tungleads-theme-cp` · plugin `wp-content/plugins/tl-site-caophat`.
+- Trong container: theme `wp-content/themes/tungleads-theme-cp` · plugin `wp-content/plugins/tl-site-caophat` · plugin `wp-content/plugins/button-call-zalo-tungleads`.
 - **Repo không có remote git** → chỉ commit LOCAL (xem mục phạm vi bên trên).
 
 ## Kiểm chứng trước khi báo xong (bắt buộc)
