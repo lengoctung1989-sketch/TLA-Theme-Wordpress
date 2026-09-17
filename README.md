@@ -141,13 +141,16 @@ nên chỉ cần cập nhật file là site chạy y như trước, KHÔNG mất
 | Thứ tự an toàn khi deploy | Bật **Chế độ bảo trì** → cập nhật theme + plugin → chạy script (dry-run rồi `go`) → tắt bảo trì |
 | Xoá thư mục plugin cũ | Xoá `wp-content/plugins/tl-site-caophat/` sau khi đã activate bản mới |
 
-**⚠️ 3 điều đã dính khi đổi tên (đừng lặp lại):**
+**⚠️ 5 điều đã dính khi đổi tên + nhập liệu (đừng lặp lại):**
 1. **Option ĐÃ LƯU nhưng RỖNG** (ví dụ `tlpi_tracking_ids` = `{"on":"","gtm":"",…}`) nghĩa là *“không in khối tracking nào”* —
    nếu vô tình lưu form khi 4 ô ID trống thì site **tắt tracking**. Kiểm nhanh: `wp option get tlpi_tracking_ids`.
    Không muốn giới hạn ⇒ xoá option đó để plugin dùng lại 4 ID mặc định.
+   ⚠️ **Ca nguy hiểm hơn (đã dính 2026-09-17):** `on:""` **nhưng 4 ID vẫn còn** ⇒ vẫn KHÔNG in khối nào (công tắc ở dòng đầu của mục “ID tracking”). Muốn bật lại: xoá option hoặc tick lại công tắc rồi Lưu.
 2. **`wp option get active_plugins`** vẫn giữ đường dẫn plugin CŨ sau khi đổi tên thư mục ⇒ phải xoá entry cũ
    (hoặc tắt/bật lại plugin) nếu không WP báo plugin không tồn tại.
-3. **`wp eval-file … -- --go` KHÔNG chạy** — WP-CLI báo `unknown --go parameter`; script này dùng tham số **vị trí** `go`.
+3. **`wp eval-file … -- --go` KHÔNG chạy** — WP-CLI báo `unknown --go parameter`; các script trong `docs/` dùng tham số **vị trí** `go`.
+4. **Ghi option bằng CHUỖI JSON thay vì MẢNG** ⇒ plugin đọc bằng `get_option()` mong nhận **array** (Settings API lưu array); nhận chuỗi sẽ coi như “không có dữ liệu” và **quay về mặc định** (đã dính ở `docs/prod-import-plugin-options.php` bản đầu — nay ghi `tlpi_toc_sanitize(...)` dạng mảng, chuỗi JSON chỉ để IN RA).
+5. **Ký tự emoji trong chuỗi hiển thị** ⇒ lõi WP đổi thành `<img src="…/twemoji…">` (ảnh vỡ khi CDN lỗi) — plugin hiện **không còn emoji** nào trong code; nếu thêm nhãn mới thì đừng dùng emoji.
 
 ## Deploy
 
