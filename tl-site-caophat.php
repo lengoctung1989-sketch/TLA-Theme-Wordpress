@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  TL Site — Cao Phát
  * Description:  Tầng dữ liệu / hành vi riêng của caophat.vn (tracking, sau này: CPT, taxonomy, form). Tách khỏi theme để đổi giao diện không mất data.
- * Version:      0.2.0
+ * Version:      0.3.0
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
  * Author URI:   https://tungleads.com/
@@ -156,6 +156,149 @@ function tlcp_print_tracking_code( string $position ): void {
 add_action( 'wp_head', static fn() => tlcp_print_tracking_code( 'head' ), 1 );
 add_action( 'wp_body_open', static fn() => tlcp_print_tracking_code( 'body' ), 1 );
 add_action( 'wp_footer', static fn() => tlcp_print_tracking_code( 'footer' ), 99 );
+
+/*
+ * ---------------------------------------------------------------------------
+ * CHẾ ĐỘ BẢO TRÌ (Tùng yêu cầu 2026-09-17) — bật/tắt ở Settings → Cao Phát.
+ *   • Khách CHƯA đăng nhập → thấy trang thông báo (nội dung tự nhập).
+ *   • Người có quyền `manage_options` (lọc được qua `tlcp_maintenance_capability`)
+ *     vẫn xem web BÌNH THƯỜNG ⇒ bật bảo trì rồi vẫn sửa nội dung được.
+ *   • Trả **HTTP 503 + `Retry-After`** = đúng chuẩn cho bảo trì TẠM THỜI
+ *     (Google giữ trang trong index, không đánh rớt) + `noindex` cho an toàn.
+ *   • Chặn cache (`DONOTCACHEPAGE` — LiteSpeed đọc biến này) để không cache trang bảo trì.
+ *   • BỎ QUA: `wp-admin`, AJAX, cron, WP-CLI, REST/JSON — nếu không sẽ làm hỏng trình
+ *     soạn thảo (Gutenberg gọi `/wp-json/`) và các tác vụ nền.
+ *   • Trang bảo trì là HTML + CSS nội tuyến, KHÔNG dùng CSS/JS của theme ⇒ vẫn hiện
+ *     đúng kể cả khi theme đang lỗi hoặc đang nâng cấp.
+ * ---------------------------------------------------------------------------
+ */
+const TL_CP_MAINTENANCE_OPTION = 'tlcp_maintenance';
+
+/**
+ * Trạng thái bảo trì hiện tại.
+ *
+ * @return array{on:bool,message:string}
+ */
+function tlcp_maintenance(): array {
+	$saved = get_option( TL_CP_MAINTENANCE_OPTION, array() );
+	$out   = array(
+		'on'      => false,
+		'message' => '',
+	);
+
+	if ( is_array( $saved ) ) {
+		$out['on']      = ! empty( $saved['on'] );
+		$out['message'] = isset( $saved['message'] ) && is_string( $saved['message'] ) ? trim( $saved['message'] ) : '';
+	}
+
+	return (array) apply_filters( 'tlcp_maintenance', $out );
+}
+
+/**
+ * Sanitize trạng thái bảo trì: `on` = cờ bật/tắt, `message` = HTML cơ bản (không cho script).
+ *
+ * @param mixed $value Giá trị từ form.
+ * @return array{on:bool,message:string}
+ */
+function tlcp_sanitize_maintenance( $value ): array {
+	$out = array(
+		'on'      => false,
+		'message' => '',
+	);
+
+	if ( ! is_array( $value ) ) {
+		return $out;
+	}
+
+	$out['on']      = ! empty( $value['on'] );
+	$out['message'] = isset( $value['message'] ) && is_string( $value['message'] ) ? wp_kses_post( trim( $value['message'] ) ) : '';
+
+	return $out;
+}
+
+/**
+ * Người đang xem có được BỎ QUA trang bảo trì không? (mặc định: quản trị viên)
+ */
+function tlcp_maintenance_bypass(): bool {
+	$cap = (string) apply_filters( 'tlcp_maintenance_capability', 'manage_options' );
+
+	return is_user_logged_in() && current_user_can( $cap );
+}
+
+/** Trang bảo trì độc lập (HTML + CSS nội tuyến). */
+add_action(
+	'template_redirect',
+	static function (): void {
+		$mt = tlcp_maintenance();
+		if ( empty( $mt['on'] ) ) {
+			return;
+		}
+		if ( is_admin() || wp_doing_ajax() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			return;
+		}
+		if ( function_exists( 'wp_is_json_request' ) && wp_is_json_request() ) {
+			return;
+		}
+		if ( tlcp_maintenance_bypass() ) {
+			return;
+		}
+
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
+		nocache_headers();
+		status_header( 503 );
+		header( 'Retry-After: 3600' );
+		header( 'Content-Type: text/html; charset=' . get_bloginfo( 'charset' ) );
+
+		$site = (string) get_bloginfo( 'name' );
+		$msg  = '' !== $mt['message']
+			? $mt['message']
+			: '<p>' . esc_html__( 'Website đang được bảo trì để nâng cấp. Vui lòng quay lại sau ít phút.', 'tl-site-caophat' ) . '</p>';
+		?>
+<!DOCTYPE html>
+<html lang="<?php echo esc_attr( get_bloginfo( 'language' ) ); ?>">
+<head>
+<meta charset="<?php echo esc_attr( get_bloginfo( 'charset' ) ); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title><?php echo esc_html( sprintf( /* translators: %s: tên site. */ __( 'Bảo trì — %s', 'tl-site-caophat' ), $site ) ); ?></title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+	background:#f4f5f7;color:#26221e;
+	font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.box{width:100%;max-width:620px;background:#fff;border-radius:16px;padding:40px 36px;text-align:center;
+	box-shadow:0 10px 40px rgba(0,0,0,.08)}
+.ic{width:64px;height:64px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;
+	background:#fdf1e3;color:#c8471f}
+.ic svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+h1{margin:0 0 6px;font-size:22px;line-height:1.3}
+.msg{margin:14px 0 0;font-size:16.5px}
+.msg p{margin:0 0 10px}
+.msg p:last-child{margin-bottom:0}
+.tam{margin:18px 0 0;font-size:14px;color:#6f6a63}
+.adm{margin:22px 0 0;font-size:13px}
+.adm a{color:#c8471f}
+@media(max-width:480px){.box{padding:28px 20px}h1{font-size:19px}}
+</style>
+</head>
+<body>
+	<div class="box">
+		<div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0 5 5l-9 9a2.8 2.8 0 0 1-4-4z"/><path d="M14.7 6.3 17.6 3.4a4 4 0 0 1 3 4.9"/></svg></div>
+		<h1><?php echo esc_html( $site ); ?></h1>
+		<div class="msg"><?php echo $msg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- đã lọc bằng wp_kses_post khi lưu. ?></div>
+		<p class="tam"><?php esc_html_e( 'Chúng tôi sẽ quay lại sớm nhất có thể — cảm ơn anh/chị đã chờ.', 'tl-site-caophat' ); ?></p>
+		<p class="adm"><a href="<?php echo esc_url( wp_login_url() ); ?>"><?php esc_html_e( 'Quản trị viên đăng nhập', 'tl-site-caophat' ); ?></a></p>
+	</div>
+</body>
+</html>
+		<?php
+		exit;
+	},
+	1
+);
+
 
 
 /*
@@ -356,6 +499,20 @@ add_action(
 				),
 			)
 		);
+
+		// Chế độ bảo trì (mục "Chế độ bảo trì" ở trên) — cờ bật/tắt + nội dung thông báo.
+		register_setting(
+			'tlcp_support',
+			TL_CP_MAINTENANCE_OPTION,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => 'tlcp_sanitize_maintenance',
+				'default'           => array(
+					'on'      => false,
+					'message' => '',
+				),
+			)
+		);
 	}
 );
 
@@ -432,6 +589,25 @@ function tlcp_support_page(): void {
 			<?php endforeach; ?>
 			<p class="description" style="color:#b32d2e;">
 				<?php esc_html_e( 'Lưu ý: plugin này đang in sẵn 4 khối tracking ở đầu file (GTM / GA4 / Google Ads / Meta Pixel). Nếu dán mã TRÙNG ở đây thì số liệu sẽ BỊ ĐẾM ĐÔI — gỡ một trong hai chỗ.', 'tl-site-caophat' ); ?>
+			</p>
+
+			<hr style="margin:28px 0 0;">
+			<h2><?php esc_html_e( 'Chế độ bảo trì', 'tl-site-caophat' ); ?></h2>
+			<?php $tlcp_mt = tlcp_maintenance(); ?>
+			<label style="display:flex;align-items:center;gap:8px;font-weight:600;margin:8px 0 0;">
+				<input type="checkbox" name="<?php echo esc_attr( TL_CP_MAINTENANCE_OPTION . '[on]' ); ?>" value="1" <?php checked( ! empty( $tlcp_mt['on'] ) ); ?>>
+				<?php esc_html_e( 'Bật chế độ bảo trì', 'tl-site-caophat' ); ?>
+			</label>
+			<p class="description">
+				<?php esc_html_e( 'Khách CHƯA đăng nhập sẽ thấy trang thông báo với HTTP 503 + Retry-After (Google giữ trang trong index, không đánh rớt) + noindex, và trang bảo trì không bị cache.', 'tl-site-caophat' ); ?><br>
+				<?php esc_html_e( 'Người có quyền quản trị vẫn xem web BÌNH THƯỜNG — bật bảo trì rồi vẫn sửa nội dung, cài plugin thoải mái.', 'tl-site-caophat' ); ?>
+			</p>
+
+			<h3 style="margin:20px 0 4px;"><?php esc_html_e( 'Nội dung thông báo', 'tl-site-caophat' ); ?></h3>
+			<textarea name="<?php echo esc_attr( TL_CP_MAINTENANCE_OPTION . '[message]' ); ?>" rows="4" class="large-text code" spellcheck="false"><?php echo esc_textarea( (string) $tlcp_mt['message'] ); ?></textarea>
+			<p class="description">
+				<?php esc_html_e( 'Để trống = dùng câu mặc định: “Website đang được bảo trì để nâng cấp. Vui lòng quay lại sau ít phút.”.', 'tl-site-caophat' ); ?><br>
+				<?php esc_html_e( 'Cho phép HTML cơ bản (p, strong, br, a, ul/li…) — KHÔNG cho thẻ script.', 'tl-site-caophat' ); ?>
 			</p>
 
 			<?php submit_button(); ?>
