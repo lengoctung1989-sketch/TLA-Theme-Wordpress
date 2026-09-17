@@ -28,17 +28,21 @@ const TL_CP_TOC_OPTION = 'tlcp_toc';
 /** Giá trị mặc định (khoá nào chưa lưu thì dùng ở đây). */
 function tlcp_toc_defaults(): array {
 	return array(
-		'on'      => '',                          // '1' = bật.
-		'types'   => array( 'post', 'page' ),     // post type áp dụng.
-		'min'     => 3,                           // số heading tối thiểu mới hiện mục lục.
-		'depth'   => 3,                           // 2 = H2 · 3 = H2+H3 · 4 = H2+H3+H4.
-		'number'  => '1',                         // đánh số 1 · 2 · 2.1 (như demo).
-		'label'   => 'Mục lục nội dung',          // nhãn nút dọc.
-		'side'    => 'right',                      // right | left.
-		'color'   => '',                          // rỗng = dùng --cp-accent của theme.
-		'spy'     => '1',                         // tô nền mục đang xem.
-		'mobile'  => '1',                         // hiện cả trên mobile (≤768px).
-		'exclude' => '',                          // danh sách ID bài KHÔNG áp dụng (mỗi dòng 1 ID).
+		'on'         => '',                       // '1' = bật.
+		'types'      => array( 'post', 'page' ),  // post type áp dụng.
+		'min'        => 3,                        // số heading tối thiểu mới hiện mục lục.
+		'depth'      => 3,                        // 2 = H2 · 3 = H2+H3 · 4 = H2+H3+H4.
+		'number'     => '1',                      // đánh số 1 · 2 · 2.1 (như demo).
+		'label'      => 'Mục lục nội dung',       // nhãn nút dọc + tiêu đề khối trong nội dung.
+		'side'       => 'right',                   // right | left (nút dọc).
+		'color'      => '',                       // rỗng = dùng --cp-accent của theme.
+		'spy'        => '1',                      // tô nền mục đang xem (drawer).
+		'mobile'     => '1',                      // hiện nút dọc cả trên mobile (≤768px).
+		'float'      => '1',                      // '1' = hiện NÚT DỌC + drawer ở mép màn hình.
+		'inline'     => '1',                      // '1' = hiện KHỐI MỤC LỤC trong nội dung bài.
+		'inline_pos' => 'top',                    // top = đầu bài · p1 = sau đoạn mở đầu.
+		'inline_open'=> '1',                      // '1' = mở sẵn khối trong nội dung.
+		'exclude'    => '',                       // danh sách ID bài KHÔNG áp dụng (mỗi dòng 1 ID).
 	);
 }
 
@@ -93,6 +97,10 @@ function tlcp_toc_sanitize( $value ): array {
 	$out['number'] = empty( $value['number'] ) ? '' : '1';
 	$out['spy']    = empty( $value['spy'] ) ? '' : '1';
 	$out['mobile'] = empty( $value['mobile'] ) ? '' : '1';
+	$out['float']  = empty( $value['float'] ) ? '' : '1';
+	$out['inline'] = empty( $value['inline'] ) ? '' : '1';
+	$out['inline_open'] = empty( $value['inline_open'] ) ? '' : '1';
+	$out['inline_pos']  = ( isset( $value['inline_pos'] ) && 'p1' === $value['inline_pos'] ) ? 'p1' : 'top';
 
 	$types = isset( $value['types'] ) ? array_map( 'sanitize_key', (array) $value['types'] ) : array();
 	$types = array_values( array_filter( $types, 'post_type_exists' ) );
@@ -179,6 +187,12 @@ add_action(
 	'wp_enqueue_scripts',
 	static function (): void {
 		if ( ! tlcp_toc_should_run() ) {
+			return;
+		}
+
+		// Cả 2 cách hiển thị đều tắt ⇒ không có gì để nạp (đỡ 1 request CSS + 1 request JS).
+		$o = tlcp_toc();
+		if ( empty( $o['float'] ) && empty( $o['inline'] ) ) {
 			return;
 		}
 
@@ -327,6 +341,13 @@ function tlcp_toc_scan( string $content, int $max_level, bool $number ): array {
 add_action(
 	'wp_footer',
 	static function (): void {
+		$o = tlcp_toc();
+
+		// Tuỳ chọn “Hiện nút dọc + drawer” tắt ⇒ chỉ còn khối mục lục trong nội dung (nếu bật).
+		if ( empty( $o['float'] ) ) {
+			return;
+		}
+
 		$post_id = (int) get_queried_object_id();
 		$items   = tlcp_toc_data( $post_id );
 
@@ -334,7 +355,6 @@ add_action(
 			return;
 		}
 
-		$o       = tlcp_toc();
 		$classes = array( 'tlcp-toc', 'tlcp-toc--' . $o['side'] );
 
 		if ( empty( $o['mobile'] ) ) {
@@ -382,6 +402,61 @@ add_action(
 	5
 );
 
+/* ============================ KHỐI MỤC LỤC TRONG NỘI DUNG ============================ */
+
+/**
+ * HTML khối mục lục INLINE (tuỳ chọn “Hiện khối mục lục trong nội dung bài viết”).
+ *
+ * Dùng `<details>`/`<summary>` HTML gốc để thu gọn/mở **KHÔNG CẦN JS** (`open` = mở sẵn): tắt JS thì
+ * khối vẫn bấm mở/thu bình thường; JS chỉ thêm phần cuộn mượt + bù header sticky cho các link.
+ */
+function tlcp_toc_inline_html( array $items, array $o ): string {
+	// Màu chọn ở Settings phải truyền vào khối này bằng biến CSS — khối nằm trong nội dung, KHÔNG nằm
+	// trong wrapper `.tlcp-toc` (nơi biến đó được gắn) ⇒ thiếu dòng này khối sẽ lệch màu với nút dọc.
+	$style = '' !== (string) $o['color'] ? ' style="--tlcp-toc-color:' . esc_attr( (string) $o['color'] ) . '"' : '';
+
+	$html  = '<details class="tlcp-toc-inline"' . $style . ( empty( $o['inline_open'] ) ? '' : ' open' ) . '>';
+	$html .= '<summary class="tlcp-toc-inline__sum"><span class="tlcp-toc-inline__title">' . esc_html( (string) $o['label'] ) . '</span></summary>';
+	$html .= '<ol class="tlcp-toc-inline__list">';
+
+	foreach ( $items as $item ) {
+		$level = (int) $item['level'];
+		$num   = (string) $item['num'];
+
+		$html .= '<li class="tlcp-toc-inline__item tlcp-toc-inline__item--lvl' . $level . '">';
+		$html .= '<a class="tlcp-toc-inline__link" href="#' . esc_attr( (string) $item['id'] ) . '">';
+
+		if ( '' !== $num ) {
+			$html .= '<span class="tlcp-toc-inline__num">' . esc_html( $num ) . '</span>';
+		}
+
+		$html .= '<span class="tlcp-toc-inline__txt">' . esc_html( (string) $item['text'] ) . '</span>';
+		$html .= '</a></li>';
+	}
+
+	$html .= '</ol></details>';
+
+	return $html;
+}
+
+/**
+ * Chèn khối mục lục vào nội dung: `top` = ngay đầu bài · `p1` = sau ĐOẠN MỞ ĐẦU (thẻ `</p>` đầu tiên —
+ * để khối không chen giữa tiêu đề và đoạn dẫn). Bài không có `</p>` (chỉ ảnh/bảng) thì rơi về đầu bài.
+ */
+function tlcp_toc_inline_insert( string $content, string $box, string $pos ): string {
+	if ( '' === $box ) {
+		return $content;
+	}
+
+	if ( 'p1' === $pos && preg_match( '#</p>#i', $content, $m, PREG_OFFSET_CAPTURE ) ) {
+		$at = (int) $m[0][1] + strlen( (string) $m[0][0] );
+
+		return substr( $content, 0, $at ) . $box . substr( $content, $at );
+	}
+
+	return $box . $content;
+}
+
 /**
  * Filter `the_content` (prio 12 — chạy SAU `do_shortcode` prio 11): thêm `id` cho heading còn thiếu
  * và lưu danh sách mục để in nút/drawer ở footer. Chỉ lưu khi đủ số heading tối thiểu; dữ liệu gắn
@@ -407,7 +482,15 @@ add_filter(
 			tlcp_toc_store( $post_id, $items );
 		}
 
-		return $scan['content'];
+		$content = $scan['content'];
+
+		// Tuỳ chọn “Hiện khối mục lục trong nội dung bài viết” ⇒ chèn NGAY vào nội dung (sau khi quét
+		// heading, nên khối không tự lọt vào danh sách mục).
+		if ( ! empty( $o['inline'] ) ) {
+			$content = tlcp_toc_inline_insert( $content, tlcp_toc_inline_html( $items, $o ), (string) $o['inline_pos'] );
+		}
+
+		return $content;
 	},
 	12
 );
@@ -454,10 +537,41 @@ function tlcp_toc_settings_ui(): void {
 		</label>
 	</p>
 
-	<h3 style="margin:20px 0 4px;"><?php esc_html_e( 'Hiển thị', 'tl-site-caophat' ); ?></h3>
+	<label style="display:flex;align-items:center;gap:8px;font-weight:600;margin:12px 0 0;">
+		<input type="checkbox" name="<?php echo esc_attr( TL_CP_TOC_OPTION . '[number]' ); ?>" value="1" <?php checked( ! empty( $o['number'] ) ); ?>>
+		<?php esc_html_e( 'Đánh số mục (1 · 2 · 2.1 · 3…)', 'tl-site-caophat' ); ?>
+	</label>
+
+	<h3 style="margin:22px 0 4px;"><?php esc_html_e( 'Cách hiển thị', 'tl-site-caophat' ); ?></h3>
+	<label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+		<input type="checkbox" name="<?php echo esc_attr( TL_CP_TOC_OPTION . '[float]' ); ?>" value="1" <?php checked( ! empty( $o['float'] ) ); ?>>
+		<?php esc_html_e( 'Hiện NÚT DỌC + drawer ở mép màn hình (kiểu demo tungleads.com)', 'tl-site-caophat' ); ?>
+	</label>
+	<label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+		<input type="checkbox" name="<?php echo esc_attr( TL_CP_TOC_OPTION . '[inline]' ); ?>" value="1" <?php checked( ! empty( $o['inline'] ) ); ?>>
+		<?php esc_html_e( 'Hiện KHỐI MỤC LỤC trong nội dung bài viết', 'tl-site-caophat' ); ?>
+	</label>
+	<p style="margin:0 0 6px 26px;">
+		<label style="display:inline-flex;align-items:center;gap:8px;">
+			<?php esc_html_e( 'Vị trí khối trong nội dung', 'tl-site-caophat' ); ?>
+			<select name="<?php echo esc_attr( TL_CP_TOC_OPTION . '[inline_pos]' ); ?>">
+				<option value="top" <?php selected( 'top', $o['inline_pos'] ); ?>><?php esc_html_e( 'Đầu bài viết', 'tl-site-caophat' ); ?></option>
+				<option value="p1" <?php selected( 'p1', $o['inline_pos'] ); ?>><?php esc_html_e( 'Sau đoạn mở đầu', 'tl-site-caophat' ); ?></option>
+			</select>
+		</label>
+	</p>
+	<label style="display:flex;align-items:center;gap:8px;margin:0 0 0 26px;">
+		<input type="checkbox" name="<?php echo esc_attr( TL_CP_TOC_OPTION . '[inline_open]' ); ?>" value="1" <?php checked( ! empty( $o['inline_open'] ) ); ?>>
+		<?php esc_html_e( 'Mở sẵn khối trong nội dung (bỏ tick = thu gọn, bấm tiêu đề mới mở)', 'tl-site-caophat' ); ?>
+	</label>
+	<p class="description">
+		<?php esc_html_e( 'Tick cả 2 = vừa có nút dọc vừa có khối trong bài; chỉ tick 1 cũng chạy bình thường. Khối trong nội dung dùng thẻ <details> nên bấm mở/thu được cả khi trình duyệt chặn JS.', 'tl-site-caophat' ); ?>
+	</p>
+
+	<h3 style="margin:20px 0 4px;"><?php esc_html_e( 'Nút dọc ở mép màn hình', 'tl-site-caophat' ); ?></h3>
 	<p style="margin:0 0 6px;">
 		<label style="display:inline-flex;align-items:center;gap:8px;">
-			<?php esc_html_e( 'Nhãn nút', 'tl-site-caophat' ); ?>
+			<?php esc_html_e( 'Nhãn nút / tiêu đề khối', 'tl-site-caophat' ); ?>
 			<input type="text" class="regular-text" name="<?php echo esc_attr( TL_CP_TOC_OPTION . '[label]' ); ?>" value="<?php echo esc_attr( (string) $o['label'] ); ?>">
 		</label>
 	</p>
@@ -477,15 +591,11 @@ function tlcp_toc_settings_ui(): void {
 	</p>
 	<label style="display:inline-flex;align-items:center;gap:8px;margin:0 16px 8px 0;">
 		<input type="checkbox" name="<?php echo esc_attr( TL_CP_TOC_OPTION . '[mobile]' ); ?>" value="1" <?php checked( ! empty( $o['mobile'] ) ); ?>>
-		<?php esc_html_e( 'Hiện trên mobile (≤768px)', 'tl-site-caophat' ); ?>
+		<?php esc_html_e( 'Hiện nút dọc trên mobile (≤768px)', 'tl-site-caophat' ); ?>
 	</label>
 	<label style="display:inline-flex;align-items:center;gap:8px;margin-bottom:8px;">
 		<input type="checkbox" name="<?php echo esc_attr( TL_CP_TOC_OPTION . '[spy]' ); ?>" value="1" <?php checked( ! empty( $o['spy'] ) ); ?>>
-		<?php esc_html_e( 'Tô nền mục đang xem (scroll-spy)', 'tl-site-caophat' ); ?>
-	</label>
-	<label style="display:flex;align-items:center;gap:8px;font-weight:600;margin:4px 0 0;">
-		<input type="checkbox" name="<?php echo esc_attr( TL_CP_TOC_OPTION . '[number]' ); ?>" value="1" <?php checked( ! empty( $o['number'] ) ); ?>>
-		<?php esc_html_e( 'Đánh số mục (1 · 2 · 2.1 · 3…)', 'tl-site-caophat' ); ?>
+		<?php esc_html_e( 'Tô nền mục đang xem trong drawer', 'tl-site-caophat' ); ?>
 	</label>
 
 	<h3 style="margin:20px 0 4px;"><?php esc_html_e( 'Loại trừ', 'tl-site-caophat' ); ?></h3>

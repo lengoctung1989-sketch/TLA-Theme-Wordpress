@@ -11,6 +11,10 @@
 
 /* Nút dọc — z-index 45: TRÊN nội dung nhưng DƯỚI header sticky (50) và panel mega (60) của theme
    để không che menu. Drawer thì nổi hẳn lên (90) vì là lớp phủ tạm. */
+
+/* Bù header sticky cho MỌI cú nhảy anchor (deep link `…#ten-muc` của Google “jump to” hoặc link khách
+   dán): JS đặt `--tlcp-scroll-pad` = chiều cao header + thanh admin (xem assets/toc.js). */
+html { scroll-padding-top: var(--tlcp-scroll-pad, 90px); }
 .tlcp-toc__toggle {
   position: fixed; top: 50%; transform: translateY(-50%);
   z-index: 45;
@@ -121,3 +125,60 @@ body.tlcp-toc-open .wd-contact-widget { opacity: 0; visibility: hidden; pointer-
 @media print {
   .tlcp-toc { display: none !important; }
 }
+
+/* ==========================================================================
+   KHỐI MỤC LỤC TRONG NỘI DUNG BÀI VIẾT
+   (tuỳ chọn “Hiện KHỐI MỤC LỤC trong nội dung bài viết”)
+   Dùng `<details>/<summary>` HTML gốc ⇒ bấm mở/thu được **cả khi tắt JS** (`open` = mở sẵn).
+   Màu theo token theme; viền trái đậm bằng màu nhấn để tách khỏi đoạn văn.
+   ========================================================================== */
+.tlcp-toc-inline {
+  display: block;
+  margin: 0 0 24px; padding: 14px 18px 16px;
+  background: var(--cp-surface, #f6f4f1);
+  border: 1px solid var(--cp-line, #e5e0d9);
+  border-left: 4px solid var(--tlcp-toc-color, var(--cp-accent, #c8471f));
+  border-radius: 10px;
+}
+.tlcp-toc-inline__sum {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; list-style: none;
+  font-size: 15px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase;
+  color: var(--cp-primary-dark, #c88a00);
+}
+.tlcp-toc-inline__sum::-webkit-details-marker { display: none; }
+.tlcp-toc-inline__sum::marker { content: ''; }
+/* Mũi tên chỉ trạng thái: mở sẵn thì chúc xuống, thu gọn thì chúc sang. */
+.tlcp-toc-inline__sum::after {
+  content: ''; margin-left: auto; width: 8px; height: 8px; flex: 0 0 auto;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg); transition: transform .2s ease;
+}
+.tlcp-toc-inline:not([open]) .tlcp-toc-inline__sum::after { transform: rotate(-45deg); }
+.tlcp-toc-inline__list { margin: 12px 0 0; padding: 0; list-style: none; }
+.tlcp-toc-inline__item { margin: 0; list-style: none; }
+.tlcp-toc-inline__item + .tlcp-toc-inline__item { margin-top: 2px; }
+.tlcp-toc-inline__link {
+  display: flex; gap: 8px;
+  padding: 5px 0;
+  color: var(--cp-text, #26221e); font-size: 14px; line-height: 1.5; text-decoration: none;
+  transition: color .15s ease;
+}
+.tlcp-toc-inline__num {
+  flex: 0 0 auto; min-width: 1.7em;
+  color: var(--tlcp-toc-color, var(--cp-accent, #c8471f));
+  font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.tlcp-toc-inline__item--lvl3 > .tlcp-toc-inline__link { padding-left: 20px; }
+.tlcp-toc-inline__item--lvl4 > .tlcp-toc-inline__link { padding-left: 38px; font-size: 13.5px; }
+.tlcp-toc-inline__item--lvl3 > .tlcp-toc-inline__link,
+.tlcp-toc-inline__item--lvl4 > .tlcp-toc-inline__link { color: var(--cp-muted, #6f6a63); }
+/* :hover đặt SAU các rule cấp bậc để thắng về thứ tự (cùng độ ưu tiên). */
+.tlcp-toc-inline__link:hover { color: var(--tlcp-toc-color, var(--cp-accent, #c8471f)); }
+.tlcp-toc-inline__link:focus-visible { outline: 2px solid var(--tlcp-toc-color, var(--cp-accent, #c8471f)); outline-offset: 2px; }
+@media (max-width: 768px) {
+  .tlcp-toc-inline { padding: 12px 14px 14px; margin-bottom: 20px; }
+  .tlcp-toc-inline__sum { font-size: 14px; }
+  .tlcp-toc-inline__link { font-size: 13.5px; }
+}
+
