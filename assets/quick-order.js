@@ -1,7 +1,7 @@
 /**
  * CP3.3 — Popup "Đặt hàng nhanh".
  * Nút mở: `.cp-buynow[data-cp-quick-order]`; gửi AJAX tới handler ở plugin
- * `tl-site-caophat` (action `cp_quick_order`) để tạo đơn WooCommerce thật.
+ * `pl-tien-ich-tungleads` (action `tlpi_quick_order`) để tạo đơn WooCommerce thật.
  * JS tắt → nút vẫn là link `tel:` (progressive enhancement).
  * Config từ PHP: `window.cpQuickOrder` (wp_localize_script).
  */

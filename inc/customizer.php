@@ -294,7 +294,7 @@ if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'CP_Branches_Repe
 	 * CP1.9 — Control “thêm/xoá/kéo thả” danh sách CHI NHÁNH (tên + hotline).
 	 *
 	 * Giá trị setting = **JSON** `[{"name":"CN Quận 7","tel":"0834.484.484"}, …]` theo đúng thứ tự
-	 * hiển thị. Danh sách này trước đây nằm ở plugin `tl-site-caophat` (Settings → Cao Phát) — chuyển
+	 * hiển thị. Danh sách này trước đây nằm ở plugin `pl-tien-ich-tungleads` (Settings → Cao Phát) — chuyển
 	 * về theme 2026-09-17 (Tùng chốt) vì đây là nội dung hiển thị; đọc bằng `cp_support_branches()`.
 	 */
 	class CP_Branches_Repeater_Control extends WP_Customize_Control {
@@ -1643,7 +1643,7 @@ add_action(
  * CP1.9 — Section “Chi nhánh & Hotline Cao Phát” (yêu cầu Tùng 2026-09-17).
  *
  * Danh sách hotline từng chi nhánh hiện ở box “Hỗ trợ trực tuyến” (sidebar trang chi tiết SP) —
- * TRƯỚC ĐÂY nhập ở plugin `tl-site-caophat` (Settings → Cao Phát), nay chuyển về Customizer vì đây
+ * TRƯỚC ĐÂY nhập ở plugin `pl-tien-ich-tungleads` (Settings → Cao Phát), nay chuyển về Customizer vì đây
  * là nội dung hiển thị và hotline chính (`cp_hotline_tel`) cũng ở đây ⇒ 1 chỗ sửa mọi số điện thoại.
  *
  * Giá trị setting = JSON `[{"name":"…","tel":"…"}, …]`; đọc ở front-end bằng `cp_support_branches()`

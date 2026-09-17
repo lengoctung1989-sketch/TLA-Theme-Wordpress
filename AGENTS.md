@@ -1,6 +1,6 @@
 # AGENTS.md — Hướng dẫn bắt buộc cho mọi AI agent làm việc trên repo này
 
-**Repo:** child theme `tungleads-theme-cp` (site **caophat.vn** — cửa gỗ công nghiệp / cửa nhựa / cửa chống cháy). Child theme chỉ **trình bày** (skin CSS + template override + hook); **business logic → plugin `tl-site-caophat`**; nền tảng → parent `tungleads-theme`.
+**Repo:** child theme `tungleads-theme-cp` (site **caophat.vn** — cửa gỗ công nghiệp / cửa nhựa / cửa chống cháy). Child theme chỉ **trình bày** (skin CSS + template override + hook); **business logic → plugin `pl-tien-ich-tungleads`**; nền tảng → parent `tungleads-theme`.
 **Deploy:** `deploy-caophat.sh` (parent + child + plugin) — **chỉ chạy khi Tùng yêu cầu rõ ràng**, không tự ý.
 
 Repo dùng **2 model chạy TUẦN TỰ: `claude` (Claude Code) và `deepseek` (DeepSeek)** — **không bao giờ chạy song song**. Model sau chỉ bắt đầu khi model trước đã dừng hẳn và để lại nhật ký trong `.ai/WORKLOG.md`. Nhãn commit chỉ được là 1 trong 2 tên này — phiên chạy model khác (vd `cline`) → **hỏi Tùng trước khi commit**.
@@ -50,7 +50,7 @@ Tùng làm **tuần tự**: mỗi chức năng (1 số CP) nằm trong 1 khung c
 
 - **Chỉ MỘT model làm việc tại một thời điểm** — model sau đọc §1 WORKLOG trước, tiếp tục mục dở dang nếu có.
 - **Không tự deploy / push production**, không tự chạy `deploy-caophat.sh --go` (chỉ khi Tùng yêu cầu rõ ràng). Việc chỉ chạy được trên prod (regenerate thumbnail, ảnh `.webp` do LiteSpeed sinh, sửa dữ liệu host) là phần bàn giao của Tùng.
-- Child theme **không chứa business logic**, không thêm build step; không sửa plugin `tl-site-caophat` / parent nếu không được yêu cầu.
+- Child theme **không chứa business logic**, không thêm build step; không sửa plugin `pl-tien-ich-tungleads` / parent nếu không được yêu cầu.
 - Không commit file nhạy cảm; **không revert quyết định đã chốt sau khi đo**.
 - **Không thêm chi tiết vào file này** — chi tiết thuộc `CLAUDE.md`, `.ai/FEATURE_MAP.md`, `.ai/WORKLOG.md`.
 

@@ -29,7 +29,7 @@ function cp_is_single_product(): bool {
 
 /**
  * Script tách dải thumbnail gallery ra ô riêng + nút mũi tên — chỉ trang chi tiết SP.
- * CP3.3: kèm script popup "Đặt hàng nhanh" (chỉ khi plugin tl-site-caophat đang bật).
+ * CP3.3: kèm script popup "Đặt hàng nhanh" (chỉ khi plugin pl-tien-ich-tungleads đang bật).
  */
 add_action(
 	'wp_enqueue_scripts',
@@ -47,7 +47,7 @@ add_action(
 			true
 		);
 
-		if ( ! function_exists( 'tlcp_quick_order_nonce' ) ) {
+		if ( ! function_exists( 'tlpi_quick_order_nonce' ) ) {
 			return;
 		}
 		$qo_rel  = '/assets/quick-order.js';
@@ -555,7 +555,7 @@ function cp_single_cat_label(): void {
 
 /**
  * CP3.2 — Bảng "Thông số kỹ thuật" dưới ô mô tả.
- * Đọc post meta `_tlcp_spec_*` do plugin tl-site-caophat lưu. Trường rỗng thì bỏ qua;
+ * Đọc post meta `_tlpi_spec_*` do plugin `pl-tien-ich-tungleads` lưu (tự lùi về tên cũ `_tlcp_spec_*` cho sản phẩm nhập trước v1.0.0). Trường rỗng thì bỏ qua;
  * không có trường nào → không in gì. Nhãn + icon là phần trình bày nên định ở child theme.
  */
 function cp_single_spec_table(): void {
@@ -564,7 +564,7 @@ function cp_single_spec_table(): void {
 		return;
 	}
 
-	// key meta (bỏ tiền tố _tlcp_spec_) => [nhãn, path SVG 24×24 stroke].
+	// key meta (bỏ tiền tố _tlpi_spec_) => [nhãn, path SVG 24×24 stroke].
 	$rows = array(
 		'size'      => array( __( 'Kích thước', 'tungleads-theme' ), 'M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7' ),
 		'door_type' => array( __( 'Loại cửa', 'tungleads-theme' ), 'M4 21h16M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17M14 12h.01' ),
@@ -578,7 +578,11 @@ function cp_single_spec_table(): void {
 
 	$items = array();
 	foreach ( $rows as $key => $def ) {
-		$val = trim( (string) $product->get_meta( '_tlcp_spec_' . $key ) );
+		$val = trim( (string) $product->get_meta( '_tlpi_spec_' . $key ) );
+		if ( '' === $val ) {
+			// TƯƠNG THÍCH NGƯỢC: sản phẩm nhập trước v1.0.0 lưu meta tên cũ `_tlcp_spec_*`.
+			$val = trim( (string) $product->get_meta( '_tlcp_spec_' . $key ) );
+		}
 		if ( '' !== $val ) {
 			$items[] = array( $def[0], $def[1], $val );
 		}
@@ -676,7 +680,7 @@ function cp_single_buynow_btn(): void {
 	$ic_bag = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>';
 
 	$data = '';
-	if ( function_exists( 'tlcp_quick_order_nonce' ) && $product instanceof WC_Product && $product->is_purchasable() ) {
+	if ( function_exists( 'tlpi_quick_order_nonce' ) && $product instanceof WC_Product && $product->is_purchasable() ) {
 		$data = ' data-cp-quick-order="' . esc_attr( (string) $product->get_id() ) . '"';
 	}
 
@@ -692,10 +696,10 @@ function cp_single_buynow_btn(): void {
 /**
  * CP3.3 — Popup "Đặt hàng nhanh" (chỉ trang chi tiết SP).
  * In ở `wp_footer` để không phụ thuộc vị trí trong luồng template.
- * Chỉ in khi plugin `tl-site-caophat` đang bật (thiếu hàm nonce = thiếu handler AJAX).
+ * Chỉ in khi plugin `pl-tien-ich-tungleads` đang bật (thiếu hàm nonce = thiếu handler AJAX).
  */
 function cp_quick_order_popup(): void {
-	if ( ! cp_is_single_product() || ! function_exists( 'tlcp_quick_order_nonce' ) ) {
+	if ( ! cp_is_single_product() || ! function_exists( 'tlpi_quick_order_nonce' ) ) {
 		return;
 	}
 
@@ -711,10 +715,10 @@ function cp_quick_order_popup(): void {
 		<h3 class="cp-quick-order__title" id="cp-qo-title"><?php esc_html_e( 'Đặt hàng nhanh', 'tungleads-theme' ); ?></h3>
 
 		<form class="cp-quick-order__form" method="post" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-cp-qo-form>
-			<input type="hidden" name="action" value="cp_quick_order">
-			<input type="hidden" name="nonce" value="<?php echo esc_attr( tlcp_quick_order_nonce() ); ?>">
+			<input type="hidden" name="action" value="tlpi_quick_order">
+			<input type="hidden" name="nonce" value="<?php echo esc_attr( tlpi_quick_order_nonce() ); ?>">
 			<input type="hidden" name="product_id" value="<?php echo esc_attr( (string) $product->get_id() ); ?>">
-			<input type="text" name="cp_hp" class="cp-quick-order__hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+			<input type="text" name="tlpi_hp" class="cp-quick-order__hp" tabindex="-1" autocomplete="off" aria-hidden="true">
 
 			<div class="cp-quick-order__product">
 				<span class="cp-quick-order__thumb"><?php echo wp_kses_post( $product->get_image( 'woocommerce_gallery_thumbnail' ) ); ?></span>
@@ -896,7 +900,7 @@ function cp_single_support_box(): void {
 
 	// CP1.9 — Nguồn dữ liệu: Customizer → “Chi nhánh & Hotline Cao Phát” (theme_mod `cp_branches`),
 	// đọc qua `cp_support_branches()`; filter `cp_support_branches` nằm TRONG helper đó nên vẫn ghi
-	// đè được bằng code như trước. (Trước 2026-09-17 danh sách này nằm ở plugin `tl-site-caophat`.)
+	// đè được bằng code như trước. (Trước 2026-09-17 danh sách này nằm ở plugin `pl-tien-ich-tungleads`.)
 	$branches = cp_support_branches();
 	if ( $branches ) {
 		echo '<ul class="cp-side-branches">';

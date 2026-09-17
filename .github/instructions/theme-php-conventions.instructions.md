@@ -10,7 +10,7 @@ Luật chung ở `AGENTS.md` (bản tóm tắt); bảng số + quy ước chi ti
 ## Ranh giới (không thương lượng)
 
 - Child theme **chỉ trình bày**: skin CSS, template override, hook. Không CPT/taxonomy/API/đơn hàng riêng.
-- Business logic site-specific → plugin `wordpress/wp-content/plugins/tl-site-caophat/` (repo git riêng).
+- Business logic site-specific → plugin `wordpress/wp-content/plugins/pl-tien-ich-tungleads/` (repo git riêng).
 - **Không copy template WooCommerce** (không tạo `woocommerce/*.php` trong child). Luôn dùng hook/filter — xem cách `inc/woocommerce.php` đang làm.
 - Đổi version parent (`Template:` / dòng `Base:` trong `README.md`) là hành động có chủ đích: đổi số + test lại toàn bộ child.
 

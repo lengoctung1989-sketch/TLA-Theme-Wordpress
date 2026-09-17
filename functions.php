@@ -48,7 +48,7 @@ function cp_hotline_tel(): string {
  * (`inc/customizer.php`), fallback khi chưa lưu gì, và tài liệu. Muốn bỏ danh sách ⇒ xoá sạch dòng
  * trong Customizer (danh sách rỗng = box không in phần chi nhánh).
  *
- * ⚠️ **Đổi chỗ 2026-09-17 (Tùng chốt):** danh sách này TRƯỚC ĐÂY nằm ở plugin `tl-site-caophat`
+ * ⚠️ **Đổi chỗ 2026-09-17 (Tùng chốt):** danh sách này TRƯỚC ĐÂY nằm ở plugin `pl-tien-ich-tungleads`
  * (Settings → Cao Phát, option `tlcp_support_branches`). Đây là **nội dung hiển thị**, không phải
  * business logic — mà hotline CHÍNH (`cp_hotline_tel`) đã ở Customizer ⇒ gộp về theme cho 1 chỗ sửa
  * mọi số điện thoại. Plugin đã gỡ mục tương ứng; **đừng thêm lại vào plugin**.
@@ -108,7 +108,7 @@ function cp_support_branches(): array {
 		}
 	}
 
-	// CẦU NỐI tạm thời cho lúc deploy: plugin v0.5.0 đã GỠ hàm `tlcp_support_branches()` nên phải đọc
+	// CẦU NỐI tạm thời cho lúc deploy: plugin v0.5.0 đã gỡ hàm đọc chi nhánh nên phải đọc
 	// THẲNG option cũ `tlcp_support_branches` (dạng textarea “Tên | Số” mỗi dòng). Nhờ vậy deploy theme
 	// trước hay sau plugin cũng không mất số. GỠ đoạn này sau khi production đã chạy
 	// `docs/prod-migrate-branches.php` (script xoá option cũ sau khi ghi theme_mod).
