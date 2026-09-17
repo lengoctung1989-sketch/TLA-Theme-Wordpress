@@ -1374,22 +1374,38 @@ body.cp main#main { padding-block: 0; }
 .woocommerce div.product .summary .woocommerce-product-rating { margin: 0 0 16px; font-size: 13.5px; color: var(--cp-muted); }
 .woocommerce div.product .summary .woocommerce-product-rating .star-rating { color: #e2a53a; }
 
-/* Hộp giá + badge % giảm */
+/* Hộp giá + badge % giảm — 2026-09-17 (yêu cầu Tùng, sau CP3.9): muốn **số đánh giá của khách hàng
+   nằm trên 1 DÒNG RIÊNG, phía dưới mới là phần giá**.
+   DOM do WooCommerce in là CỐ ĐỊNH `[.woocommerce-product-rating][.price][.cp-price-off]` (rating và
+   price cùng prio 10 nên không chèn được `<div>` bọc giữa) ⇒ đổi flex row → GRID 2 cột:
+   hàng 1 = số đánh giá (trải hết 2 cột), hàng 2 = giá (cột 1) + tag "Tiết kiệm" (cột 2, dồn phải).
+   Đo TRƯỚC (1440): rating **159×54** nằm NGANG hàng giá — chữ "(N đánh giá của khách hàng)" bị
+   xuống 2 hàng vì chỉ được 159px; SAU: rating **435×27** (1 hàng) rồi giá ở dòng dưới. */
 .cp-price-box {
   background: var(--cp-surface); border-radius: var(--cp-radius);
   padding: 16px 20px; margin: 0 0 20px;
-  display: flex; flex-direction: row; align-items: center; flex-wrap: nowrap; gap: 12px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center;
 }
+/* Hàng 1 — số đánh giá: flex để sao + chữ luôn CÙNG MỘT HÀNG (WC đặt `.star-rating` float: right,
+   trong flex thì float bị bỏ qua). */
+.woocommerce div.product .summary .cp-price-box .woocommerce-product-rating {
+  grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  margin: 0; font-size: 13.5px;
+}
+/* Bỏ `margin-top` (~0.5em = 6.75px) mà WooCommerce/theme đặt cho `.star-rating`: giữ nó thì sao bị
+   đẩy XUỐNG 3px so với dòng chữ cùng hàng (đo pixel 1440: tâm glyph sao y=317 vs tâm chữ y=314);
+   bỏ đi thì `align-items: center` căn giữa đúng (tâm sao ≈ tâm chữ ≈ 314) ✓. */
+.woocommerce div.product .summary .cp-price-box .woocommerce-product-rating .star-rating { margin-top: 0; }
 .woocommerce div.product .summary .cp-price-box .price {
-  flex: 0 1 auto; min-width: 0;
+  min-width: 0;
   margin: 0; padding: 0; border: 0; display: flex; align-items: baseline; flex-wrap: wrap;
   gap: 4px 12px; font-size: 20px; color: var(--cp-accent); font-weight: 800;
 }
 .woocommerce div.product .summary .cp-price-box .price del { font-size: 14px; color: var(--cp-muted); font-weight: 400; opacity: 1; }
 .woocommerce div.product .summary .cp-price-box .price ins { text-decoration: none; }
-/* Tag "Tiết kiệm <số tiền>" — nằm cùng dòng giá (dồn phải), tự xuống dòng khi hẹp */
+/* Tag "Tiết kiệm <số tiền>" — cùng hàng với giá, dồn về mép phải (cột 2 của grid). */
 .cp-price-off {
-  flex: none; white-space: nowrap; margin-left: auto;
+  justify-self: end; white-space: nowrap;
   display: inline-flex; align-items: baseline; gap: 4px;
   background: rgba(200, 71, 31, .1); color: var(--cp-accent);
   font-weight: 700; font-size: 10px; padding: 5px 10px; border-radius: 999px;
@@ -1696,10 +1712,10 @@ body.cp main#main { padding-block: 0; }
   /* Box "Sản phẩm mới" (không có class riêng) xuống cuối. */
   .cp-single-side > .cp-side-box:not(.cp-side-support):not(.cp-trust-box) { order: 6; }
   .woocommerce div.product > span.onsale { font-size: 16px; padding: 8px 14px; top: 0; left: 0; }
-  /* Mobile: cột hẹp -> xếp dọc cho gọn (giá 1 dòng, tag "Tiết kiệm" xuống dòng dưới) */
-  .cp-price-box { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
-  .woocommerce div.product .summary .cp-price-box .price { flex: 0 0 auto; }
-  .cp-price-off { margin-left: 0; }
+  /* Mobile: 1 CỘT — hàng 1 = số đánh giá, hàng 2 = giá, hàng 3 = tag "Tiết kiệm" (đủ chỗ, không
+     cần dồn phải). Giữ đúng yêu cầu "số đánh giá 1 dòng riêng, dưới là giá" của desktop. */
+  .cp-price-box { padding: 14px 16px; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .cp-price-box .cp-price-off { justify-self: start; }
   .cp-single-side { grid-template-columns: 1fr; }
   .cp-single-layout form.cart { grid-template-columns: 1fr; }
   .cp-buynow, .woocommerce .cp-single-layout form.cart .single_add_to_cart_button { grid-column: 1; }
