@@ -2882,4 +2882,19 @@ body.cp-qo-open { overflow: hidden; }
   .cp-404__links .cp-btn { flex: 1 1 auto; justify-content: center; }
 }
 
+/* ==========================================================================
+   MÀU CHỮ GIÁ (yêu cầu Tùng 2026-09-16): `.woocommerce-Price-amount.amount` → `--cp-accent`
+   ==========================================================================
+   Vì sao cần `body.cp` + `.amount`: WC chỉ khai `.woocommerce-Price-amount` (0,1,0) còn theme
+   cha/child khai theo ngữ cảnh (`.cp-price del .woocommerce-Price-amount` = (0,3,0)…). Riêng
+   GIÁ THƯỜNG (không sale) ở khối trang chủ trước đây KHÔNG rule nào đặt màu ⇒ rơi về màu chữ
+   `--cp-text` rgb(38,34,30) — đo 2026-09-16: 19 span như vậy trên trang chủ.
+   Selector dưới = (0,3,1), khai ở CUỐI file nên thắng mọi rule cũ có độ ưu tiên thấp hơn.
+   GIỮ NGUYÊN `del` (giá gạch) = `--cp-muted` — chủ ý đã chốt: giá cũ mờ để giá mới nổi
+   (rule (0,3,2) khai sau, thắng rule accent). Muốn đổi luôn giá gạch thì bỏ 2 dòng `del` này.
+   ========================================================================== */
+body.cp .woocommerce-Price-amount.amount { color: var(--cp-accent); }
+body.cp del .woocommerce-Price-amount.amount { color: var(--cp-muted); }
+
+
 
