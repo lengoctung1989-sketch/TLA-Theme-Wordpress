@@ -10,7 +10,7 @@ Ranh giới: theme = trình bày · plugin = *dữ liệu gì tồn tại* + *h�
 |---|---|
 | Tracking (`wp_head` prio 1 + `wp_body_open`) | GTM `GTM-KCVHR8P`, GA4 `G-L37N4Q06LP`, Google Ads `AW-10871632223`, Meta Pixel `5267684856622253` — chuyển từ Flatsome → Advanced → Global HTML |
 | Thông số kỹ thuật SP | Tab riêng trong "Dữ liệu sản phẩm" (admin) — 8 trường lưu meta `_tlcp_spec_*` (`size`, `door_type`, `leaf`, `frame`, `features`, `origin`, `warranty`, `note`). Sửa danh sách: `tlcp_spec_fields()`. Frontend hiển thị ở trang chi tiết SP (child theme đọc meta). |
-| Hotline chi nhánh | Option `tlcp_support_branches`, sửa ở **Settings → Cao Phát** (mỗi dòng: `Tên \| Số`). Theme đọc qua `tlcp_support_branches()`. |
+| ~~Hotline chi nhánh~~ | **ĐÃ CHUYỂN VỀ THEME (v0.5.0, Tùng chốt 2026-09-17)** — nay sửa ở **Customizer → “Chi nhánh & Hotline Cao Phát”** (theme_mod `cp_branches`, kéo thả từng dòng). Xem ghi chú ở khối `CP1.9` trong `tl-site-caophat.php` + README của child theme. |
 | Ghi công | `tlcp_credit_line()` in `Phiên bản <version> \| Bởi Tung Le Ads` ở **cuối trang Settings → Cao Phát**; **và** ở **/wp-admin/plugins.php** dòng `Phiên bản 0.1.2 \| Bởi Tung Le Ads` có **“Tung Le Ads” là link** — do header `Author URI: https://tungleads.com/` (WP core tự bọc `<a>`). Version lấy động từ header plugin. |
 | Đặt hàng nhanh (CP3.3) | Handler AJAX `cp_quick_order` — nhận form từ popup ở trang chi tiết SP và tạo **đơn WooCommerce thật** (COD, trạng thái "Đang xử lý"). Chống spam: nonce + honeypot + 5 đơn/IP/10 phút. |
 | **Mục lục nội dung (CP8)** | Option `tlcp_toc` — **nút dọc cố định + drawer** VÀ/HOẶC **khối mục lục trong nội dung bài** (`<details>`, đặt đầu bài hoặc sau đoạn mở đầu; mở/thu được cả khi tắt JS), chỉnh ở **Settings → Cao Phát** (bật/tắt chung · post type · số cấp H2–H4 · ngưỡng heading tối thiểu · đánh số `1 · 2 · 2.1` · nhãn · mép trái/phải · màu · mobile ≤768 · scroll-spy · ID loại trừ). Quét heading ở `the_content` prio 12 (thêm `id` còn thiếu), in nút/drawer ở `wp_footer` prio 5. |
@@ -23,12 +23,14 @@ Ranh giới: theme = trình bày · plugin = *dữ liệu gì tồn tại* + *h�
 - Chặn: nonce `tlcp_quick_order` · honeypot `cp_hp` · rate-limit **5 đơn/IP/10 phút** (hằng `TL_CP_QO_MAX` / `TL_CP_QO_WINDOW`, đếm bằng transient `tlcp_qo_<md5 ip>`).
 - Giá luôn lấy từ server (`$product->get_price()`), không tin dữ liệu client gửi lên.
 
-### Hotline chi nhánh
+### Hotline chi nhánh — ĐÃ CHUYỂN VỀ THEME (v0.5.0)
 
-- Nhập ở **Settings → Cao Phát**: mỗi dòng một chi nhánh, dạng `CN Quận 7 | 0834.484.484`. Thứ tự dòng = thứ tự hiển thị.
-- Để trống rồi lưu = quay về danh sách mặc định (`tlcp_support_branches_default()` trong `tl-site-caophat.php`).
-- Dòng thiếu dấu `|` hoặc thiếu vế nào sẽ bị bỏ qua (không gây lỗi hiển thị).
-- Theme đọc bằng `function_exists('tlcp_support_branches')` → nếu plugin tắt, theme tự dùng danh sách dự phòng; nếu muốn ghi đè bằng code: filter `cp_support_branches`.
+Trước đây mục này nằm ở **Settings → Cao Phát** (option `tlcp_support_branches`). Từ **v0.5.0** plugin **gỡ hẳn** (option, textarea, `tlcp_support_branches_default()/()/ _text()`, `register_setting`).
+
+- Nay sửa ở **Giao diện → Tuỳ biến → “Chi nhánh & Hotline Cao Phát”** (theme_mod `cp_branches`, repeater kéo thả) — dùng **`cp_support_branches()`** trong child theme `tungleads-theme-cp`.
+- Lý do (Tùng chốt 2026-09-17): đây là **nội dung hiển thị**, không phải business logic — mà hotline CHÍNH `cp_hotline_tel` vốn đã ở Customizer ⇒ **1 chỗ sửa mọi số điện thoại**.
+- Trang Settings của plugin giờ có **3 mục**: Chèn mã tracking · Chế độ bảo trì · Mục lục nội dung (+ dòng link sang Customizer cho phần hotline).
+- **Dữ liệu cũ trên production:** chạy `wp eval-file docs/prod-migrate-branches.php` (dry-run) rồi `… go` để ghi sang theme_mod + xoá option. Theme có **cầu nối** đọc thẳng option cũ nếu theme_mod còn rỗng ⇒ deploy lệch thứ tự không mất số.
 
 ### Kích hoạt tracking — đúng trình tự
 

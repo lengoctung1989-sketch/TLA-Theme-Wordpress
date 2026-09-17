@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  TL Site — Cao Phát
  * Description:  Tầng dữ liệu / hành vi riêng của caophat.vn (tracking, sau này: CPT, taxonomy, form). Tách khỏi theme để đổi giao diện không mất data.
- * Version:      0.4.1
+ * Version:      0.5.0
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
  * Author URI:   https://tungleads.com/
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 define( 'TL_CP_FILE', __FILE__ );
 define( 'TL_CP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TL_CP_URL', plugin_dir_url( __FILE__ ) );
-define( 'TL_CP_VERSION', '0.4.1' );
+define( 'TL_CP_VERSION', '0.5.0' );
 
 /** CP8 — Mục lục nội dung (nút dọc + drawer): cấu hình ở Settings → Cao Phát. */
 require_once __DIR__ . '/includes/toc.php';
@@ -394,77 +394,21 @@ add_action(
 
 /*
  * ---------------------------------------------------------------------------
- * Hotline chi nhánh — dữ liệu dùng chung cho theme (box "Hỗ trợ trực tuyến").
- * Sửa ở Settings → Cao Phát. Lưu option dạng chuỗi, mỗi dòng: "Tên | Số".
- * Theme đọc qua `tlcp_support_branches()`; option trống → dùng danh sách mặc định.
+ * CP1.9 (2026-09-17, Tùng chốt) — MỤC “HOTLINE CHI NHÁNH” ĐÃ CHUYỂN VỀ THEME.
+ *
+ * Trước đây phần này nằm ở đây: option `tlcp_support_branches` + textarea trong Settings → Cao Phát.
+ * Lý do chuyển: đây là NỘI DUNG HIỂN THỊ, không phải business logic — mà hotline CHÍNH của site
+ * (`cp_hotline_tel`) vốn đã ở Customizer của theme ⇒ gộp về 1 chỗ sửa mọi số điện thoại.
+ *
+ * Nay sửa ở: **Giao diện → Tuỳ biến → “Chi nhánh & Hotline Cao Phát”** (theme_mod `cp_branches`,
+ * kéo thả từng dòng), theme đọc bằng `cp_support_branches()` trong child theme (`functions.php`).
+ * Đọc option cũ ở đây KHÔNG còn hiệu lực. ⚠️ ĐỪNG thêm lại mục này vào plugin.
+ *
+ * Dữ liệu cũ (nếu host đã nhập): chạy `docs/prod-migrate-branches.php` (repo gốc) để chuyển sang
+ * theme_mod rồi xoá option — sau đó bỏ được CẦU NỐI tạm trong `cp_support_branches()` của theme.
  * ---------------------------------------------------------------------------
  */
 
-const TL_CP_BRANCHES_OPTION = 'tlcp_support_branches';
-
-/** Danh sách mặc định khi admin chưa nhập gì. */
-function tlcp_support_branches_default(): array {
-	return array(
-		array(
-			'name' => 'CN Quận 7',
-			'tel'  => '0834.484.484',
-		),
-		array(
-			'name' => 'CN Bình Tân',
-			'tel'  => '0834.713.713',
-		),
-		array(
-			'name' => 'CN Bến Cát',
-			'tel'  => '0814.627.610',
-		),
-		array(
-			'name' => 'Giải đáp thắc mắc',
-			'tel'  => '0834.627.627',
-		),
-	);
-}
-
-/**
- * Option → mảng ['name','tel'] để theme in ra.
- * Dòng trống hoặc thiếu dấu "|" bị bỏ qua; không còn dòng hợp lệ nào → mặc định.
- */
-function tlcp_support_branches(): array {
-	$raw = (string) get_option( TL_CP_BRANCHES_OPTION, '' );
-	if ( '' === trim( $raw ) ) {
-		return tlcp_support_branches_default();
-	}
-
-	$out = array();
-	foreach ( preg_split( '/\R/u', $raw ) as $line ) {
-		if ( '' === trim( $line ) ) {
-			continue;
-		}
-		$parts = array_map( 'trim', explode( '|', $line, 2 ) );
-		if ( '' === $parts[0] || empty( $parts[1] ) ) {
-			continue;
-		}
-		$out[] = array(
-			'name' => $parts[0],
-			'tel'  => $parts[1],
-		);
-	}
-
-	return $out ? $out : tlcp_support_branches_default();
-}
-
-/** Chuỗi hiển thị trong textarea admin: option thật, chưa có thì hiện mặc định. */
-function tlcp_support_branches_text(): string {
-	$raw = (string) get_option( TL_CP_BRANCHES_OPTION, '' );
-	if ( '' !== trim( $raw ) ) {
-		return $raw;
-	}
-
-	$lines = array();
-	foreach ( tlcp_support_branches_default() as $branch ) {
-		$lines[] = $branch['name'] . ' | ' . $branch['tel'];
-	}
-	return implode( "\n", $lines );
-}
 
 /** Menu admin: Settings → Cao Phát. */
 add_action(
@@ -484,16 +428,6 @@ add_action(
 add_action(
 	'admin_init',
 	static function (): void {
-		register_setting(
-			'tlcp_support',
-			TL_CP_BRANCHES_OPTION,
-			array(
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_textarea_field',
-				'default'           => '',
-			)
-		);
-
 		// Chèn mã tracking 3 vị trí (mục "Chèn mã tracking" ở trên) — mảng 3 khoá, sanitize riêng.
 		register_setting(
 			'tlcp_support',
@@ -553,17 +487,17 @@ function tlcp_support_page(): void {
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html__( 'Cao Phát', 'tl-site-caophat' ); ?></h1>
+		<p class="description">
+			<?php
+			printf(
+				/* translators: %s: liên kết mở Customizer. */
+				esc_html__( 'Cần sửa SỐ HOTLINE (hotline chính + danh sách chi nhánh)? Số đó nằm ở %s của theme, không ở trang này.', 'tl-site-caophat' ),
+				'<a href="' . esc_url( admin_url( 'customize.php' ) ) . '">' . esc_html__( 'Giao diện → Tuỳ biến', 'tl-site-caophat' ) . '</a>'
+			);
+			?>
+		</p>
 		<form action="options.php" method="post">
 			<?php settings_fields( 'tlcp_support' ); ?>
-			<h2><?php esc_html_e( 'Hotline chi nhánh', 'tl-site-caophat' ); ?></h2>
-			<p><?php esc_html_e( 'Mỗi dòng một chi nhánh, dạng: Tên | Số điện thoại', 'tl-site-caophat' ); ?></p>
-			<textarea name="<?php echo esc_attr( TL_CP_BRANCHES_OPTION ); ?>" rows="8" class="large-text code"><?php echo esc_textarea( tlcp_support_branches_text() ); ?></textarea>
-			<p class="description">
-				<?php esc_html_e( 'Ví dụ: CN Quận 7 | 0834.484.484', 'tl-site-caophat' ); ?><br>
-				<?php esc_html_e( 'Thứ tự dòng = thứ tự hiển thị. Xoá trắng rồi lưu = quay về danh sách mặc định.', 'tl-site-caophat' ); ?>
-			</p>
-
-			<hr style="margin:28px 0 0;">
 			<h2><?php esc_html_e( 'Chèn mã tracking', 'tl-site-caophat' ); ?></h2>
 			<p>
 				<?php esc_html_e( 'Dán NGUYÊN mã nhà cung cấp cấp (kèm cả thẻ script nếu có) — Google Tag Manager, GA4, Meta Pixel, mã xác minh site, chat widget… Ô trống = không chèn gì.', 'tl-site-caophat' ); ?>
