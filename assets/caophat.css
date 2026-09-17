@@ -19,6 +19,7 @@
   --cp-accent: #c8471f;         /* cam đất - nhấn CTA/hotline (tương phản với primary) */
   --cp-sale: #e30613;           /* đỏ tươi - badge giảm giá trên ảnh */
   --cp-accent-dark: #a63817;
+  --cp-star: #e2a53a;           /* vàng sao đánh giá — dùng CHUNG cho mọi chỗ có sao (xem rule dưới) */
 
   --cp-radius: 14px;
   --cp-radius-sm: 10px;
@@ -46,6 +47,16 @@ body.cp {
 .cp img { max-width: 100%; display: block; }
 .cp a { color: inherit; text-decoration: none; }
 .cp ul { margin: 0; padding: 0; list-style: none; }
+
+/* ---------- Màu icon sao (rating) — ĐỒNG BỘ toàn trang ----------
+   2026-09-17 (yêu cầu Tùng): lấy ĐÚNG màu sao của trang chi tiết SP dùng chung cho MỌI chỗ có sao —
+   nhất là **thẻ sản phẩm trong vòng lặp** (shop · danh mục · trang chủ · tìm kiếm · dải “Sản phẩm
+   tương tự”). Đo TRƯỚC (trang danh mục `/danh-muc/cua-nhua-abs-han-quoc/`): sao trên thẻ card ăn màu
+   CHỮ `--cp-text` = `rgb(38,34,30)` vì không rule nào đặt màu ⇒ lệch hẳn với `rgb(226,165,58)` ở
+   trang chi tiết.
+   Sao RỖNG vẫn `#cfc8d8` — WooCommerce khai TRỰC TIẾP trong `.star-rating::before` (cố ý: rỗng nhạt
+   để sao đầy nổi bật); rule dưới chỉ đặt `color` cho phần sao ĐẦY mà `.star-rating span::before` kế thừa. */
+body.cp .star-rating { color: var(--cp-star); }
 
 .cp-container {
   width: 100%;
@@ -1372,7 +1383,7 @@ body.cp main#main { padding-block: 0; }
   font-size: clamp(22px, 2.6vw, 30px); font-weight: 800; margin: 4px 0 16px; line-height: 1.3;
 }
 .woocommerce div.product .summary .woocommerce-product-rating { margin: 0 0 16px; font-size: 13.5px; color: var(--cp-muted); }
-.woocommerce div.product .summary .woocommerce-product-rating .star-rating { color: #e2a53a; }
+.woocommerce div.product .summary .woocommerce-product-rating .star-rating { color: var(--cp-star); }
 
 /* Hộp giá + badge % giảm — 2026-09-17 (yêu cầu Tùng, sau CP3.9): muốn **số đánh giá của khách hàng
    nằm trên 1 DÒNG RIÊNG, phía dưới mới là phần giá**.
@@ -1389,7 +1400,7 @@ body.cp main#main { padding-block: 0; }
 /* Hàng 1 — số đánh giá: flex để sao + chữ luôn CÙNG MỘT HÀNG (WC đặt `.star-rating` float: right,
    trong flex thì float bị bỏ qua). */
 .woocommerce div.product .summary .cp-price-box .woocommerce-product-rating {
-  grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 0;
   margin: 0; font-size: 13.5px;
 }
 /* Bỏ `margin-top` (~0.5em = 6.75px) mà WooCommerce/theme đặt cho `.star-rating`: giữ nó thì sao bị
@@ -2974,7 +2985,7 @@ body.cp .cp-rv--empty .woocommerce-noreviews { display: none; }
 .cp-rv__avg { margin: 0; font-size: 44px; font-weight: 800; line-height: 1.05; color: var(--cp-primary-dark); }
 .cp-rv__avg-label { margin: 2px 0 6px; font-size: 13px; color: var(--cp-muted); }
 /* `.star-rating` của WooCommerce: `float: right` + rộng 5.4em + font icon riêng của WC. */
-body.cp .cp-rv__score .star-rating { float: none; margin: 0 auto 6px; font-size: 16px; color: #e2a53a; }
+body.cp .cp-rv__score .star-rating { float: none; margin: 0 auto 6px; font-size: 16px; color: var(--cp-star); }
 .cp-rv__count { margin: 0; font-size: 13px; font-weight: 600; color: var(--cp-text); }
 
 .cp-rv__bars { display: flex; flex-direction: column; gap: 7px; }
@@ -2983,7 +2994,7 @@ body.cp .cp-rv__score .star-rating { float: none; margin: 0 auto 6px; font-size:
   gap: 10px; align-items: center; font-size: 13px;
 }
 .cp-rv__row-star { font-weight: 700; color: var(--cp-text); white-space: nowrap; }
-.cp-rv__row-star i { font-style: normal; color: #e2a53a; }
+.cp-rv__row-star i { font-style: normal; color: var(--cp-star); }
 .cp-rv__bar { height: 8px; border-radius: 999px; background: #e7e2db; overflow: hidden; }
 .cp-rv__bar-fill { display: block; height: 100%; background: var(--cp-primary); border-radius: 999px; }
 .cp-rv__row-pct { font-weight: 700; color: var(--cp-text); text-align: right; }
@@ -3001,7 +3012,7 @@ body.cp .cp-rv__score .star-rating { float: none; margin: 0 auto 6px; font-size:
   font: inherit; font-size: 13.5px; font-weight: 600; color: var(--cp-text); cursor: pointer;
   transition: background .18s ease, border-color .18s ease, color .18s ease;
 }
-.cp-rv__chip i { font-style: normal; color: #e2a53a; }
+.cp-rv__chip i { font-style: normal; color: var(--cp-star); }
 .cp-rv__chip:hover { border-color: var(--cp-primary); }
 .cp-rv__chip.is-active { background: var(--cp-primary); border-color: var(--cp-primary); color: var(--cp-on-primary); }
 .cp-rv__chip.is-active i { color: var(--cp-on-primary); }
@@ -3037,7 +3048,7 @@ body.cp .cp-rv #reviews #comments ol.commentlist li .comment-text {
   background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
 }
 body.cp .cp-rv #reviews #comments ol.commentlist li .comment-text .star-rating {
-  float: none; margin: 0 0 8px; font-size: 14px; color: #e2a53a;
+  float: none; margin: 0 0 8px; font-size: 14px; color: var(--cp-star);
 }
 body.cp .cp-rv #reviews #comments ol.commentlist li .comment-text .meta {
   margin: 0 0 6px; font-size: 13px; color: var(--cp-muted);
@@ -3118,7 +3129,7 @@ body.cp .cp-rv #submit:hover { background: #333333 !important; }
 /* Chấm sao trong form: WooCommerce's JS (`single-product.js`) ẨN `<select id="rating">`
    (đo: `display: none`) rồi dựng `p.stars` = 5 thẻ `<a role="radio">` dùng font icon của WC
    (`content: "\e021"` rỗng / `\e020"` đầy). Chỉ cần đổi MÀU sang vàng như `.star-rating`. */
-body.cp .cp-rv #review_form .stars a::before { color: #e2a53a; }
+body.cp .cp-rv #review_form .stars a::before { color: var(--cp-star); }
 body.cp .cp-rv #review_form .stars a:focus-visible { outline: 2px solid var(--cp-primary); outline-offset: 2px; border-radius: 3px; }
 
 
