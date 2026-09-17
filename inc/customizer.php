@@ -288,6 +288,77 @@ if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'CP_Blocks_Repeat
 	}
 }
 
+if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'CP_Branches_Repeater_Control' ) ) {
+
+	/**
+	 * CP1.9 — Control “thêm/xoá/kéo thả” danh sách CHI NHÁNH (tên + hotline).
+	 *
+	 * Giá trị setting = **JSON** `[{"name":"CN Quận 7","tel":"0834.484.484"}, …]` theo đúng thứ tự
+	 * hiển thị. Danh sách này trước đây nằm ở plugin `tl-site-caophat` (Settings → Cao Phát) — chuyển
+	 * về theme 2026-09-17 (Tùng chốt) vì đây là nội dung hiển thị; đọc bằng `cp_support_branches()`.
+	 */
+	class CP_Branches_Repeater_Control extends WP_Customize_Control {
+
+		/** @var string */
+		public $type = 'cp_branches_repeater';
+
+		/** @var string Nhãn nút “thêm”. */
+		public $add_label = '';
+
+		/**
+		 * In 1 hàng chi nhánh (dùng cho cả hàng thật và hàng mẫu ẩn để JS clone).
+		 *
+		 * @param array<string,string> $branch Dữ liệu chi nhánh.
+		 * @param bool                  $is_tpl Hàng mẫu?
+		 */
+		private function cp_row( array $branch, bool $is_tpl = false ): void {
+			?>
+			<div class="cp-branch-row<?php echo $is_tpl ? ' cp-branch-row--tpl' : ''; ?>" <?php echo $is_tpl ? 'hidden aria-hidden="true"' : ''; ?>>
+				<span class="cp-branch-row__handle" title="<?php esc_attr_e( 'Kéo để đổi thứ tự', 'tungleads-theme' ); ?>">⋮⋮</span>
+				<input type="text" data-field="name" placeholder="<?php esc_attr_e( 'CN Quận 7', 'tungleads-theme' ); ?>" value="<?php echo esc_attr( (string) ( $branch['name'] ?? '' ) ); ?>">
+				<input type="text" data-field="tel" placeholder="<?php esc_attr_e( '0834.484.484', 'tungleads-theme' ); ?>" value="<?php echo esc_attr( (string) ( $branch['tel'] ?? '' ) ); ?>">
+				<button type="button" class="button-link cp-branch-row__remove" aria-label="<?php esc_attr_e( 'Xoá chi nhánh', 'tungleads-theme' ); ?>">&times;</button>
+			</div>
+			<?php
+		}
+
+		/**
+		 * In nội dung control.
+		 */
+		public function render_content(): void {
+			$cp_branches = json_decode( (string) $this->value(), true );
+			$cp_branches = is_array( $cp_branches ) ? $cp_branches : array();
+			?>
+			<?php if ( $this->label ) : ?>
+				<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
+			<?php endif; ?>
+			<?php if ( $this->description ) : ?>
+				<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+			<?php endif; ?>
+
+			<div class="cp-branches">
+				<div class="cp-branches__list">
+					<?php foreach ( $cp_branches as $cp_branch ) : ?>
+						<?php $this->cp_row( is_array( $cp_branch ) ? $cp_branch : array() ); ?>
+					<?php endforeach; ?>
+				</div>
+
+				<button type="button" class="button button-secondary cp-branches__add">
+					<?php echo esc_html( $this->add_label ? $this->add_label : __( '+ Thêm chi nhánh', 'tungleads-theme' ) ); ?>
+				</button>
+
+				<div class="cp-branches__tpl" hidden aria-hidden="true">
+					<?php $this->cp_row( array( 'name' => '', 'tel' => '' ), true ); ?>
+				</div>
+
+				<input class="cp-branches__value" type="hidden" <?php $this->link(); ?> value="<?php echo esc_attr( (string) $this->value() ); ?>">
+			</div>
+			<?php
+		}
+	}
+}
+
+
 if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'CP_Header_Items_Control' ) ) {
 
 	/**
@@ -436,6 +507,21 @@ add_action(
 			array(),
 			file_exists( $cp_dir . '/assets/customizer-header.css' ) ? (string) filemtime( $cp_dir . '/assets/customizer-header.css' ) : $cp_ver
 		);
+
+		// CP1.9 — control “chi nhánh & hotline”: thêm/xoá/kéo thả từng dòng (jQuery UI sortable).
+		wp_enqueue_script(
+			'cp-customizer-branches',
+			$cp_uri . '/assets/customizer-branches.js',
+			array( 'jquery', 'jquery-ui-sortable', 'customize-controls' ),
+			file_exists( $cp_dir . '/assets/customizer-branches.js' ) ? (string) filemtime( $cp_dir . '/assets/customizer-branches.js' ) : $cp_ver,
+			true
+		);
+		wp_enqueue_style(
+			'cp-customizer-branches',
+			$cp_uri . '/assets/customizer-branches.css',
+			array(),
+			file_exists( $cp_dir . '/assets/customizer-branches.css' ) ? (string) filemtime( $cp_dir . '/assets/customizer-branches.css' ) : $cp_ver
+		);
 	}
 );
 
@@ -573,6 +659,46 @@ function cp_blocks_sanitize( string $value, int $count_max, array $layouts ): st
 			'layout'   => in_array( $cp_row['layout'] ?? '', $layouts, true ) ? (string) $cp_row['layout'] : (string) $layouts[0],
 			'products' => implode( ',', array_slice( array_unique( $cp_picked ), 0, 50 ) ),
 		);
+	}
+
+	return (string) wp_json_encode( $cp_clean );
+}
+
+/**
+ * CP1.9 — Làm sạch giá trị repeater “chi nhánh & hotline”: JSON mảng `{name,tel}`.
+ *
+ * Bỏ dòng thiếu tên HOẶC thiếu số (dòng trắng do bấm “Thêm chi nhánh” rồi lưu luôn); giữ đúng thứ tự
+ * admin kéo thả; tối đa 20 chi nhánh. Chuỗi không parse được ⇒ trả '' (setting rỗng = dùng mặc định).
+ *
+ * @param string $value JSON từ Customizer.
+ * @return string JSON đã lọc.
+ */
+function cp_sanitize_branches( $value ): string {
+	$cp_rows = json_decode( (string) $value, true );
+	if ( ! is_array( $cp_rows ) ) {
+		return '';
+	}
+
+	$cp_clean = array();
+	foreach ( $cp_rows as $cp_row ) {
+		if ( ! is_array( $cp_row ) ) {
+			continue;
+		}
+
+		$cp_name = sanitize_text_field( (string) ( $cp_row['name'] ?? '' ) );
+		$cp_tel  = sanitize_text_field( (string) ( $cp_row['tel'] ?? '' ) );
+		if ( '' === trim( $cp_name ) || '' === trim( $cp_tel ) ) {
+			continue;
+		}
+
+		$cp_clean[] = array(
+			'name' => $cp_name,
+			'tel'  => $cp_tel,
+		);
+
+		if ( count( $cp_clean ) >= 20 ) {
+			break;
+		}
 	}
 
 	return (string) wp_json_encode( $cp_clean );
@@ -1505,6 +1631,57 @@ add_action(
 						/* translators: %d: số thứ tự cụm (1–4). */
 						'label'       => sprintf( __( 'Cụm %d — icon (ảnh thay icon mặc định)', 'tungleads-theme' ), $cp_n ),
 						'description' => __( 'Không chọn ảnh = dùng icon mặc định. Ảnh nên là PNG/SVG nền trong suốt, cạnh ~100px.', 'tungleads-theme' ),
+					)
+				)
+			);
+		}
+	}
+);
+
+
+/**
+ * CP1.9 — Section “Chi nhánh & Hotline Cao Phát” (yêu cầu Tùng 2026-09-17).
+ *
+ * Danh sách hotline từng chi nhánh hiện ở box “Hỗ trợ trực tuyến” (sidebar trang chi tiết SP) —
+ * TRƯỚC ĐÂY nhập ở plugin `tl-site-caophat` (Settings → Cao Phát), nay chuyển về Customizer vì đây
+ * là nội dung hiển thị và hotline chính (`cp_hotline_tel`) cũng ở đây ⇒ 1 chỗ sửa mọi số điện thoại.
+ *
+ * Giá trị setting = JSON `[{"name":"…","tel":"…"}, …]`; đọc ở front-end bằng `cp_support_branches()`
+ * (`functions.php`). `default` = danh sách 4 chi nhánh mặc định (`cp_support_branches_default()`).
+ */
+add_action(
+	'customize_register',
+	static function ( \WP_Customize_Manager $wp_customize ): void {
+		$wp_customize->add_section(
+			'cp_branches',
+			array(
+				'title'       => __( 'Chi nhánh & Hotline Cao Phát', 'tungleads-theme' ),
+				'description' => __( 'Số hotline từng chi nhánh — hiện ở box “Hỗ trợ trực tuyến” trong sidebar trang chi tiết sản phẩm. Kéo thả để đổi thứ tự, bấm × để xoá.', 'tungleads-theme' ),
+				'priority'    => 26,
+			)
+		);
+
+		$wp_customize->add_setting(
+			'cp_branches',
+			array(
+				'default'           => cp_support_branches_default_json(),
+				'transport'         => 'refresh',
+				'sanitize_callback' => 'cp_sanitize_branches',
+			)
+		);
+
+		if ( class_exists( 'CP_Branches_Repeater_Control' ) ) {
+			$wp_customize->add_control(
+				new CP_Branches_Repeater_Control(
+					$wp_customize,
+					'cp_branches',
+					array(
+						'section'     => 'cp_branches',
+						'label'       => __( 'Danh sách chi nhánh', 'tungleads-theme' ),
+						'description' => __( 'Mỗi dòng: Tên chi nhánh + số hotline. Bỏ trống hết = quay về danh sách mặc định.', 'tungleads-theme' ),
+						'settings'    => 'cp_branches',
+						'add_label'   => __( '+ Thêm chi nhánh', 'tungleads-theme' ),
+						'priority'    => 10,
 					)
 				)
 			);

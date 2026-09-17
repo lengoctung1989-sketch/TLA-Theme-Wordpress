@@ -42,6 +42,99 @@ function cp_hotline_tel(): string {
 }
 
 /**
+ * CP1.9 — Danh sách hotline CHI NHÁNH (dùng ở box “Hỗ trợ trực tuyến”, sidebar trang chi tiết SP).
+ *
+ * `cp_support_branches_default()` là **1 NGUỒN SỰ THẬT** cho 3 chỗ: `default` của setting Customizer
+ * (`inc/customizer.php`), fallback khi chưa lưu gì, và tài liệu. Muốn bỏ danh sách ⇒ xoá sạch dòng
+ * trong Customizer (danh sách rỗng = box không in phần chi nhánh).
+ *
+ * ⚠️ **Đổi chỗ 2026-09-17 (Tùng chốt):** danh sách này TRƯỚC ĐÂY nằm ở plugin `tl-site-caophat`
+ * (Settings → Cao Phát, option `tlcp_support_branches`). Đây là **nội dung hiển thị**, không phải
+ * business logic — mà hotline CHÍNH (`cp_hotline_tel`) đã ở Customizer ⇒ gộp về theme cho 1 chỗ sửa
+ * mọi số điện thoại. Plugin đã gỡ mục tương ứng; **đừng thêm lại vào plugin**.
+ *
+ * @return array<int,array{name:string,tel:string}>
+ */
+function cp_support_branches_default(): array {
+	return array(
+		array(
+			'name' => __( 'CN Quận 7', 'tungleads-theme' ),
+			'tel'  => '0834.484.484',
+		),
+		array(
+			'name' => __( 'CN Bình Tân', 'tungleads-theme' ),
+			'tel'  => '0834.713.713',
+		),
+		array(
+			'name' => __( 'CN Bến Cát', 'tungleads-theme' ),
+			'tel'  => '0814.627.610',
+		),
+		array(
+			'name' => __( 'Giải đáp thắc mắc', 'tungleads-theme' ),
+			'tel'  => '0834.627.627',
+		),
+	);
+}
+
+/** CP1.9 — JSON của danh sách mặc định, dùng làm `default` cho setting Customizer. */
+function cp_support_branches_default_json(): string {
+	return (string) wp_json_encode( cp_support_branches_default() );
+}
+
+/**
+ * CP1.9 — Danh sách chi nhánh đang dùng: **Customizer (theme_mod)** → plugin cũ (cầu nối) → mặc định.
+ * Filter `cp_support_branches` vẫn ghi đè được như trước khi chuyển chỗ.
+ *
+ * @return array<int,array{name:string,tel:string}>
+ */
+function cp_support_branches(): array {
+	$cp_rows = json_decode( (string) get_theme_mod( 'cp_branches', '' ), true );
+	$cp_out  = array();
+
+	if ( is_array( $cp_rows ) ) {
+		foreach ( $cp_rows as $cp_row ) {
+			if ( ! is_array( $cp_row ) ) {
+				continue;
+			}
+			$cp_name = trim( (string) ( $cp_row['name'] ?? '' ) );
+			$cp_tel  = trim( (string) ( $cp_row['tel'] ?? '' ) );
+			if ( '' === $cp_name || '' === $cp_tel ) {
+				continue;
+			}
+			$cp_out[] = array(
+				'name' => $cp_name,
+				'tel'  => $cp_tel,
+			);
+		}
+	}
+
+	// CẦU NỐI tạm thời cho lúc deploy: plugin v0.5.0 đã GỠ hàm `tlcp_support_branches()` nên phải đọc
+	// THẲNG option cũ `tlcp_support_branches` (dạng textarea “Tên | Số” mỗi dòng). Nhờ vậy deploy theme
+	// trước hay sau plugin cũng không mất số. GỠ đoạn này sau khi production đã chạy
+	// `docs/prod-migrate-branches.php` (script xoá option cũ sau khi ghi theme_mod).
+	if ( ! $cp_out ) {
+		$cp_old = (string) get_option( 'tlcp_support_branches', '' );
+		if ( '' !== trim( $cp_old ) ) {
+			foreach ( preg_split( '/\R/u', $cp_old ) as $cp_line ) {
+				$cp_parts = array_map( 'trim', explode( '|', (string) $cp_line, 2 ) );
+				if ( '' === $cp_parts[0] || empty( $cp_parts[1] ) ) {
+					continue;
+				}
+				$cp_out[] = array(
+					'name' => $cp_parts[0],
+					'tel'  => $cp_parts[1],
+				);
+			}
+		}
+	}
+	if ( ! $cp_out ) {
+		$cp_out = cp_support_branches_default();
+	}
+
+	return (array) apply_filters( 'cp_support_branches', $cp_out );
+}
+
+/**
  * CP1.3 — Giá trị MẶC ĐỊNH của các thiết lập "khung" footer (Customizer).
  *
  * 1 NGUỒN SỰ THẬT cho cả 3 chỗ: `default` của setting (`inc/customizer.php`) · fallback khi ô để trống

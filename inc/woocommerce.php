@@ -894,29 +894,10 @@ function cp_single_support_box(): void {
 		. '<span class="ic" aria-hidden="true">' . $icon . '</span>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		. esc_html( $disp ) . '</a>';
 
-	// Nguồn dữ liệu: plugin tl-site-caophat (Settings → Cao Phát). Plugin tắt → dùng danh
-	// sách mặc định tại chỗ để box không trắng; filter `cp_support_branches` vẫn ghi đè được.
-	$branches = function_exists( 'tlcp_support_branches' )
-		? (array) tlcp_support_branches()
-		: array(
-			array(
-				'name' => __( 'CN Quận 7', 'tungleads-theme' ),
-				'tel'  => '0834.484.484',
-			),
-			array(
-				'name' => __( 'CN Bình Tân', 'tungleads-theme' ),
-				'tel'  => '0834.713.713',
-			),
-			array(
-				'name' => __( 'CN Bến Cát', 'tungleads-theme' ),
-				'tel'  => '0814.627.610',
-			),
-			array(
-				'name' => __( 'Giải đáp thắc mắc', 'tungleads-theme' ),
-				'tel'  => '0834.627.627',
-			),
-		);
-	$branches = (array) apply_filters( 'cp_support_branches', $branches );
+	// CP1.9 — Nguồn dữ liệu: Customizer → “Chi nhánh & Hotline Cao Phát” (theme_mod `cp_branches`),
+	// đọc qua `cp_support_branches()`; filter `cp_support_branches` nằm TRONG helper đó nên vẫn ghi
+	// đè được bằng code như trước. (Trước 2026-09-17 danh sách này nằm ở plugin `tl-site-caophat`.)
+	$branches = cp_support_branches();
 	if ( $branches ) {
 		echo '<ul class="cp-side-branches">';
 		foreach ( $branches as $branch ) {
