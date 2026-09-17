@@ -1198,3 +1198,340 @@ add_filter(
 	10,
 	4
 );
+
+/* =================== CP3.9 — ĐÁNH GIÁ & BÌNH LUẬN (tab "Đánh giá") =================== */
+
+/**
+ * CP3.9 — Tab "Đánh giá" có HỘP TỔNG KẾT (điểm trung bình + 5 thanh %) như demo tham khảo
+ * banhocthongminhbsuc.com, thay cho tab trống của WooCommerce.
+ *
+ * Đo TRƯỚC (2026-09-17, `/san-pham/cua-nhua-han-quoc-kos-2/`, 1440): `#reviews` cao **525px**,
+ * form **430px**, **0 `.star-rating`**, **0 `<li>`** — chỉ có dòng "Chưa có đánh giá nào." + form
+ * thô; không chỗ nào cho người mua thấy "sản phẩm này được chấm mấy sao". Ngoài ra
+ * `woocommerce_enable_reviews` đang `no` ⇒ tab "Đánh giá" KHÔNG tồn tại (đo: sản phẩm chỉ có tab
+ * "Mô tả"); đã bật lại + cho khách đánh giá (`comment_registration = 0`) như demo.
+ *
+ * Cách làm: GIỮ NGUYÊN core (`comments_template()` vẫn render danh sách + form + cơ chế duyệt của
+ * WooCommerce) — chỉ ĐỔI `callback` của tab (giống cách CP3.8 đổi tab "Mô tả") rồi tự in thêm
+ * tiêu đề + hộp tổng kết + thanh lọc sao phía TRÊN. KHÔNG copy template
+ * `single-product-reviews.php` ⇒ không phải bảo trì template khi WooCommerce nâng cấp.
+ *
+ * WooCommerce tự gọi `call_user_func( $tab['callback'], $key, $tab )`
+ * (templates/single-product/tabs/tabs.php) — callback khai 0 tham số vẫn chạy bình thường.
+ */
+add_filter(
+	'woocommerce_product_tabs',
+	static function ( array $cp_tabs ): array {
+		if ( isset( $cp_tabs['reviews'] ) ) {
+			$cp_tabs['reviews']['callback'] = 'cp_single_reviews_tab';
+		}
+		return $cp_tabs;
+	},
+	21
+);
+
+/**
+ * CP3.9 — Hộp tổng kết: điểm trung bình (số lớn) + 5 thanh % theo số sao + nút "Đánh giá ngay".
+ *
+ * Nguồn số liệu là API của `WC_Product` (đã cache trong meta): `get_average_rating()`,
+ * `get_rating_counts()` (mảng `[số sao => số lượt]`), `get_review_count()` — KHÔNG tự query comment.
+ *
+ * `wc_get_rating_html( $avg )` in `.star-rating` chuẩn WooCommerce (dùng font icon có sẵn của WC);
+ * với 0 đánh giá hàm trả chuỗi RỖNG nên phần sao tự biến mất. Điểm in bằng `number_format( …, 1 )`
+ * ⇒ luôn dạng `5.0` như demo (giá tiền của site dùng dấu `,` cho phần thập phân, nhưng điểm đánh
+ * giá giữ dấu `.` để khách đối chiếu với demo/Google dễ hơn).
+ */
+function cp_single_reviews_summary(): void {
+	global $product;
+	if ( ! $product instanceof WC_Product ) {
+		return;
+	}
+
+	$cp_count   = (int) $product->get_review_count();
+	$cp_avg     = (float) $product->get_average_rating();
+	$cp_ratings = array_map( 'intval', (array) $product->get_rating_counts() );
+
+	echo '<div class="cp-rv__sum">';
+
+	// Cột 1 — điểm trung bình.
+	echo '<div class="cp-rv__score">';
+	echo '<p class="cp-rv__avg">' . esc_html( number_format( $cp_avg, 1 ) ) . '</p>';
+	echo '<p class="cp-rv__avg-label">' . esc_html__( 'Đánh giá trung bình', 'tungleads-theme' ) . '</p>';
+	if ( function_exists( 'wc_get_rating_html' ) ) {
+		echo wc_get_rating_html( $cp_avg ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup do WooCommerce sinh và đã escape.
+	}
+	echo '<p class="cp-rv__count">'
+		. esc_html(
+			sprintf(
+				/* translators: %s: số đánh giá. */
+				__( '%s đánh giá', 'tungleads-theme' ),
+				number_format_i18n( $cp_count )
+			)
+		)
+		. '</p>';
+	echo '</div>';
+
+	// Cột 2 — 5 thanh % (5 → 1 sao), hiện cả khi chưa có đánh giá (0%) như demo/Flatsome.
+	echo '<div class="cp-rv__bars">';
+	for ( $cp_star = 5; $cp_star >= 1; $cp_star-- ) {
+		$cp_n   = isset( $cp_ratings[ $cp_star ] ) ? $cp_ratings[ $cp_star ] : 0;
+		$cp_pct = $cp_count > 0 ? (int) round( $cp_n / $cp_count * 100 ) : 0;
+
+		echo '<div class="cp-rv__row">'
+			. '<span class="cp-rv__row-star">' . esc_html( (string) $cp_star ) . ' <i>★</i></span>'
+			. '<span class="cp-rv__bar"><span class="cp-rv__bar-fill" style="width:' . esc_attr( (string) $cp_pct ) . '%"></span></span>'
+			. '<span class="cp-rv__row-pct">' . esc_html( $cp_pct . '%' ) . '</span>'
+			. '<span class="cp-rv__row-num">'
+			. esc_html(
+				sprintf(
+					/* translators: %s: số đánh giá ở mức sao đó. */
+					__( '%s đánh giá', 'tungleads-theme' ),
+					number_format_i18n( $cp_n )
+				)
+			)
+			. '</span>'
+			. '</div>';
+	}
+	echo '</div>';
+
+	// Cột 3 — nút cuộn xuống form (JS `assets/reviews.js` làm mượt; không JS thì nhảy như anchor thường).
+	echo '<div class="cp-rv__cta">'
+		. '<a class="cp-btn cp-btn-accent cp-rv__open" href="#review_form">'
+		. esc_html__( 'Đánh giá ngay', 'tungleads-theme' )
+		. '</a>'
+		. '</div>';
+
+	echo '</div>';
+}
+
+
+/**
+ * CP3.9 — Callback của tab "Đánh giá": tiêu đề + hộp tổng kết + thanh lọc sao + phần core.
+ *
+ * Tiêu đề tự in (`.cp-rv__title`) rồi ẨN tiêu đề trùng của WooCommerce (`.woocommerce-Reviews-title`)
+ * bằng CSS: thứ tự mong muốn là "tiêu đề → tổng kết → danh sách" như demo, còn core in tiêu đề BÊN
+ * TRONG `#comments` (tức SAU hộp tổng kết) nên sẽ bị lặp.
+ *
+ * Thanh lọc gắn `data-cp-star`; JS lọc theo class `cp-rv-star-N` mà filter `comment_class` bên dưới
+ * gắn cho từng `<li>` (mỗi `<li>` = 1 đánh giá). Hiện đủ 5 mức như demo — mức nào 0 lượt thì JS
+ * hiện dòng "Không có đánh giá nào ở mức N sao" thay vì để trống.
+ */
+function cp_single_reviews_tab(): void {
+	global $product;
+	if ( ! $product instanceof WC_Product ) {
+		return;
+	}
+
+	$cp_count = (int) $product->get_review_count();
+
+	// `.cp-rv--empty` để CSS ẩn luôn dòng "Chưa có đánh giá nào." của core (tiêu đề trên đã nói rồi).
+	echo $cp_count > 0 ? '<div class="cp-rv">' : '<div class="cp-rv cp-rv--empty">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- chuỗi tĩnh.
+
+	if ( $cp_count > 0 ) {
+		echo '<h2 class="cp-rv__title">'
+			. esc_html(
+				sprintf(
+					/* translators: %s: số đánh giá. */
+					__( '%s đánh giá cho', 'tungleads-theme' ),
+					number_format_i18n( $cp_count )
+				)
+			)
+			. ' <span>' . esc_html( get_the_title() ) . '</span>'
+			. '</h2>';
+	} else {
+		echo '<h2 class="cp-rv__title">' . esc_html__( 'Chưa có đánh giá nào', 'tungleads-theme' ) . '</h2>';
+		echo '<p class="cp-rv__empty">' . esc_html__( 'Hãy là người đầu tiên đánh giá sản phẩm này.', 'tungleads-theme' ) . '</p>';
+	}
+
+	cp_single_reviews_thanks();
+	cp_single_reviews_summary();
+
+	if ( $cp_count > 0 ) {
+		$cp_ratings = array_map( 'intval', (array) $product->get_rating_counts() );
+
+		echo '<div class="cp-rv__filters" role="group" aria-label="'
+			. esc_attr__( 'Lọc đánh giá theo số sao', 'tungleads-theme' ) . '">';
+		echo '<button type="button" class="cp-rv__chip is-active" data-cp-star="all" aria-pressed="true">'
+			. esc_html__( 'Tất cả', 'tungleads-theme' )
+			. ' <span class="cp-rv__chip-n">' . esc_html( number_format_i18n( $cp_count ) ) . '</span></button>';
+
+		for ( $cp_star = 5; $cp_star >= 1; $cp_star-- ) {
+			$cp_n = isset( $cp_ratings[ $cp_star ] ) ? $cp_ratings[ $cp_star ] : 0;
+
+			echo '<button type="button" class="cp-rv__chip" data-cp-star="' . esc_attr( (string) $cp_star ) . '" aria-pressed="false">'
+				. esc_html( (string) $cp_star ) . ' <i>★</i>'
+				. ' <span class="cp-rv__chip-n">' . esc_html( number_format_i18n( $cp_n ) ) . '</span></button>';
+		}
+		echo '</div>';
+	}
+
+	// Danh sách + form + phân trang của WooCommerce (giữ nguyên core, chỉ skin bằng CSS).
+	comments_template();
+
+	echo '</div>';
+}
+
+
+
+/**
+ * CP3.9 — Nhãn/placeholder form đánh giá theo tiếng Việt như demo.
+ *
+ * WooCommerce 11 (`templates/single-product-reviews.php`) đã tự dựng `comment_field` (label
+ * "Đánh giá của bạn" + `<select name="rating">` + label + `<textarea id="comment">`) và 2 field
+ * `author`/`email`. Ta DỰNG LẠI `comment_field` với CÙNG `id`/`name`/`required` (để
+ * `WC_Comments::validate_comment_rating()` và `wp_handle_comment_submission()` vẫn đọc đúng
+ * `$_POST['rating']` / `$_POST['comment']`) nhưng đổi cho khớp demo: nhãn sao "Bạn cảm thấy thế nào
+ * về sản phẩm? (Chọn sao)", nhãn nhận xét ẨN (dùng `.screen-reader-text` + placeholder), và thêm
+ * placeholder cho Tên/Email (label thật vẫn còn, chỉ ẩn khỏi mắt thường).
+ *
+ * `comment_notes_after` = nhắc duyệt: site đặt `comment_previously_approved = 1` ⇒ khách đánh giá
+ * lần đầu phải chờ duyệt, nói trước để khách không tưởng lỗi.
+ */
+add_filter(
+	'woocommerce_product_review_comment_form_args',
+	static function ( array $cp_args ): array {
+		$cp_args['title_reply']        = sprintf(
+			/* translators: %s: tên sản phẩm. */
+			__( 'Đánh giá %s', 'tungleads-theme' ),
+			get_the_title()
+		);
+		$cp_args['title_reply_before'] = '<h3 id="reply-title" class="comment-reply-title cp-rv__form-title">';
+		$cp_args['title_reply_after']  = '</h3>';
+		$cp_args['label_submit']       = __( 'Gửi đánh giá', 'tungleads-theme' );
+
+		$cp_args['comment_notes_before'] = '<p class="cp-rv__note">'
+			. esc_html__( 'Email của bạn sẽ không được hiển thị công khai. Các trường bắt buộc được đánh dấu *', 'tungleads-theme' )
+			. '</p>';
+		$cp_args['comment_notes_after']  = '<p class="cp-rv__note cp-rv__note--mod">'
+			. esc_html__( 'Đánh giá của bạn sẽ hiển thị sau khi được duyệt.', 'tungleads-theme' )
+			. '</p>';
+
+		$cp_args['fields']['author'] = '<p class="comment-form-author">'
+			. '<label for="author" class="screen-reader-text">' . esc_html__( 'Họ tên', 'tungleads-theme' ) . '</label>'
+			. '<input id="author" name="author" type="text" autocomplete="name" value="" size="30" required placeholder="'
+			. esc_attr__( 'Họ tên *', 'tungleads-theme' ) . '" /></p>';
+		$cp_args['fields']['email']  = '<p class="comment-form-email">'
+			. '<label for="email" class="screen-reader-text">' . esc_html__( 'Email', 'tungleads-theme' ) . '</label>'
+			. '<input id="email" name="email" type="email" autocomplete="email" value="" size="30" required placeholder="'
+			. esc_attr__( 'Email *', 'tungleads-theme' ) . '" /></p>';
+
+		$cp_rating_x = '';
+		if ( wc_review_ratings_enabled() ) {
+			$cp_rating_x = '<div class="comment-form-rating">'
+				. '<label for="rating" id="comment-form-rating-label">'
+				. esc_html__( 'Bạn cảm thấy thế nào về sản phẩm? (Chọn sao)', 'tungleads-theme' )
+				. ( wc_review_ratings_required() ? '&nbsp;<span class="required">*</span>' : '' ) . '</label>'
+				. '<select name="rating" id="rating"' . ( wc_review_ratings_required() ? ' required' : '' ) . '>'
+				. '<option value="">' . esc_html__( 'Xếp hạng…', 'tungleads-theme' ) . '</option>'
+				. '<option value="5">' . esc_html__( 'Rất tốt', 'tungleads-theme' ) . '</option>'
+				. '<option value="4">' . esc_html__( 'Tốt', 'tungleads-theme' ) . '</option>'
+				. '<option value="3">' . esc_html__( 'Trung bình', 'tungleads-theme' ) . '</option>'
+				. '<option value="2">' . esc_html__( 'Không tệ', 'tungleads-theme' ) . '</option>'
+				. '<option value="1">' . esc_html__( 'Rất tệ', 'tungleads-theme' ) . '</option>'
+				. '</select></div>';
+		}
+
+		$cp_args['comment_field'] = $cp_rating_x
+			. '<p class="comment-form-comment">'
+			. '<label for="comment" class="screen-reader-text">' . esc_html__( 'Nhận xét của bạn', 'tungleads-theme' ) . '</label>'
+			. '<textarea id="comment" name="comment" cols="45" rows="6" required placeholder="'
+			. esc_attr__( 'Mời bạn chia sẻ thêm một số cảm nhận…', 'tungleads-theme' ) . '"></textarea></p>';
+
+		return $cp_args;
+	},
+	20
+);
+
+/**
+ * CP3.9 — Gắn class `cp-rv-star-N` cho từng `<li>` đánh giá ⇒ thanh lọc chip (JS) chỉ cần đọc class.
+ *
+ * `comment_class` chạy cho MỌI comment (kể cả danh sách comment trong wp-admin) nên phải guard:
+ * bỏ qua trong admin + chỉ xử lý comment thuộc post type `product`.
+ */
+add_filter(
+	'comment_class',
+	static function ( array $cp_classes, $cp_css_class, $cp_comment_id, $cp_comment = null ): array {
+		if ( is_admin() || ! $cp_comment instanceof WP_Comment ) {
+			return $cp_classes;
+		}
+		if ( 'product' !== get_post_type( $cp_comment->comment_post_ID ) ) {
+			return $cp_classes;
+		}
+
+		$cp_rating = (int) get_comment_meta( $cp_comment->comment_ID, 'rating', true );
+		if ( $cp_rating > 0 ) {
+			$cp_classes[] = 'cp-rv-star-' . $cp_rating;
+		}
+
+		return $cp_classes;
+	},
+	10,
+	4
+);
+
+/**
+ * CP3.9 — Badge "Đã mua tại caophat.vn" + ngày kiểu `08/09/2026` cho đánh giá.
+ *
+ * Badge: WooCommerce in `<em class="woocommerce-review__verified verified">(verified owner)</em>`
+ * khi `woocommerce_review_rating_verification_label = yes` và comment có meta `verified` (WC tự gắn
+ * khi đơn của khách hoàn tất). Chuỗi lấy từ bản dịch `woocommerce` (vi = "(xác minh chủ tài khoản)")
+ * — demo ghi rõ tên shop nên đổi lại cho đúng giọng thương hiệu (dấu ngoặc là của WC, không bỏ được).
+ *
+ * Ngày: `get_comment_date()` trả theo `date_format` của site (`F j, Y`) ⇒ hiện "Tháng 9 8, 2026"
+ * (đo 2026-09-17), demo hiện `11/09/2026` ⇒ đổi RIÊNG cho comment thuộc `product`.
+ */
+add_filter(
+	'gettext',
+	static function ( $cp_translated, $cp_original, $cp_domain ) {
+		if ( 'woocommerce' === $cp_domain && 'verified owner' === $cp_original ) {
+			return __( 'Đã mua tại caophat.vn', 'tungleads-theme' );
+		}
+		return $cp_translated;
+	},
+	10,
+	3
+);
+
+add_filter(
+	'get_comment_date',
+	static function ( $cp_date, $cp_format, $cp_comment ) {
+		if ( ! $cp_comment instanceof WP_Comment || 'product' !== get_post_type( $cp_comment->comment_post_ID ) ) {
+			return $cp_date;
+		}
+		return mysql2date( 'd/m/Y', $cp_comment->comment_date );
+	},
+	10,
+	3
+);
+
+/**
+ * CP3.9 — Xác nhận khi khách vừa gửi đánh giá: core chuyển hướng kèm
+ * `?unapproved=<id>&moderation-hash=…` (chỉ khi bài phải chờ duyệt) ⇒ in 1 dải xanh ở đầu tab.
+ *
+ * Cần thiết vì WooCommerce dùng template `review.php` — KHÔNG có `comment_awaiting_moderation`
+ * như walker mặc định của WordPress ⇒ bài chờ duyệt trông y hệt bài đã duyệt (đo 2026-09-17:
+ * gửi xong `li` thứ 6 xuất hiện, `comment_approved = 0`, trang KHÔNG có thông báo nào).
+ */
+function cp_single_reviews_thanks(): void {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- chỉ để IN thông báo, không ghi dữ liệu.
+	$cp_pending = isset( $_GET['unapproved'] ) ? absint( wp_unslash( $_GET['unapproved'] ) ) : 0;
+
+	if ( $cp_pending < 1 ) {
+		return;
+	}
+
+	echo '<p class="cp-rv__thanks">'
+		. esc_html__( 'Cảm ơn bạn! Đánh giá đang chờ duyệt và sẽ hiển thị sau khi được xác nhận.', 'tungleads-theme' )
+		. '</p>';
+}
+
+/**
+ * CP3.9 — Dòng "đang chờ duyệt" của WordPress/WooCommerce: `<em class="woocommerce-review__awaiting-approval">`
+ * nằm trong `<p class="meta">` của đánh giá VỪA GỬI (chỉ khách đó thấy, nhờ `?moderation-hash`).
+ * WooCommerce đã tự in ⇒ KHÔNG in thêm dòng nào (bản đầu của CP3.9 in trùng — đo 2026-09-17:
+ * thẻ hiện 2 dòng "chờ duyệt"); chỉ cần CSS bên dưới cho nó nổi bật.
+ */
+
+/* ================================== hết CP3.9 ================================== */
+
+

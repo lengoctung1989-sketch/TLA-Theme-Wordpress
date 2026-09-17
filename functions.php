@@ -341,6 +341,19 @@ add_action(
 			file_exists( $cp_tabs_js ) ? (string) filemtime( $cp_tabs_js ) : wp_get_theme()->get( 'Version' ),
 			true
 		);
+
+		// CP3.9 — tab "Đánh giá" ở trang chi tiết SP: lọc theo số sao + nút "Đánh giá ngay".
+		// Chỉ nạp ở trang chi tiết SP (không có đánh giá ở trang khác) ⇒ không thêm request thừa.
+		if ( function_exists( 'is_product' ) && is_product() ) {
+			$cp_reviews_js = get_stylesheet_directory() . '/assets/reviews.js';
+			wp_enqueue_script(
+				'cp-reviews',
+				get_stylesheet_directory_uri() . '/assets/reviews.js',
+				array(),
+				file_exists( $cp_reviews_js ) ? (string) filemtime( $cp_reviews_js ) : wp_get_theme()->get( 'Version' ),
+				true
+			);
+		}
 	},
 	20
 );

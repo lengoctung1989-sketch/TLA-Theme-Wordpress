@@ -2921,3 +2921,206 @@ body.cp del .woocommerce-Price-amount.amount { color: var(--cp-muted); }
 
 
 
+
+/* ================= CP3.9 — Đánh giá & bình luận (tab "Đánh giá") =================
+   Layout theo demo tham khảo banhocthongminhbsuc.com: tiêu đề → hộp tổng kết (điểm TB + 5 thanh %
+   theo số sao + nút "Đánh giá ngay") → thanh lọc sao → danh sách đánh giá → form.
+   PHP: `inc/woocommerce.php` (tag `// CP3.9`) · JS: `assets/reviews.js` (enqueue chỉ ở `is_product()`).
+   GIỮ markup core WooCommerce (`#reviews > #comments > ol.commentlist`, `#review_form`) ⇒ phần lớn
+   việc ở đây là GHI ĐÈ mấy rule của WooCommerce (`woocommerce.css`):
+     · `.star-rating` mặc định `float: right` ⇒ phải `float: none` mới canh giữa được;
+     · `.comment-text` mặc định `margin-left: 50px` + `border: 1px solid #e1dde7` (dành cho avatar)
+       ⇒ avatar bị ẩn nên trả `margin: 0` + dùng viền/khoảng đệm của skin.
+   Vì rule của WooCommerce dùng 2 id (`#reviews #comments`, `#review_form #respond`) + các class
+   (`.woocommerce`, `.commentlist`) nên selector ở đây cũng khai đủ chuỗi id để THẮNG chắc chắn
+   (file này nạp SAU `woocommerce-general` nên cùng độ ưu tiên là thắng).
+   ============================================================================ */
+
+/* Tiêu đề của core in BÊN TRONG `#comments` (tức SAU hộp tổng kết) trong khi thứ tự mong muốn là
+   "tiêu đề → tổng kết → danh sách" ⇒ ẩn, thay bằng `.cp-rv__title` do PHP in. */
+body.cp .cp-rv .woocommerce-Reviews-title { display: none; }
+/* Chưa có đánh giá: tiêu đề trên đã nói rồi ⇒ ẩn dòng "Chưa có đánh giá nào." lặp lại của core. */
+body.cp .cp-rv--empty .woocommerce-noreviews { display: none; }
+
+.cp-rv { display: flex; flex-direction: column; gap: 16px; }
+.cp-rv__title { margin: 0; font-size: 20px; font-weight: 800; line-height: 1.4; color: var(--cp-text); }
+.cp-rv__title span { color: var(--cp-primary-dark); }
+.cp-rv__empty { margin: -8px 0 0; font-size: 14.5px; color: var(--cp-muted); }
+
+/* ---- Hộp tổng kết: [điểm] [5 thanh %] [nút] ---- */
+.cp-rv__sum {
+  display: grid; grid-template-columns: 180px minmax(0, 1fr) 180px;
+  gap: 20px; align-items: center;
+  padding: 20px 22px;
+  background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+}
+.cp-rv__score { text-align: center; }
+.cp-rv__avg { margin: 0; font-size: 44px; font-weight: 800; line-height: 1.05; color: var(--cp-primary-dark); }
+.cp-rv__avg-label { margin: 2px 0 6px; font-size: 13px; color: var(--cp-muted); }
+/* `.star-rating` của WooCommerce: `float: right` + rộng 5.4em + font icon riêng của WC. */
+body.cp .cp-rv__score .star-rating { float: none; margin: 0 auto 6px; font-size: 16px; color: #e2a53a; }
+.cp-rv__count { margin: 0; font-size: 13px; font-weight: 600; color: var(--cp-text); }
+
+.cp-rv__bars { display: flex; flex-direction: column; gap: 7px; }
+.cp-rv__row {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) 46px 92px;
+  gap: 10px; align-items: center; font-size: 13px;
+}
+.cp-rv__row-star { font-weight: 700; color: var(--cp-text); white-space: nowrap; }
+.cp-rv__row-star i { font-style: normal; color: #e2a53a; }
+.cp-rv__bar { height: 8px; border-radius: 999px; background: #e7e2db; overflow: hidden; }
+.cp-rv__bar-fill { display: block; height: 100%; background: var(--cp-primary); border-radius: 999px; }
+.cp-rv__row-pct { font-weight: 700; color: var(--cp-text); text-align: right; }
+.cp-rv__row-num { overflow: hidden; color: var(--cp-muted); white-space: nowrap; text-overflow: ellipsis; }
+
+.cp-rv__cta { text-align: right; }
+.cp-rv__open { min-height: 44px; }
+
+/* ---- Thanh lọc theo số sao (JS `assets/reviews.js`) ---- */
+.cp-rv__filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-rv__chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  min-height: 36px; padding: 6px 14px;
+  background: #fff; border: 1px solid var(--cp-line); border-radius: 999px;
+  font: inherit; font-size: 13.5px; font-weight: 600; color: var(--cp-text); cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+.cp-rv__chip i { font-style: normal; color: #e2a53a; }
+.cp-rv__chip:hover { border-color: var(--cp-primary); }
+.cp-rv__chip.is-active { background: var(--cp-primary); border-color: var(--cp-primary); color: var(--cp-on-primary); }
+.cp-rv__chip.is-active i { color: var(--cp-on-primary); }
+.cp-rv__chip-n { color: var(--cp-muted); }
+.cp-rv__chip.is-active .cp-rv__chip-n { color: var(--cp-on-primary); }
+.cp-rv__noresult { margin: 12px 0 0; color: var(--cp-muted); font-size: 14px; }
+
+/* Dải xác nhận sau khi gửi (khách phải chờ duyệt ⇒ core chuyển hướng `?unapproved=…`). */
+.cp-rv__thanks {
+  margin: 0; padding: 12px 16px;
+  background: #eaf5ea; border: 1px solid #cfe7cf; border-radius: var(--cp-radius-sm);
+  color: #1f6b3d; font-size: 14.5px; font-weight: 600;
+}
+/* Dòng "đang chờ duyệt" — WooCommerce tự in `<em class="woocommerce-review__awaiting-approval">` trong
+   `.meta` của đánh giá vừa gửi (thay cho tên + ngày). Cho nổi bật thành chip hổ phách. */
+body.cp .cp-rv #reviews #comments ol.commentlist li .woocommerce-review__awaiting-approval {
+  display: inline-block; padding: 3px 10px;
+  background: #fff7e0; border: 1px solid #f0dca8; border-radius: 8px;
+  color: #8a6100; font-size: 12.5px; font-style: normal; font-weight: 600;
+}
+
+
+
+
+/* ---- Danh sách đánh giá (markup core WooCommerce: `ol.commentlist > li > .comment_container > .comment-text`) ---- */
+body.cp .cp-rv #reviews #comments ol.commentlist { display: flex; flex-direction: column; gap: 14px; }
+body.cp .cp-rv #reviews #comments ol.commentlist li { margin: 0; }
+body.cp .cp-rv #reviews #comments ol.commentlist li.is-hidden { display: none; }
+/* Avatar: demo cũng ẩn (`no_avatar`) — gravatar mặc định của khách chưa đăng ký là hình "mystery man". */
+body.cp .cp-rv #reviews #comments ol.commentlist li img.avatar { display: none; }
+body.cp .cp-rv #reviews #comments ol.commentlist li .comment-text {
+  margin: 0; padding: 16px 18px;
+  background: #fff; border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+}
+body.cp .cp-rv #reviews #comments ol.commentlist li .comment-text .star-rating {
+  float: none; margin: 0 0 8px; font-size: 14px; color: #e2a53a;
+}
+body.cp .cp-rv #reviews #comments ol.commentlist li .comment-text .meta {
+  margin: 0 0 6px; font-size: 13px; color: var(--cp-muted);
+}
+body.cp .cp-rv #reviews #comments ol.commentlist li .woocommerce-review__author {
+  color: var(--cp-text); font-size: 14.5px; font-weight: 700;
+}
+/* Badge "Đã mua tại caophat.vn" — WooCommerce tự in khi option
+   `woocommerce_review_rating_verification_label = yes` (site đang bật). */
+body.cp .cp-rv #reviews #comments ol.commentlist li .woocommerce-review__verified {
+  display: inline-block; margin-left: 6px; padding: 2px 9px;
+  background: #eaf5ea; color: #1f8a4c; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600; white-space: nowrap;
+}
+body.cp .cp-rv #reviews #comments ol.commentlist li .woocommerce-review__published-date {
+  color: var(--cp-muted); font-size: 12.5px;
+}
+body.cp .cp-rv #reviews #comments ol.commentlist li .description {
+  color: var(--cp-text); font-size: 14.5px; line-height: 1.75;
+}
+body.cp .cp-rv #reviews #comments ol.commentlist li .description p { margin: 0 0 8px; }
+body.cp .cp-rv #reviews #comments ol.commentlist li .description p:last-child { margin-bottom: 0; }
+
+/* ---- Form đánh giá (`#review_form`) ---- */
+body.cp .cp-rv #review_form_wrapper {
+  padding: 20px 22px;
+  background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: var(--cp-radius);
+}
+body.cp .cp-rv #review_form #respond p { margin: 0 0 14px; }
+body.cp .cp-rv #review_form #respond .comment-reply-title {
+  display: block; margin: 0 0 8px; font-size: 18px; font-weight: 800; color: var(--cp-text);
+}
+body.cp .cp-rv #review_form #respond .cp-rv__note { margin: 0 0 14px; font-size: 13px; color: var(--cp-muted); }
+body.cp .cp-rv #review_form #respond label:not(.screen-reader-text) {
+  display: block; margin: 0 0 6px; font-size: 13.5px; font-weight: 600; color: var(--cp-text);
+}
+body.cp .cp-rv #review_form #respond input[type="text"],
+body.cp .cp-rv #review_form #respond input[type="email"],
+body.cp .cp-rv #review_form #respond select,
+body.cp .cp-rv #review_form #respond textarea {
+  width: 100%; padding: 11px 13px; background: #fff; color: var(--cp-text);
+  border: 1px solid var(--cp-line); border-radius: var(--cp-radius-sm);
+  font: inherit; font-size: 16px; /* 16px: iOS không tự zoom khi focus vào ô nhập */
+}
+body.cp .cp-rv #review_form #respond textarea { min-height: 120px; height: auto; resize: vertical; }
+body.cp .cp-rv #review_form #respond input:focus,
+body.cp .cp-rv #review_form #respond select:focus,
+body.cp .cp-rv #review_form #respond textarea:focus {
+  outline: 2px solid var(--cp-primary); outline-offset: 1px; border-color: var(--cp-primary);
+}
+/* Tên + Email nằm cạnh nhau ở desktop như demo; ≤768px xuống 1 cột (khối @media cuối). */
+body.cp .cp-rv #review_form #respond p.comment-form-author,
+body.cp .cp-rv #review_form #respond p.comment-form-email {
+  display: inline-block; width: calc(50% - 7px); margin: 0 0 14px; vertical-align: top;
+}
+body.cp .cp-rv #review_form #respond p.comment-form-email { margin-left: 10px; }
+body.cp .cp-rv #review_form #respond p.comment-form-cookies-consent {
+  display: flex; align-items: flex-start; gap: 8px; margin: 0 0 14px;
+  font-size: 12.5px; line-height: 1.6; color: var(--cp-muted);
+}
+body.cp .cp-rv #review_form #respond p.comment-form-cookies-consent input[type="checkbox"] {
+  flex: 0 0 auto; width: 16px; height: 16px; margin: 3px 0 0;
+}
+body.cp .cp-rv #review_form #respond .form-submit { margin: 0; }
+/* Nút gửi: WooCommerce khai `background-color: var(--wc-secondary)` (#e9e6ed) cho
+   `input#submit` bằng selector 2 id (`.woocommerce #respond input#submit`…) nên phải `!important`
+   mới chắc thắng — đo TRƯỚC: nền `rgb(233,230,237)` + bo góc 3px dù đã có rule `.cp-rv #submit`. */
+body.cp .cp-rv #submit {
+  min-height: 48px; padding: 12px 30px !important;
+  border: 0 !important; border-radius: 999px !important;
+  background: #000 !important; color: #fff !important;
+  box-shadow: none !important; text-shadow: none !important;
+  font: inherit; font-size: 15px; font-weight: 700 !important;
+  cursor: pointer; transition: background .18s ease;
+}
+body.cp .cp-rv #submit:hover { background: #333333 !important; }
+
+/* Chấm sao trong form: WooCommerce's JS (`single-product.js`) ẨN `<select id="rating">`
+   (đo: `display: none`) rồi dựng `p.stars` = 5 thẻ `<a role="radio">` dùng font icon của WC
+   (`content: "\e021"` rỗng / `\e020"` đầy). Chỉ cần đổi MÀU sang vàng như `.star-rating`. */
+body.cp .cp-rv #review_form .stars a::before { color: #e2a53a; }
+body.cp .cp-rv #review_form .stars a:focus-visible { outline: 2px solid var(--cp-primary); outline-offset: 2px; border-radius: 3px; }
+
+
+/* ---- Responsive ---- */
+@media (max-width: 1024px) {
+  .cp-rv__sum { grid-template-columns: 150px minmax(0, 1fr); gap: 16px; }
+  .cp-rv__cta { grid-column: 1 / -1; text-align: left; }
+}
+@media (max-width: 768px) {
+  body.cp .cp-rv #review_form #respond p.comment-form-author,
+  body.cp .cp-rv #review_form #respond p.comment-form-email { display: block; width: 100%; margin-left: 0; }
+}
+@media (max-width: 600px) {
+  .cp-rv__sum { grid-template-columns: 1fr; }
+  .cp-rv__score { text-align: left; }
+  body.cp .cp-rv__score .star-rating { margin: 0 0 6px; }
+  .cp-rv__row { grid-template-columns: 34px minmax(0, 1fr) 42px 84px; gap: 8px; font-size: 12.5px; }
+  body.cp .cp-rv #reviews #comments ol.commentlist li .woocommerce-review__verified {
+    display: block; width: max-content; max-width: 100%; margin: 4px 0 0;
+  }
+}
