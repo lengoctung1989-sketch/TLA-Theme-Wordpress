@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  TL Site — Cao Phát
  * Description:  Tầng dữ liệu / hành vi riêng của caophat.vn (tracking, sau này: CPT, taxonomy, form). Tách khỏi theme để đổi giao diện không mất data.
- * Version:      0.3.0
+ * Version:      0.4.0
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
  * Author URI:   https://tungleads.com/
@@ -11,6 +11,15 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+/** Đường dẫn/URL plugin + version lấy từ header (dùng cho cache-busting asset). */
+define( 'TL_CP_FILE', __FILE__ );
+define( 'TL_CP_DIR', plugin_dir_path( __FILE__ ) );
+define( 'TL_CP_URL', plugin_dir_url( __FILE__ ) );
+define( 'TL_CP_VERSION', '0.4.0' );
+
+/** CP8 — Mục lục nội dung (nút dọc + drawer): cấu hình ở Settings → Cao Phát. */
+require_once __DIR__ . '/includes/toc.php';
 
 /*
  * ---------------------------------------------------------------------------
@@ -609,6 +618,8 @@ function tlcp_support_page(): void {
 				<?php esc_html_e( 'Để trống = dùng câu mặc định: “Website đang được bảo trì để nâng cấp. Vui lòng quay lại sau ít phút.”.', 'tl-site-caophat' ); ?><br>
 				<?php esc_html_e( 'Cho phép HTML cơ bản (p, strong, br, a, ul/li…) — KHÔNG cho thẻ script.', 'tl-site-caophat' ); ?>
 			</p>
+
+			<?php tlcp_toc_settings_ui(); ?>
 
 			<?php submit_button(); ?>
 

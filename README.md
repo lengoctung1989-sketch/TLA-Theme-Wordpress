@@ -13,6 +13,7 @@ Ranh giới: theme = trình bày · plugin = *dữ liệu gì tồn tại* + *h�
 | Hotline chi nhánh | Option `tlcp_support_branches`, sửa ở **Settings → Cao Phát** (mỗi dòng: `Tên \| Số`). Theme đọc qua `tlcp_support_branches()`. |
 | Ghi công | `tlcp_credit_line()` in `Phiên bản <version> \| Bởi Tung Le Ads` ở **cuối trang Settings → Cao Phát**; **và** ở **/wp-admin/plugins.php** dòng `Phiên bản 0.1.2 \| Bởi Tung Le Ads` có **“Tung Le Ads” là link** — do header `Author URI: https://tungleads.com/` (WP core tự bọc `<a>`). Version lấy động từ header plugin. |
 | Đặt hàng nhanh (CP3.3) | Handler AJAX `cp_quick_order` — nhận form từ popup ở trang chi tiết SP và tạo **đơn WooCommerce thật** (COD, trạng thái "Đang xử lý"). Chống spam: nonce + honeypot + 5 đơn/IP/10 phút. |
+| **Mục lục nội dung (CP8)** | Option `tlcp_toc` — **nút dọc cố định + drawer danh sách heading**, chỉnh ở **Settings → Cao Phát** (bật/tắt · post type · số cấp H2–H4 · ngưỡng heading tối thiểu · nhãn nút · mép trái/phải · màu nút · mobile ≤768 · scroll-spy · đánh số `1 · 2 · 2.1` · ID loại trừ). Quét heading ở `the_content` prio 12 (thêm `id` còn thiếu), in nút/drawer ở `wp_footer` prio 5. |
 
 ### Đặt hàng nhanh (CP3.3)
 
@@ -62,6 +63,20 @@ Ranh giới: theme = trình bày · plugin = *dữ liệu gì tồn tại* + *h�
 - Trang bảo trì là **HTML + CSS nội tuyến**, không dùng CSS/JS của theme ⇒ vẫn hiện đúng kể cả khi theme đang lỗi/đang nâng cấp; có link “Quản trị viên đăng nhập”.
 - Ô thông báo để trống ⇒ dùng câu mặc định. Cho phép HTML cơ bản (`p, strong, br, a, ul/li`…), **không** cho `<script>` (lọc bằng `wp_kses_post`). Có filter `tlcp_maintenance`.
 - **Đã kiểm chứng (E2E Playwright, 2026-09-17):** bật qua UI → khách `HTTP 503` + `Retry-After: 3600` + tiêu đề “Bảo trì — <tên site>” + thông báo tự nhập (giữ `<strong>`) + **không** có CSS/JS theme, không có `.cp-header` ✓ · `/wp-json/` (khách) = **200** ✓ · admin = **200** + `.cp-header` bình thường ✓ · tắt → khách **200** ✓. Script: `docs/measure/maint-e2e.mjs`.
+
+### Mục lục nội dung (CP8 — v0.4.0, Tùng yêu cầu 2026-09-17)
+
+**Settings → Cao Phát → “Mục lục nội dung”**: nút **DỌC** cố định ở mép màn hình, bấm mở **drawer**
+danh sách heading của bài; bấm 1 mục thì cuộn tới heading đó, cuộn trang thì mục đang xem được tô nền.
+Layout tham khảo demo `tungleads.com/khoa-hoc/khoa-hoc-quang-cao-google-ads-thuc-chien`.
+
+- Tuỳ chọn: **bật/tắt** · **post type** áp dụng (mặc định `post` + `page`) · **số cấp heading** (chỉ H2 · H2+H3 · H2+H3+H4) · **số heading tối thiểu** (bài ngắn không hiện) · **nhãn nút** · **mép trái/phải** · **màu nút** (để nguyên = dùng `--cp-accent` của theme) · **hiện trên mobile ≤768px** · **tô nền mục đang xem (scroll-spy)** · **đánh số** `1 · 2 · 2.1` · **danh sách ID loại trừ**.
+- **Cách chạy:** filter `the_content` **prio 12** (sau `do_shortcode` prio 11 nên heading do shortcode sinh ra cũng được quét) → regex quét `<h2>/<h3>/<h4>`, **thêm `id`** cho heading còn thiếu (slug theo tiêu đề; `sanitize_title()` bỏ dấu tiếng Việt; trùng thì `-2`, `-3`) và lưu danh sách; **nút + drawer in ở `wp_footer` prio 5**. Đủ `min` heading mới lưu ⇒ không đủ thì **trả nội dung NGUYÊN BẢN** (không thêm id nào).
+- ⚠️ **Vì sao `wp_footer` prio 5 (không phải 20):** `wp_print_footer_scripts` của core gắn vào `wp_footer` prio **20** ⇒ nếu in markup ở prio 20 thì thẻ `<script>` của `assets/toc.js` ra **TRƯỚC** markup, JS chạy lúc chưa có nút ⇒ bấm không mở (`aria-expanded` đứng nguyên `false`). Đã dính và sửa 2026-09-17.
+- ⚠️ **Cuộn tới heading phải DÒ LẠI:** ảnh `loading="lazy"` phía trên tải xong làm trang CAO THÊM (đo ở `/bao-gia-cua-nhua-gia-re-tphcm/`: cuộn đúng 5493px nhưng `scrollHeight` 43469 → 46010 ⇒ heading bị đẩy xuống 1565px). JS bám đích tối đa ~3s, **tự huỷ ngay khi người dùng tự cuộn** (`wheel`/`touchstart`/`keydown`).
+- **Asset đi kèm plugin**: `assets/toc.css` + `assets/toc.js`, chỉ nạp khi trang thuộc post type đã bật (SP không bật ⇒ **không nạp cả CSS/JS**). Màu lấy token theme ⇒ vẫn khớp skin; `z-index` nút **45** (dưới header sticky 50, mega panel 60) và drawer **90**; khi drawer mở thì `body.tlcp-toc-open` ẩn widget nổi `button-call-zalo-tungleads` (cùng mép phải).
+- **A11y:** nút `aria-expanded` + `aria-controls`, drawer `inert` khi đóng (không tab được vào), mục đang xem `aria-current`, đóng bằng ✕ / `Esc` / bấm ra ngoài, tôn trọng `prefers-reduced-motion`, ẩn khi in.
+- **Kiểm chứng** (`docs/measure/toc-*.mjs` ở repo gốc): E2E mở/đóng + cuộn (heading dừng **14px** dưới header ở cả 1440 và 390) + scroll-spy; E2E Settings (đổi mép/màu/tắt đánh số → front-end ăn theo); SP không bật / ngưỡng `min` / `exclude` / `mobile=off` đều đúng; **tràn ngang 0**.
 
 ## Về sau (chưa làm)
 
