@@ -259,9 +259,26 @@ body.cp {
   .cp-nav li:has(:focus-visible) > .sub-menu--mega > li > .sub-menu { visibility: visible; }
   /* "Cầu" hover: panel mega neo vào `.cp-header` nên mép trên panel cách mép dưới link ~20px.
      Dải trong suốt này (chỉ tồn tại khi panel đang mở) lấp khoảng hở đó → rê chuột từ chữ
-     xuống panel không bị mất hover giữa đường. */
-  .cp-nav li.cp-mega:hover > .sub-menu::before {
-    content: ""; position: absolute; left: 0; right: 0; top: -28px; height: 28px;
+     xuống panel không bị mất hover giữa đường.
+     ⚠️ 2026-09-16 — ĐỔI CÁCH LÀM: trước đây là `::before` nằm TRONG panel (`top: -28px`), nhưng
+     panel nay có `overflow-y: auto` (chặn tràn viewport ở 769–1024px) nên pseudo đó bị CẮT ⇒ mất
+     cầu hover. Cách mới KHÔNG dùng pseudo: kéo mép trên panel lên 28px (`margin-top: -28px`) rồi
+     bù lại bằng padding-top + `background-clip: content-box` ⇒ dải 28px trên cùng TRONG SUỐT nhưng
+     vẫn thuộc panel, mà panel là CON của `<li>` ⇒ hover vào dải đó vẫn giữ `li:hover` ✓. */
+  .cp-nav li.cp-mega > .sub-menu {
+    /* max-height do JS đặt (`--cp-mega-max` = viewport − đáy header − 10px, xem nav-menu.js 0c);
+       giá trị dự phòng dưới đây dùng khi JS tắt. */
+    max-height: var(--cp-mega-max, calc(100vh - 120px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    /* `--cp-bridge` do JS đo (khoảng hở đáy link ↔ mép panel, đổi theo khổ: ~20px ở 1440 nhưng
+       ~45/70px ở 1024/769 vì header cao hơn) — giá trị dự phòng 28px khi JS tắt. */
+    margin-top: calc(-1 * var(--cp-bridge, 28px));
+    /* padding trên = cầu hover (trong suốt) + 18px ⇒ nội dung vẫn bắt đầu 18px dưới đáy header
+       như trước. Giữ 18px padding dưới ⇒ mép dưới panel không đổi (margin âm bù đúng phần tăng). */
+    padding: calc(var(--cp-bridge, 28px) + 18px) 20px 18px;
+    background-clip: content-box;
   }
   .cp-nav .sub-menu--mega .sub-menu a {
     padding: 4px 0; font-size: 14px; font-weight: 500; white-space: nowrap;

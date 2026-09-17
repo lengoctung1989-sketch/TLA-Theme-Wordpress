@@ -71,6 +71,43 @@
 			document.fonts.ready.then(markRowStarts);
 		}
 
+		/* 0c. CP1.4b — panel mega KHÔNG được cao hơn khung nhìn.
+		      Đo 2026-09-16: 769px → panel cao 1054px, đáy 1275px trong khi viewport 900px ⇒ các cột
+		      phía dưới KHÔNG tới được (1024px: đáy 888px — vừa khít; 1440px: 730px — thoải mái).
+		      Header là `sticky` và CAO THAY ĐỔI theo khổ (đo: 77 / 161 / 186px) nên không thể tính
+		      `max-height` bằng CSS thuần → JS đo đáy header rồi đặt biến `--cp-mega-max` cho nav;
+		      CSS dùng `max-height: var(--cp-mega-max)` + `overflow-y: auto` (có giá trị dự phòng
+		      `calc(100vh - 120px)` khi JS tắt). Tính lại khi resize (header đổi chiều cao). */
+		function setMegaMax() {
+			var panel = nav.querySelector('li.cp-mega > .sub-menu');
+			if (!panel) {
+				return;
+			}
+			var header = nav.closest('.cp-header') || nav;
+			var bottom = Math.round(header.getBoundingClientRect().bottom);
+			nav.style.setProperty('--cp-mega-max', Math.max(240, window.innerHeight - bottom - 10) + 'px');
+
+			/* Cầu hover (xem CSS `.cp-nav li.cp-mega > .sub-menu`): khoảng hở giữa ĐÁY link và MÉP panel
+			   thay đổi theo khổ (header cao 77/161/186px ⇒ hở ~22/126/115px) nên không thể cố định 28px.
+			   Đo bằng cách TẠM đặt `--cp-bridge: 0` để lấy mép panel khi CHƯA kéo lên (nếu đo lúc đang
+			   kéo thì panel đã dịch lên, số đo sai và mỗi lần resize lại co thêm).
+			   ⚠️ CHỈ bật cầu khi khoảng hở NHỎ (≤ 32px — header 1 hàng, tức ≥1025px): lúc đó dải trong
+			   suốt chỉ phủ vùng trống dưới nav. Khi header cao 2–3 hàng (≤1024px, hở 115–128px) dải sẽ
+			   phủ lên `.cp-search` / `.cp-hotline` / `.cp-cart-link` — đo 2026-09-16: cả 3 bị CHẶN BẤM
+			   khi panel mở ⇒ thà để hở (hover qua khoảng hở ở ≤1024 không giữ được panel — hành vi CÓ
+			   TRƯỚC, không phải do sửa này) còn hơn chặn nhầm các nút header. */
+			var link = nav.querySelector('li.cp-mega > a');
+			if (link) {
+				nav.style.setProperty('--cp-bridge', '0px');
+				var base = Math.round(panel.getBoundingClientRect().top);
+				var gap = Math.max(0, base - Math.round(link.getBoundingClientRect().bottom) + 2);
+				nav.style.setProperty('--cp-bridge', gap <= 32 ? gap + 'px' : '0px');
+			}
+		}
+
+		setMegaMax();
+		window.addEventListener('resize', setMegaMax);
+
 		/* 1. Gắn nút mở/đóng cho mọi mục có menu con (mọi cấp). */
 		Array.prototype.forEach.call(nav.querySelectorAll('li.menu-item-has-children'), function (li) {
 			var link = li.querySelector(':scope > a');
