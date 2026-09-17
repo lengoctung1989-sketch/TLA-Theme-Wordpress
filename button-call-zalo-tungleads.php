@@ -521,7 +521,7 @@ function tlcz_credit_line(): string {
  * - `buttons`: BỎ dòng chưa nhập số (dòng vừa bấm “Thêm nút” mà không điền), cắt tối đa
  *   TLCZ_MAX_ROWS, `array_values` để option luôn là list phẳng (không lỗ index sau khi xoá).
  * - Không còn dòng nào sau khi lọc = quay về 4 số mặc định — cùng quy ước với plugin
- *   `tl-site-caophat` (“xoá trắng rồi lưu = về mặc định”), tránh việc widget tự biến mất
+ *   `pl-tien-ich-tungleads` (“xoá trắng rồi lưu = về mặc định”), tránh việc widget tự biến mất
  *   mà người dùng không hiểu vì sao.
  *
  * @param mixed $input Dữ liệu POST từ form.
