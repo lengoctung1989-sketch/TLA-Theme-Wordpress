@@ -30,10 +30,10 @@ require_once __DIR__ . '/includes/toc.php';
  * tracking”): CHƯA lưu bao giờ ⇒ dùng 4 hằng số này (giữ nguyên hành vi cũ); đã lưu rồi thì option
  * là chuẩn — **ô để trống = KHÔNG in khối đó**, bỏ tick “Bật” = không in khối nào.
  *
- * ⚠️ MANG PLUGIN SANG WEBSITE KHÁC THÌ PHẢI ĐỔI 4 ID NÀY (nhập ở Settings, không cần sửa file) —
+ * Lưu ý: MANG PLUGIN SANG WEBSITE KHÁC THÌ PHẢI ĐỔI 4 ID NÀY (nhập ở Settings, không cần sửa file) —
  *    nếu để ID của dự án cũ thì dữ liệu site mới sẽ chảy vào tài khoản GA/Ads/Pixel của dự án đó.
- * ⚠️ Dán mã TRÙNG ở mục “Chèn mã tracking” bên dưới ⇒ BỊ ĐẾM ĐÔI (gỡ một trong hai chỗ).
- * ⚠️ **Khi deploy lên site đang dùng:** 4 khối này sao y bản cũ nằm ở **Flatsome → Advanced → Global
+ * Lưu ý: Dán mã TRÙNG ở mục “Chèn mã tracking” bên dưới ⇒ BỊ ĐẾM ĐÔI (gỡ một trong hai chỗ).
+ * Lưu ý: **Khi deploy lên site đang dùng:** 4 khối này sao y bản cũ nằm ở **Flatsome → Advanced → Global
  *    HTML** (hoặc chỗ khác) ⇒
  *    khi deploy phải GỠ 4 khối đó khỏi Flatsome CÙNG LÚC, không để cả hai chạy (đếm đôi).
  * Ghi chú: GTM thường đã chứa GA + Google Ads + Meta Pixel; nếu vậy thì để trống 3 ô kia, chỉ giữ GTM.
@@ -194,7 +194,7 @@ function tlcp_sanitize_tracking_ids( $value ): array {
  *   head   → ngay sau thẻ <head>      (hook `wp_head` prio 1 — sớm nhất có thể)
  *   body   → ngay sau thẻ mở <body>   (hook `wp_body_open` prio 1 — theme con + theme cha đều gọi)
  *   footer → cuối trang, trước </body> (hook `wp_footer` prio 99 — sau mọi script khác)
- * ⚠️ Dán mã TRÙNG với 4 khối tracking sẵn có ở trên (GTM/GA4/Google Ads/Meta Pixel) thì số liệu
+ * Lưu ý: Dán mã TRÙNG với 4 khối tracking sẵn có ở trên (GTM/GA4/Google Ads/Meta Pixel) thì số liệu
  *    sẽ BỊ ĐẾM ĐÔI ⇒ gỡ một trong hai chỗ (đúng cảnh báo ở đầu file).
  * ---------------------------------------------------------------------------
  */
@@ -515,7 +515,7 @@ add_action(
  *
  * Nay sửa ở **Customizer của theme đang dùng** (theme_mod `cp_branches`,
  * kéo thả từng dòng), theme đọc bằng `cp_support_branches()` trong child theme (`functions.php`).
- * Đọc option cũ ở đây KHÔNG còn hiệu lực. ⚠️ ĐỪNG thêm lại mục này vào plugin.
+ * Đọc option cũ ở đây KHÔNG còn hiệu lực. Lưu ý: ĐỪNG thêm lại mục này vào plugin.
  *
  * Dữ liệu cũ (nếu host đã nhập): chạy `docs/prod-migrate-branches.php` (repo gốc) để chuyển sang
  * theme_mod rồi xoá option — sau đó bỏ được CẦU NỐI tạm trong `cp_support_branches()` của theme.
@@ -643,7 +643,7 @@ function tlcp_support_page(): void {
 				<?php esc_html_e( 'Để trống hết + bỏ tick = website không gửi dữ liệu đi đâu cả.', 'tl-site-caophat' ); ?><br>
 				<?php esc_html_e( 'GTM thường đã chứa GA4 + Google Ads + Meta Pixel — nếu vậy chỉ giữ ô GTM, để trống 3 ô kia để khỏi bắn 2 lần.', 'tl-site-caophat' ); ?><br>
 				<span style="color:#b32d2e;">
-					<?php esc_html_e( '⚠️ Mang plugin sang website KHÁC thì ĐỔI 4 ID này — để nguyên ID của dự án cũ là dữ liệu site mới chảy vào tài khoản của dự án đó.', 'tl-site-caophat' ); ?>
+					<?php esc_html_e( 'Lưu ý: mang plugin sang website KHÁC thì ĐỔI 4 ID này — để nguyên ID của dự án cũ là dữ liệu site mới chảy vào tài khoản của dự án đó.', 'tl-site-caophat' ); ?>
 				</span>
 			</p>
 

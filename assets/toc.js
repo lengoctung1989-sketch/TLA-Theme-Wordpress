@@ -9,7 +9,7 @@
  * Hai phần dùng chung `offsetTop()` + `goTo()`. Bật/tắt từng phần ở **Settings → PL Tiện Ích**
  * (tắt phần nào thì markup phần đó không có ⇒ hàm tự bỏ qua, không lỗi).
  *
- * ⚠️ Cuộn phải **DÒ LẠI**: ảnh `loading="lazy"` tải xong làm trang CAO THÊM (đo 2026-09-17:
+ * Lưu ý: Cuộn phải **DÒ LẠI**: ảnh `loading="lazy"` tải xong làm trang CAO THÊM (đo 2026-09-17:
  * `scrollHeight` 43469 → 46010 ⇒ cuộn đúng 5493px vẫn hụt 1565px). `goTo()` bám đích tối đa ~3s và
  * **tự huỷ ngay khi người dùng tự cuộn** (`wheel` / `touchstart` / `keydown`).
  *
@@ -53,7 +53,7 @@
 	/**
 	 * Cuộn tới 1 phần tử rồi DÒ LẠI cho tới khi đúng đích.
 	 *
-	 * ⚠️ Quãng đường DÀI thì nhảy THẲNG (`auto`), không cuộn mượt: ảnh `loading="lazy"` phía trên
+	 * Lưu ý: Quãng đường DÀI thì nhảy THẲNG (`auto`), không cuộn mượt: ảnh `loading="lazy"` phía trên
 	 * nạp dần trong lúc cuộn mượt ⇒ trang cao thêm liên tục và đích “chạy xa mãi”. Đo 2026-09-17 ở
 	 * `/bao-gia-cua-nhua-gia-re-tphcm/`: đích 36.567px bị đẩy tới 78.599px, 12 lần dò trong 3s vẫn
 	 * không đuổi kịp; trong khi nhảy thẳng thì ảnh phía trên KHÔNG kịp vào khung nhìn ⇒ hầu như
