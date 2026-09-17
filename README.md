@@ -17,6 +17,7 @@ Ranh giới: theme = trình bày · plugin = *dữ liệu gì tồn tại* + *h�
 | ~~Hotline chi nhánh~~ | **ĐÃ CHUYỂN VỀ THEME (v0.5.0, Tùng chốt 2026-09-17)** — nay sửa ở **Customizer của theme đang dùng** (theme_mod `cp_branches`, kéo thả từng dòng). Xem ghi chú ở khối `CP1.9` trong `pl-tien-ich-tungleads.php` + README của child theme. |
 | Ghi công | `tlpi_credit_line()` in `Phiên bản <version> \| Bởi Tùng Lê Ads` ở **cuối trang Settings → PL Tiện Ích**; **và** ở **/wp-admin/plugins.php** dòng `Phiên bản <version> \| Bởi Tùng Lê Ads` có **“Tùng Lê Ads” là link** — do header `Author URI: https://tungleads.com/` (WP core tự bọc `<a>`). Version lấy động từ header plugin. |
 | Đặt hàng nhanh (CP3.3) | Handler AJAX `tlpi_quick_order` — nhận form từ popup ở trang chi tiết SP và tạo **đơn WooCommerce thật** (COD, trạng thái "Đang xử lý"). Chống spam: nonce + honeypot + 5 đơn/IP/10 phút. |
+| **Xác minh 2 lớp — 2FA (v1.2.0)** | Option `tlpi_2fa` + user meta `_tlpi_totp_secret` / `_tlpi_totp_codes` / `_tlpi_totp_want`. **TOTP (RFC 6238)** app xác thực: chặn đăng nhập sau khi đúng mật khẩu, màn nhập mã riêng (`wp-login.php?action=tlpi_totp`), tự ghi danh + 10 mã dự phòng in 1 lần, cookie “nhớ thiết bị” (HMAC buộc với mã bí mật), tối đa 5 lần nhập sai, đặt lại ở trang Hồ sơ. Mã bí mật lưu dạng **mã hoá sodium**. Cấu hình ở **Settings → PL Tiện Ích** (vai trò bắt buộc + số ngày nhớ thiết bị). |
 | **Đường dẫn đăng nhập (v1.1.0)** | Option `tlpi_login` — đổi trang đăng nhập sang đường dẫn riêng + ẩn `wp-admin`/`wp-login.php` với khách (404 hoặc chuyển về trang chủ), người đã đăng nhập vẫn dùng `wp-admin` bình thường. Cần permalink đẹp. Cấu hình ở **Settings → PL Tiện Ích**. |
 | **Mục lục nội dung (CP8)** | Option `tlpi_toc` — **nút dọc cố định + drawer** VÀ/HOẶC **khối mục lục trong nội dung bài** (`<details>`, đặt đầu bài hoặc sau đoạn mở đầu; mở/thu được cả khi tắt JS), chỉnh ở **Settings → PL Tiện Ích** (bật/tắt chung · post type · số cấp H2–H4 · ngưỡng heading tối thiểu · đánh số `1 · 2 · 2.1` · nhãn · mép trái/phải · màu · mobile ≤768 · scroll-spy · ID loại trừ). Quét heading ở `the_content` prio 12 (thêm `id` còn thiếu), in nút/drawer ở `wp_footer` prio 5. |
 
@@ -131,6 +132,30 @@ Trước đây mục này nằm ở **Settings → PL Tiện Ích** (option `tlp
 - ⚠️ Khi tính năng BẬT, các script đo trong `docs/measure/` phải đăng nhập qua đường dẫn mới
   (`/dang-nhap-quan-tri/`) chứ không phải `/wp-login.php`. Kiểm chứng ở `docs/measure/login-path-e2e.mjs`
   + `login-assets-check.mjs`.
+
+### Xác minh 2 lớp (2FA) bằng app xác thực — TOTP (v1.2.0)
+
+**Settings → PL Tiện Ích → mục “Xác minh 2 lớp (2FA)”**: bật/tắt, chọn **vai trò bắt buộc** (mặc định chỉ
+*Quản trị viên*) và số ngày **“nhớ thiết bị”** (mặc định 30, nhập 0 để hỏi mỗi lần).
+
+- Chuẩn **TOTP (RFC 6238)** như Google Authenticator / Authy / 1Password — **không phụ thuộc email**, không
+  gọi dịch vụ ngoài. Mã 6 số đổi mỗi 30 giây, chấp nhận cả mã của bước trước/sau (±30s) cho đồng hồ lệch.
+- **Luồng 2 bước**: nhập mật khẩu → màn `wp-login.php?action=tlpi_totp…` nhập mã 6 số (hoặc **mã dự phòng**)
+  → mới thật sự đăng nhập. Mật khẩu đúng nhưng chưa xác minh thì **không có phiên** nào được tạo.
+- **Tài khoản chưa có mã bí mật** ⇒ màn đó tự hiện mã bí mật (32 ký tự Base32) + link “Mở app xác thực”
+  (`otpauth://`, bấm được trên điện thoại) để ghi danh, rồi in **10 mã dự phòng MỘT LẦN** (đã hash, mỗi mã
+  dùng 1 lần — cứu khi mất điện thoại).
+- **Nhớ thiết bị**: sau khi xác minh, đặt cookie HMAC **buộc với tài khoản + mã bí mật** ⇒ **đặt lại 2FA là
+  mọi thiết bị cũ hết hiệu lực**. Nhập sai quá 5 lần ⇒ huỷ phiên xác minh (phải nhập lại mật khẩu).
+- **Trang Hồ sơ** (Users → Hồ sơ của bạn): xem trạng thái · **Tạo lại 10 mã dự phòng** · **Đặt lại 2FA**
+  (khi đổi/mất điện thoại) · ô **tự nguyện bật** cho tài khoản ngoài danh sách bắt buộc.
+- **CỨU HỘ**: `wp user meta delete <ID> _tlpi_totp_secret` — hoặc người có quyền `edit_user` bấm “Đặt lại 2FA”.
+- ⚠️ 2FA áp cho **luồng đăng nhập bằng form**; API dùng Application Password / XML-RPC **KHÔNG** bị chặn
+  (muốn siết thì tắt Application Passwords). Khi 2FA BẬT, mọi script đo tự động có đăng nhập
+  (`branches-e2e`, `toc-admin`, `rebrand-check`, `emoji-check`, `reviews-*`…) sẽ **không vào được** — dùng
+  `docs/measure/2fa-e2e.mjs` / `2fa-api-check.sh` hoặc tạm tắt 2FA.
+- Mã bí mật được **mã hoá (sodium secretbox)** bằng khoá dẫn xuất từ `AUTH_KEY` + `SECURE_AUTH_SALT` trước
+  khi lưu user meta.
 
 ## Về sau (chưa làm)
 

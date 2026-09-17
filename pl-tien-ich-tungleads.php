@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:  PL Tiện Ích - TungLeAds
- * Description:  Tiện ích dùng chung cho nhiều website WordPress: 4 khối tracking (GTM · GA4 · Google Ads · Meta Pixel) · chèn mã tracking 3 vị trí (head/body/footer) · chế độ bảo trì · mục lục nội dung · ĐỔI ĐƯỜNG DẪN ĐĂNG NHẬP (ẩn wp-admin) · thông số sản phẩm (WooCommerce) · đặt hàng nhanh (WooCommerce). Cấu hình ở Settings → PL Tiện Ích.
- * Version:      1.1.0
+ * Description:  Tiện ích dùng chung cho nhiều website WordPress: 4 khối tracking (GTM · GA4 · Google Ads · Meta Pixel) · chèn mã tracking 3 vị trí (head/body/footer) · chế độ bảo trì · mục lục nội dung · ĐỔI ĐƯỜNG DẪN ĐĂNG NHẬP (ẩn wp-admin) · XÁC MINH 2 LỚP (app xác thực TOTP) · thông số sản phẩm (WooCommerce) · đặt hàng nhanh (WooCommerce). Cấu hình ở Settings → PL Tiện Ích.
+ * Version:      1.2.0
  * Requires PHP: 8.2
  * Author:       Tùng Lê Ads
  * Author URI:   https://tungleads.com/
@@ -16,13 +16,16 @@ defined( 'ABSPATH' ) || exit;
 define( 'TLPI_FILE', __FILE__ );
 define( 'TLPI_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TLPI_URL', plugin_dir_url( __FILE__ ) );
-define( 'TLPI_VERSION', '1.1.0' );
+define( 'TLPI_VERSION', '1.2.0' );
 
 /** CP8 — Mục lục nội dung (nút dọc + drawer): cấu hình ở Settings → PL Tiện Ích. */
 require_once __DIR__ . '/includes/toc.php';
 
 /** v1.1.0 — Đổi đường dẫn đăng nhập (bảo mật): cấu hình ở Settings → PL Tiện Ích. */
 require_once __DIR__ . '/includes/login-path.php';
+
+/** v1.2.0 — Xác minh 2 lớp bằng app xác thực (TOTP): quản lý ở Hồ sơ + Settings → PL Tiện Ích. */
+require_once __DIR__ . '/includes/two-factor.php';
 /*
  * ---------------------------------------------------------------------------
  * TƯƠNG THÍCH NGƯỢC khi ĐỔI TIỀN TỐ (v1.0.0: `tlcp_` → `tlpi_`, tên plugin/thư mục mới).
@@ -575,6 +578,17 @@ add_action(
 add_action(
 	'admin_init',
 	static function (): void {
+		// Xác minh 2 lớp (v1.2.0) — bật/tắt + vai trò bắt buộc + số ngày nhớ thiết bị.
+		register_setting(
+			'tlpi_support',
+			TLPI_2FA_OPTION,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => 'tlpi_2fa_sanitize',
+				'default'           => array(),
+			)
+		);
+
 		// Đường dẫn đăng nhập (v1.1.0) — bật/tắt + slug + cách xử lý đường dẫn cũ.
 		register_setting(
 			'tlpi_support',
@@ -751,6 +765,8 @@ function tlpi_support_page(): void {
 			<?php tlpi_toc_settings_ui(); ?>
 
 			<?php tlpi_login_settings_ui(); ?>
+
+			<?php tlpi_2fa_settings_ui(); ?>
 
 			<?php submit_button(); ?>
 
