@@ -271,13 +271,10 @@ body.cp {
     overflow: hidden; text-overflow: ellipsis;
   }
   .cp-nav .sub-menu--mega .sub-menu a:hover { background: none; color: var(--cp-accent); }
-  /* CP1.4b — cột GOM các mục cấp 2 không có danh mục con (JS gom lại thành `.cp-mega__misc`).
-     Cột này không có tiêu đề nên chèn khoảng đệm cao đúng bằng tiêu đề cột (13px × 1.4 +
-     padding 8 + border 2 + margin 10) để các link thẳng hàng với cột bên cạnh. */
-  .cp-nav .sub-menu--mega > li.cp-mega__misc::before {
-    content: ""; display: block; height: 2.8em; font-size: 13px;
-    padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2px solid transparent;
-  }
+  /* CP1.4b — TRƯỚC ĐÂY có rule `.cp-mega__misc::before` (spacer cho cột GOM các mục cấp 2
+     không có danh mục con). JS đã bỏ việc gom cột (2026-09-16, yêu cầu Tùng) ⇒ cột gom không
+     còn tồn tại nên spacer cũng bỏ: mỗi mục cấp 2 giờ là 1 cột với tiêu đề in hoa + gạch vàng
+     như mọi cột khác, chiều cao tiêu đề đã được canh bằng `min-height` ở rule `> li > a`. */
 }
 
 .cp-header-cta { display: flex; align-items: center; gap: 14px; }
@@ -873,8 +870,8 @@ body.cp {
     pointer-events: auto;
   }
   .cp-nav li.is-open > .sub-menu { display: block; }
-  /* CP1.4b — cột gom trong panel mobile: không có nút mở riêng nên luôn hiện sẵn */
-  .cp-nav li.cp-mega__misc > .sub-menu { display: block; }
+  /* (2026-09-16) ĐÃ BỎ rule `.cp-nav li.cp-mega__misc > .sub-menu { display: block }`: JS không còn
+     gom các mục cấp 2 không có danh mục con vào cột `.cp-mega__misc` nữa (xem nav-menu.js CP1.4b). */
   .cp-nav .sub-menu a { padding-left: 36px; font-size: 14.5px; }
   .cp-nav .sub-menu .sub-menu a { padding-left: 52px; }
   .cp-nav__toggle {

@@ -38,21 +38,14 @@
 			li.classList.add('cp-mega');
 			sub.classList.add('sub-menu--mega');
 
-			/* CP1.4b — các mục cấp 2 KHÔNG có danh mục con (cấp 3) gom chung vào 1 cột,
-			   để chúng không mỗi cái chiếm 1 cột với danh sách rỗng. */
-			var misc = null;
-			Array.prototype.slice.call(sub.children).forEach(function (item) {
-				if (item.querySelector(':scope > .sub-menu')) { return; } // có cấp 3 → giữ 1 cột riêng
-				if (!misc) {
-					misc = document.createElement('li');
-					misc.className = 'cp-mega__misc';
-					var list = document.createElement('ul');
-					list.className = 'sub-menu';
-					misc.appendChild(list);
-					sub.appendChild(misc);
-				}
-				misc.firstChild.appendChild(item);
-			});
+			/* CP1.4b — TRƯỚC ĐÂY: các mục cấp 2 KHÔNG có danh mục con (cấp 3) bị GOM vào 1 cột
+			   `.cp-mega__misc` (bọc trong `<ul class="sub-menu">`) ⇒ chúng mang style CẤP 3
+			   (14px, chữ thường, không gạch vàng) nên nhìn như mục CON của cột cuối — sai cấp.
+			   Tùng phát hiện 2026-09-16 (VD: "Cửa gỗ công nghiệp", "Cửa Thép Vân Gỗ",
+			   "Sản Phẩm Khuyến Mãi" đang là danh mục CẤP 2 mà hiển thị như cấp 3) và chốt:
+			   mỗi mục cấp 2 = **1 CỘT riêng** như các mục có danh mục con, cột chỉ có tiêu đề.
+			   ⇒ ĐÃ XOÁ đoạn gom cột; mục cấp 2 không có con giờ là `<li>` bình thường trong
+			   `.sub-menu--mega` (không có `<ul class="sub-menu">` bên trong). */
 		});
 
 		/* 0b. CP1.4b — cột nào là cột ĐẦU TIÊN của một HÀNG mới (panel xuống dòng)?
