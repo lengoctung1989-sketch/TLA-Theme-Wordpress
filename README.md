@@ -17,6 +17,7 @@ Ranh giới: theme = trình bày · plugin = *dữ liệu gì tồn tại* + *h�
 | ~~Hotline chi nhánh~~ | **ĐÃ CHUYỂN VỀ THEME (v0.5.0, Tùng chốt 2026-09-17)** — nay sửa ở **Customizer của theme đang dùng** (theme_mod `cp_branches`, kéo thả từng dòng). Xem ghi chú ở khối `CP1.9` trong `pl-tien-ich-tungleads.php` + README của child theme. |
 | Ghi công | `tlpi_credit_line()` in `Phiên bản <version> \| Bởi Tùng Lê Ads` ở **cuối trang Settings → PL Tiện Ích**; **và** ở **/wp-admin/plugins.php** dòng `Phiên bản <version> \| Bởi Tùng Lê Ads` có **“Tùng Lê Ads” là link** — do header `Author URI: https://tungleads.com/` (WP core tự bọc `<a>`). Version lấy động từ header plugin. |
 | Đặt hàng nhanh (CP3.3) | Handler AJAX `tlpi_quick_order` — nhận form từ popup ở trang chi tiết SP và tạo **đơn WooCommerce thật** (COD, trạng thái "Đang xử lý"). Chống spam: nonce + honeypot + 5 đơn/IP/10 phút. |
+| **Đường dẫn đăng nhập (v1.1.0)** | Option `tlpi_login` — đổi trang đăng nhập sang đường dẫn riêng + ẩn `wp-admin`/`wp-login.php` với khách (404 hoặc chuyển về trang chủ), người đã đăng nhập vẫn dùng `wp-admin` bình thường. Cần permalink đẹp. Cấu hình ở **Settings → PL Tiện Ích**. |
 | **Mục lục nội dung (CP8)** | Option `tlpi_toc` — **nút dọc cố định + drawer** VÀ/HOẶC **khối mục lục trong nội dung bài** (`<details>`, đặt đầu bài hoặc sau đoạn mở đầu; mở/thu được cả khi tắt JS), chỉnh ở **Settings → PL Tiện Ích** (bật/tắt chung · post type · số cấp H2–H4 · ngưỡng heading tối thiểu · đánh số `1 · 2 · 2.1` · nhãn · mép trái/phải · màu · mobile ≤768 · scroll-spy · ID loại trừ). Quét heading ở `the_content` prio 12 (thêm `id` còn thiếu), in nút/drawer ở `wp_footer` prio 5. |
 
 ### Đặt hàng nhanh (CP3.3)
@@ -104,6 +105,32 @@ Trước đây mục này nằm ở **Settings → PL Tiện Ích** (option `tlp
 - **Asset đi kèm plugin**: `assets/toc.css` + `assets/toc.js`, chỉ nạp khi trang thuộc post type đã bật **và** còn ít nhất 1 cách hiển thị (tắt cả 2 ⇒ **không nạp gì**). `z-index` nút **45** (dưới header sticky 50, mega panel 60), drawer **90**; khi drawer mở thì `body.tlpi-toc-open` ẩn widget nổi `button-call-zalo-tungleads` (cùng mép phải).
 - **A11y:** nút `aria-expanded` + `aria-controls`, drawer `inert` khi đóng (không tab được vào), mục đang xem `aria-current`, đóng bằng ✕ / `Esc` / bấm ra ngoài, tôn trọng `prefers-reduced-motion`, ẩn khi in.
 - **Kiểm chứng** (`docs/measure/toc-*.mjs` ở repo gốc): khối trong bài **990×226 @top** (nằm trong `.cp-article__content`) / **990×616 @p1** (dưới đoạn mở đầu), thu gọn còn **60px**; bấm mục (cả khối lẫn drawer) → heading dừng **14px** dưới header ở 1440 và 390; 7 biến thể đúng (`float_off` · `inline_off` · `both_off` ⇒ **không nạp CSS/JS** · `collapse` · `p1` · `top` · `depth3`); E2E Settings (đổi mép/màu/tắt đánh số → front-end ăn theo); **tràn ngang 0**; smoke test 24/24.
+
+### Đường dẫn đăng nhập — ẩn wp-admin / wp-login.php (v1.1.0)
+
+**Settings → PL Tiện Ích → mục “Đường dẫn đăng nhập”**: đổi trang đăng nhập sang một đường dẫn riêng
+(`/dang-nhap-caophat/`) và trả **404** (hoặc chuyển về trang chủ) cho KHÁCH chưa đăng nhập khi họ vào
+`wp-admin/…` / `wp-login.php` — đây là 2 đường dẫn bị bot dò liên tục.
+
+- **Người ĐÃ đăng nhập vẫn dùng `/wp-admin/` bình thường** — `admin_url()` KHÔNG bị đổi nên dashboard,
+  AJAX trong admin, link menu… chạy y như trước. Chỉ khách bị chặn.
+- Đường dẫn mới phục vụ **chính `wp-login.php` của core** ⇒ mọi action hoạt động: đăng nhập · đăng xuất ·
+  **quên/đặt lại mật khẩu** · postpass · register…
+- Link do WP sinh ra tự trỏ đường dẫn mới: `wp_login_url()` · `wp_logout_url()` · `wp_lostpassword_url()` ·
+  `wp_registration_url()` (qua filter `site_url` / `network_site_url` / `wp_redirect`).
+- **KHÔNG chặn**: `admin-ajax.php` · `admin-post.php` · `load-styles.php` · `load-scripts.php` ·
+  `/wp-admin/css|js|images|fonts/…` (trang đăng nhập tải CSS/JS từ đó — chặn là trang login trắng bệch) ·
+  REST `/wp-json/` · cron · XML-RPC · wp-cli.
+- **Cần “Permalink đẹp”**: nếu Settings → Permalinks đang để “Mặc định” thì tính năng **tự TẮT**
+  (đường dẫn mới là URL đẹp, permalink mặc định sẽ bị Apache trả 404 trước khi tới WordPress). Trang Settings
+  hiện cảnh báo đỏ khi ở tình trạng này.
+- Vài tinh chỉnh kèm theo: URL bị chặn trả 404 **có `X-Robots-Tag: noindex`** + trang 404 tự chứa (không nạp
+  theme ⇒ bot không dò được gì), và **trang đăng nhập KHÔNG bị tính vào GA/Meta Pixel** (tracking tự bỏ qua).
+- **CỨU HỘ khi quên đường dẫn** (bắt buộc nhớ): `wp option delete tlpi_login` — hoặc `wp option update
+  tlpi_login '{"on":""}' --format=json`. Không có wp-cli thì xoá/đổi tên thư mục plugin qua FTP.
+- ⚠️ Khi tính năng BẬT, các script đo trong `docs/measure/` phải đăng nhập qua đường dẫn mới
+  (`/dang-nhap-quan-tri/`) chứ không phải `/wp-login.php`. Kiểm chứng ở `docs/measure/login-path-e2e.mjs`
+  + `login-assets-check.mjs`.
 
 ## Về sau (chưa làm)
 

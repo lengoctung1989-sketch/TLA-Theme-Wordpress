@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:  PL Tiện Ích - TungLeAds
- * Description:  Tiện ích dùng chung cho nhiều website WordPress: 4 khối tracking (GTM · GA4 · Google Ads · Meta Pixel) · chèn mã tracking 3 vị trí (head/body/footer) · chế độ bảo trì · mục lục nội dung · thông số sản phẩm (WooCommerce) · đặt hàng nhanh (WooCommerce). Cấu hình ở Settings → PL Tiện Ích.
- * Version:      1.0.0
+ * Description:  Tiện ích dùng chung cho nhiều website WordPress: 4 khối tracking (GTM · GA4 · Google Ads · Meta Pixel) · chèn mã tracking 3 vị trí (head/body/footer) · chế độ bảo trì · mục lục nội dung · ĐỔI ĐƯỜNG DẪN ĐĂNG NHẬP (ẩn wp-admin) · thông số sản phẩm (WooCommerce) · đặt hàng nhanh (WooCommerce). Cấu hình ở Settings → PL Tiện Ích.
+ * Version:      1.1.0
  * Requires PHP: 8.2
  * Author:       Tùng Lê Ads
  * Author URI:   https://tungleads.com/
@@ -16,10 +16,13 @@ defined( 'ABSPATH' ) || exit;
 define( 'TLPI_FILE', __FILE__ );
 define( 'TLPI_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TLPI_URL', plugin_dir_url( __FILE__ ) );
-define( 'TLPI_VERSION', '1.0.0' );
+define( 'TLPI_VERSION', '1.1.0' );
 
 /** CP8 — Mục lục nội dung (nút dọc + drawer): cấu hình ở Settings → PL Tiện Ích. */
 require_once __DIR__ . '/includes/toc.php';
+
+/** v1.1.0 — Đổi đường dẫn đăng nhập (bảo mật): cấu hình ở Settings → PL Tiện Ích. */
+require_once __DIR__ . '/includes/login-path.php';
 /*
  * ---------------------------------------------------------------------------
  * TƯƠNG THÍCH NGƯỢC khi ĐỔI TIỀN TỐ (v1.0.0: `tlcp_` → `tlpi_`, tên plugin/thư mục mới).
@@ -293,6 +296,9 @@ function tlpi_sanitize_tracking_code( $value ): array {
 function tlpi_print_tracking_code( string $position ): void {
 	if ( is_admin() ) {
 		return; // Không in trong wp-admin.
+	}
+	if ( defined( 'TLPI_IS_LOGIN' ) && TLPI_IS_LOGIN ) {
+		return; // v1.1.0 — không đưa trang ĐĂNG NHẬP vào số liệu GA/Pixel.
 	}
 
 	$code = tlpi_tracking_code();
@@ -569,6 +575,17 @@ add_action(
 add_action(
 	'admin_init',
 	static function (): void {
+		// Đường dẫn đăng nhập (v1.1.0) — bật/tắt + slug + cách xử lý đường dẫn cũ.
+		register_setting(
+			'tlpi_support',
+			TLPI_LOGIN_OPTION,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => 'tlpi_login_sanitize',
+				'default'           => array(),
+			)
+		);
+
 		// 4 ID tracking (v0.6.0) — nay SỬA ĐƯỢC ở Settings nên mang plugin sang site khác không phải sửa file.
 		register_setting(
 			'tlpi_support',
@@ -732,6 +749,8 @@ function tlpi_support_page(): void {
 			</p>
 
 			<?php tlpi_toc_settings_ui(); ?>
+
+			<?php tlpi_login_settings_ui(); ?>
 
 			<?php submit_button(); ?>
 
