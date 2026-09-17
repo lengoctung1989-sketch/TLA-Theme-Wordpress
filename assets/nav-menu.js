@@ -87,20 +87,19 @@
 			var bottom = Math.round(header.getBoundingClientRect().bottom);
 			nav.style.setProperty('--cp-mega-max', Math.max(240, window.innerHeight - bottom - 10) + 'px');
 
-			/* Cầu hover (xem CSS `.cp-nav li.cp-mega > .sub-menu`): khoảng hở giữa ĐÁY link và MÉP panel
-			   thay đổi theo khổ (header cao 77/161/186px ⇒ hở ~22/126/115px) nên không thể cố định 28px.
-			   Đo bằng cách TẠM đặt `--cp-bridge: 0` để lấy mép panel khi CHƯA kéo lên (nếu đo lúc đang
-			   kéo thì panel đã dịch lên, số đo sai và mỗi lần resize lại co thêm).
+			/* Cầu hover (xem CSS `.cp-nav li.cp-mega:hover::before`): khoảng hở giữa ĐÁY link cấp 1 và
+			   MÉP panel thay đổi theo khổ (header 1/2/3 hàng ⇒ hở ~30/126/115px) nên không thể cố định.
+			   Từ 2026-09-17 mép trên panel = ĐÁY HEADER (CSS `top: 100%`, KHÔNG còn kéo lên bằng
+			   `margin-top` âm) ⇒ đo thẳng từ đáy header, không cần tạm đặt `--cp-bridge: 0` như cách cũ
+			   (cách cũ phải làm vậy vì panel đã dịch lên ⇒ đo lúc đang kéo thì số sai, resize lại co thêm).
 			   ⚠️ CHỈ bật cầu khi khoảng hở NHỎ (≤ 32px — header 1 hàng, tức ≥1025px): lúc đó dải trong
-			   suốt chỉ phủ vùng trống dưới nav. Khi header cao 2–3 hàng (≤1024px, hở 115–128px) dải sẽ
+			   suốt chỉ phủ vùng trống dưới nav. Khi header cao 2–3 hàng (≤1024px, hở 115–126px) dải sẽ
 			   phủ lên `.cp-search` / `.cp-hotline` / `.cp-cart-link` — đo 2026-09-16: cả 3 bị CHẶN BẤM
-			   khi panel mở ⇒ thà để hở (hover qua khoảng hở ở ≤1024 không giữ được panel — hành vi CÓ
-			   TRƯỚC, không phải do sửa này) còn hơn chặn nhầm các nút header. */
+			   khi panel mở ⇒ để `0px` (hệ quả: ở 769–1024 rê chuột qua khoảng hở thì panel đóng — hành
+			   vi CÓ TRƯỚC, là việc đang chờ Tùng chốt hướng, xem `.ai/WORKLOG.md` §1 mục 3c). */
 			var link = nav.querySelector('li.cp-mega > a');
 			if (link) {
-				nav.style.setProperty('--cp-bridge', '0px');
-				var base = Math.round(panel.getBoundingClientRect().top);
-				var gap = Math.max(0, base - Math.round(link.getBoundingClientRect().bottom) + 2);
+				var gap = Math.max(0, bottom - Math.round(link.getBoundingClientRect().bottom) + 2);
 				nav.style.setProperty('--cp-bridge', gap <= 32 ? gap + 'px' : '0px');
 			}
 		}
