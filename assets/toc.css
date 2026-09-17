@@ -1,9 +1,9 @@
 /* ==========================================================================
-   CP8 — MỤC LỤC NỘI DUNG (plugin tl-site-caophat)
+   CP8 — MỤC LỤC NỘI DUNG (plugin PL Tiện Ích - TungLeAds)
    Nút DỌC cố định ở mép màn hình + drawer danh sách heading.
-   Tham số lấy từ Settings → Cao Phát (màu/mép/nhãn…): plugin in class quyết định mép
+   Tham số lấy từ Settings → PL Tiện Ích (màu/mép/nhãn…): plugin in class quyết định mép
    (`--left`/`--right`), trạng thái mobile (`--no-mobile`) và biến `--tlcp-toc-color`.
-   Màu mặc định = TOKEN CỦA THEME (`--cp-accent`) ⇒ tự khớp skin Cao Phát; theme khác vẫn có
+   Màu mặc định = TOKEN CỦA THEME (`--cp-accent`) ⇒ tự khớp skin theme; theme khác vẫn có
    fallback cứng nên không bị "trần".
    Đo demo tungleads.com (2026-09-17) để lấy tỉ lệ: nút 41×163 · drawer 340px · chữ dọc
    (`writing-mode: vertical-rl`) · mục H2 đậm / H3 nhạt · mục đang xem tô nền nhạt.

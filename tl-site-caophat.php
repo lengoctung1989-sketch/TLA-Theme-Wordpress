@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name:  TL Site — Cao Phát
- * Description:  Tầng dữ liệu / hành vi riêng của caophat.vn (tracking, sau này: CPT, taxonomy, form). Tách khỏi theme để đổi giao diện không mất data.
- * Version:      0.6.0
+ * Plugin Name:  PL Tiện Ích - TungLeAds
+ * Description:  Tiện ích dùng chung cho nhiều website WordPress: 4 khối tracking (GTM · GA4 · Google Ads · Meta Pixel) · chèn mã tracking 3 vị trí (head/body/footer) · chế độ bảo trì · mục lục nội dung · thông số sản phẩm (WooCommerce) · đặt hàng nhanh (WooCommerce). Cấu hình ở Settings → PL Tiện Ích.
+ * Version:      0.7.0
  * Requires PHP: 8.2
- * Author:       Tung Le Ads
+ * Author:       Tùng Lê Ads
  * Author URI:   https://tungleads.com/
  *
- * @package TL\Site\CaoPhat
+ * @package TL\Utilities
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -18,22 +18,23 @@ define( 'TL_CP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TL_CP_URL', plugin_dir_url( __FILE__ ) );
 define( 'TL_CP_VERSION', '0.6.0' );
 
-/** CP8 — Mục lục nội dung (nút dọc + drawer): cấu hình ở Settings → Cao Phát. */
+/** CP8 — Mục lục nội dung (nút dọc + drawer): cấu hình ở Settings → PL Tiện Ích. */
 require_once __DIR__ . '/includes/toc.php';
 
 /*
  * ---------------------------------------------------------------------------
- * TRACKING (4 khối mặc định) — v0.6.0: 4 ID nay SỬA ĐƯỢC ở Settings → Cao Phát.
+ * TRACKING (4 khối mặc định) — v0.6.0: 4 ID nay SỬA ĐƯỢC ở Settings → PL Tiện Ích.
  *
- * 4 hằng số dưới đây chỉ là GIÁ TRỊ MẶC ĐỊNH (ID của caophat.vn, chuyển từ Flatsome → Advanced →
- * Global HTML). Giá trị ĐANG DÙNG đọc từ option `tlcp_tracking_ids` (Settings → Cao Phát → “ID
+ * 4 hằng số dưới đây chỉ là GIÁ TRỊ MẶC ĐỊNH (ID đang chạy ở dự án hiện tại, chuyển từ Flatsome →
+ * Advanced → Global HTML). Giá trị ĐANG DÙNG đọc từ option `tlcp_tracking_ids` (Settings → PL Tiện Ích → “ID
  * tracking”): CHƯA lưu bao giờ ⇒ dùng 4 hằng số này (giữ nguyên hành vi cũ); đã lưu rồi thì option
  * là chuẩn — **ô để trống = KHÔNG in khối đó**, bỏ tick “Bật” = không in khối nào.
  *
  * ⚠️ MANG PLUGIN SANG WEBSITE KHÁC THÌ PHẢI ĐỔI 4 ID NÀY (nhập ở Settings, không cần sửa file) —
- *    nếu để ID của caophat.vn thì dữ liệu site mới sẽ chảy vào tài khoản GA/Ads/Pixel của caophat.vn.
+ *    nếu để ID của dự án cũ thì dữ liệu site mới sẽ chảy vào tài khoản GA/Ads/Pixel của dự án đó.
  * ⚠️ Dán mã TRÙNG ở mục “Chèn mã tracking” bên dưới ⇒ BỊ ĐẾM ĐÔI (gỡ một trong hai chỗ).
- * ⚠️ **DEPLOY caophat.vn:** 4 khối này sao y bản đang dùng ở **Flatsome → Advanced → Global HTML** ⇒
+ * ⚠️ **Khi deploy lên site đang dùng:** 4 khối này sao y bản cũ nằm ở **Flatsome → Advanced → Global
+ *    HTML** (hoặc chỗ khác) ⇒
  *    khi deploy phải GỠ 4 khối đó khỏi Flatsome CÙNG LÚC, không để cả hai chạy (đếm đôi).
  * Ghi chú: GTM thường đã chứa GA + Google Ads + Meta Pixel; nếu vậy thì để trống 3 ô kia, chỉ giữ GTM.
  * ID marketing là định danh công khai (đã lộ trong HTML trang), không phải secret.
@@ -121,7 +122,7 @@ add_action(
 const TL_CP_TRACKING_IDS_OPTION = 'tlcp_tracking_ids';
 
 /**
- * 4 ID tracking ĐANG DÙNG — nhập ở **Settings → Cao Phát → “ID tracking”**.
+ * 4 ID tracking ĐANG DÙNG — nhập ở **Settings → PL Tiện Ích → “ID tracking”**.
  *
  * `get_option(..., null)`: CHƯA lưu bao giờ (null) ⇒ dùng 4 hằng số mặc định (đúng bằng hành vi cũ,
  * nên nâng cấp plugin không đổi gì trên site đang chạy). ĐÃ lưu rồi thì option là CHUẨN: ô để trống
@@ -189,7 +190,7 @@ function tlcp_sanitize_tracking_ids( $value ): array {
 /*
  * ---------------------------------------------------------------------------
  * CHÈN MÃ TRACKING TÙY Ý — 3 VỊ TRÍ (Tùng yêu cầu 2026-09-16).
- * Sửa ở Settings → Cao Phát, dán NGUYÊN mã nhà cung cấp cấp (kèm cả thẻ <script> nếu có):
+ * Sửa ở Settings → PL Tiện Ích, dán NGUYÊN mã nhà cung cấp cấp (kèm cả thẻ <script> nếu có):
  *   head   → ngay sau thẻ <head>      (hook `wp_head` prio 1 — sớm nhất có thể)
  *   body   → ngay sau thẻ mở <body>   (hook `wp_body_open` prio 1 — theme con + theme cha đều gọi)
  *   footer → cuối trang, trước </body> (hook `wp_footer` prio 99 — sau mọi script khác)
@@ -280,7 +281,7 @@ add_action( 'wp_footer', static fn() => tlcp_print_tracking_code( 'footer' ), 99
 
 /*
  * ---------------------------------------------------------------------------
- * CHẾ ĐỘ BẢO TRÌ (Tùng yêu cầu 2026-09-17) — bật/tắt ở Settings → Cao Phát.
+ * CHẾ ĐỘ BẢO TRÌ (v0.3.0) — bật/tắt ở Settings → PL Tiện Ích.
  *   • Khách CHƯA đăng nhập → thấy trang thông báo (nội dung tự nhập).
  *   • Người có quyền `manage_options` (lọc được qua `tlcp_maintenance_capability`)
  *     vẫn xem web BÌNH THƯỜNG ⇒ bật bảo trì rồi vẫn sửa nội dung được.
@@ -508,11 +509,11 @@ add_action(
  * ---------------------------------------------------------------------------
  * CP1.9 (2026-09-17, Tùng chốt) — MỤC “HOTLINE CHI NHÁNH” ĐÃ CHUYỂN VỀ THEME.
  *
- * Trước đây phần này nằm ở đây: option `tlcp_support_branches` + textarea trong Settings → Cao Phát.
+ * Trước đây phần này nằm ở đây: option `tlcp_support_branches` + textarea trong Settings của plugin.
  * Lý do chuyển: đây là NỘI DUNG HIỂN THỊ, không phải business logic — mà hotline CHÍNH của site
  * (`cp_hotline_tel`) vốn đã ở Customizer của theme ⇒ gộp về 1 chỗ sửa mọi số điện thoại.
  *
- * Nay sửa ở: **Giao diện → Tuỳ biến → “Chi nhánh & Hotline Cao Phát”** (theme_mod `cp_branches`,
+ * Nay sửa ở **Customizer của theme đang dùng** (theme_mod `cp_branches`,
  * kéo thả từng dòng), theme đọc bằng `cp_support_branches()` trong child theme (`functions.php`).
  * Đọc option cũ ở đây KHÔNG còn hiệu lực. ⚠️ ĐỪNG thêm lại mục này vào plugin.
  *
@@ -522,13 +523,13 @@ add_action(
  */
 
 
-/** Menu admin: Settings → Cao Phát. */
+/** Menu admin: Settings → PL Tiện Ích. */
 add_action(
 	'admin_menu',
 	static function (): void {
 		add_options_page(
-			__( 'Cao Phát', 'tl-site-caophat' ),
-			__( 'Cao Phát', 'tl-site-caophat' ),
+			__( 'PL Tiện Ích - TungLeAds', 'tl-site-caophat' ),
+			__( 'PL Tiện Ích', 'tl-site-caophat' ),
 			'manage_options',
 			'tlcp-support',
 			'tlcp_support_page'
@@ -584,7 +585,7 @@ add_action(
 
 /**
  * Dòng ghi công dùng chung cho **các plugin của theme** (Tùng yêu cầu 2026-09-16):
- * `Phiên bản <x.y.z> | Bởi <a>Tung Le Ads</a>` — version lấy ĐỘNG từ header plugin nên không lệch
+ * `Phiên bản <x.y.z> | Bởi <a>Tùng Lê Ads</a>` — version lấy ĐỘNG từ header plugin nên không lệch
  * khi bump version. Hiện ở cuối trang Settings của mỗi plugin.
  */
 function tlcp_credit_line(): string {
@@ -598,7 +599,7 @@ function tlcp_credit_line(): string {
 	) . ' | ' . sprintf(
 		/* translators: %s: tên tác giả (có link website). */
 		esc_html__( 'Bởi %s', 'tl-site-caophat' ),
-		'<a href="https://tungleads.com/" target="_blank" rel="noopener">Tung Le Ads</a>'
+		'<a href="https://tungleads.com/" target="_blank" rel="noopener">Tùng Lê Ads</a>'
 	);
 }
 
@@ -609,15 +610,9 @@ function tlcp_support_page(): void {
 	}
 	?>
 	<div class="wrap">
-		<h1><?php echo esc_html__( 'Cao Phát', 'tl-site-caophat' ); ?></h1>
+		<h1><?php echo esc_html__( 'PL Tiện Ích - TungLeAds', 'tl-site-caophat' ); ?></h1>
 		<p class="description">
-			<?php
-			printf(
-				/* translators: %s: liên kết mở Customizer. */
-				esc_html__( 'Cần sửa SỐ HOTLINE (hotline chính + danh sách chi nhánh)? Số đó nằm ở %s của theme, không ở trang này.', 'tl-site-caophat' ),
-				'<a href="' . esc_url( admin_url( 'customize.php' ) ) . '">' . esc_html__( 'Giao diện → Tuỳ biến', 'tl-site-caophat' ) . '</a>'
-			);
-			?>
+			<?php esc_html_e( 'Tiện ích Plugin đa chức năng được phát triển bởi Tùng Lê Ads', 'tl-site-caophat' ); ?>
 		</p>
 		<form action="options.php" method="post">
 			<?php settings_fields( 'tlcp_support' ); ?>
@@ -648,7 +643,7 @@ function tlcp_support_page(): void {
 				<?php esc_html_e( 'Để trống hết + bỏ tick = website không gửi dữ liệu đi đâu cả.', 'tl-site-caophat' ); ?><br>
 				<?php esc_html_e( 'GTM thường đã chứa GA4 + Google Ads + Meta Pixel — nếu vậy chỉ giữ ô GTM, để trống 3 ô kia để khỏi bắn 2 lần.', 'tl-site-caophat' ); ?><br>
 				<span style="color:#b32d2e;">
-					<?php esc_html_e( '⚠️ Mang plugin sang website KHÁC thì ĐỔI 4 ID này — để nguyên ID caophat.vn là dữ liệu site mới chảy vào tài khoản của caophat.vn.', 'tl-site-caophat' ); ?>
+					<?php esc_html_e( '⚠️ Mang plugin sang website KHÁC thì ĐỔI 4 ID này — để nguyên ID của dự án cũ là dữ liệu site mới chảy vào tài khoản của dự án đó.', 'tl-site-caophat' ); ?>
 				</span>
 			</p>
 
@@ -845,7 +840,7 @@ function tlcp_quick_order_handle(): void {
 			'redirect' => $order->get_checkout_order_received_url(),
 			'message'  => sprintf(
 				/* translators: %s: mã đơn hàng */
-				__( 'Đã tạo đơn #%s. Cao Phát sẽ gọi xác nhận trong ít phút.', 'tl-site-caophat' ),
+				__( 'Đã tạo đơn #%s. Tùng Lê Ads sẽ gọi xác nhận trong ít phút.', 'tl-site-caophat' ),
 				$order->get_order_number()
 			),
 		)

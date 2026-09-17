@@ -16,9 +16,9 @@
  *
  * Vì sao để ở PLUGIN: đây là dữ liệu/hành vi (quét heading, sinh id, cấu hình) — theme chỉ là skin.
  * CSS/JS đi kèm plugin luôn (`assets/toc.css`, `assets/toc.js`) nhưng **màu lấy từ token của theme**
- * (`var(--cp-accent, …)`) nên tự khớp skin Cao Phát; Settings → Cao Phát cho phép đổi màu/kiểu.
+ * (`var(--cp-accent, …)`) nên tự khớp skin của theme; **Settings → PL Tiện Ích** cho phép đổi màu/kiểu.
  *
- * @package TL\Site\CaoPhat
+ * @package TL\Utilities
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -497,7 +497,7 @@ add_filter(
 
 /* ============================ GIAO DIỆN SETTINGS ============================ */
 
-/** Mục "Mục lục nội dung" trong Settings → Cao Phát (gọi từ `tlcp_support_page()`). */
+/** Mục "Mục lục nội dung" trong Settings → PL Tiện Ích (gọi từ `tlcp_support_page()`). */
 function tlcp_toc_settings_ui(): void {
 	$o     = tlcp_toc();
 	$types = tlcp_toc_post_types();

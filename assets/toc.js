@@ -1,12 +1,12 @@
 /**
- * CP8 — Mục lục nội dung (plugin tl-site-caophat). Hai phần chạy ĐỘC LẬP nhau:
+ * CP8 — Mục lục nội dung (plugin PL Tiện Ích - TungLeAds). Hai phần chạy ĐỘC LẬP nhau:
  *
  * A) KHỐI MỤC LỤC TRONG NỘI DUNG (`.tlcp-toc-inline`) — thẻ `<details>` do PHP in nên mở/thu được
  *    **không cần JS**; JS chỉ thêm cuộn mượt + bù chiều cao header sticky cho các link mục.
  * B) NÚT DỌC + DRAWER (`.tlcp-toc`) — mở/đóng drawer (`is-open` + `aria-expanded` + `inert`),
  *    cuộn tới heading, scroll-spy tô nền mục đang xem, đóng bằng ✕ / `Esc` / bấm ra ngoài.
  *
- * Hai phần dùng chung `offsetTop()` + `goTo()`. Bật/tắt từng phần ở **Settings → Cao Phát**
+ * Hai phần dùng chung `offsetTop()` + `goTo()`. Bật/tắt từng phần ở **Settings → PL Tiện Ích**
  * (tắt phần nào thì markup phần đó không có ⇒ hàm tự bỏ qua, không lỗi).
  *
  * ⚠️ Cuộn phải **DÒ LẠI**: ảnh `loading="lazy"` tải xong làm trang CAO THÊM (đo 2026-09-17:

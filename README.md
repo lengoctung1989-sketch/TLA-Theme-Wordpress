@@ -1,6 +1,8 @@
-# TL Site — Cao Phát (`tl-site-caophat`)
+# PL Tiện Ích - TungLeAds
 
-Plugin site-specific cho **caophat.vn**. Giữ **tầng dữ liệu / hành vi** riêng của site, tách khỏi theme (`tungleads-theme-cp`) để đổi giao diện không làm mất data.
+**Tiện ích dùng chung cho các website WordPress** — phát triển bởi **Tùng Lê Ads**. Nhiều tính năng, mỗi tính năng bật/tắt độc lập; cấu hình ở **Settings → PL Tiện Ích**.
+
+Vì ra đời trong một dự án cụ thể, **tiền tố nội bộ `tlcp_` và text-domain giữ nguyên** để không phá dữ liệu đã lưu ở các site đang chạy — còn tên plugin, menu và mọi ghi chú đã đổi sang hướng **dùng chung**.
 
 Ranh giới: theme = trình bày · plugin = *dữ liệu gì tồn tại* + *hành vi*.
 
@@ -8,12 +10,12 @@ Ranh giới: theme = trình bày · plugin = *dữ liệu gì tồn tại* + *h�
 
 | Phần | Việc |
 |---|---|
-| Tracking (`wp_head` prio 1 + `wp_body_open`) | **4 ID nay SỬA ĐƯỢC ở Settings → Cao Phát → “ID tracking”** (v0.6.0): GTM · GA4 · Google Ads · Meta Pixel + công tắc bật/tắt chung. Ô để trống = không in khối đó; bỏ tick = không in khối nào. Giá trị mặc định (chưa lưu gì) = 4 hằng số `TL_CP_GTM_ID`/`TL_CP_GA4_ID`/`TL_CP_GADS_ID`/`TL_CP_PIXEL_ID` = ID của caophat.vn (`GTM-KCVHR8P` · `G-L37N4Q06LP` · `AW-10871632223` · `5267684856622253`), sao y bản cũ ở Flatsome → Advanced → Global HTML. |
+| Tracking (`wp_head` prio 1 + `wp_body_open`) | **4 ID nay SỬA ĐƯỢC ở Settings → PL Tiện Ích → “ID tracking”** (v0.6.0): GTM · GA4 · Google Ads · Meta Pixel + công tắc bật/tắt chung. Ô để trống = không in khối đó; bỏ tick = không in khối nào. Giá trị mặc định (chưa lưu gì) = 4 hằng số `TL_CP_GTM_ID`/`TL_CP_GA4_ID`/`TL_CP_GADS_ID`/`TL_CP_PIXEL_ID` = 4 ID đang chạy ở dự án hiện tại (`GTM-KCVHR8P` · `G-L37N4Q06LP` · `AW-10871632223` · `5267684856622253`), sao y bản cũ ở Flatsome → Advanced → Global HTML. |
 | Thông số kỹ thuật SP | Tab riêng trong "Dữ liệu sản phẩm" (admin) — 8 trường lưu meta `_tlcp_spec_*` (`size`, `door_type`, `leaf`, `frame`, `features`, `origin`, `warranty`, `note`). Sửa danh sách: `tlcp_spec_fields()`. Frontend hiển thị ở trang chi tiết SP (child theme đọc meta). |
-| ~~Hotline chi nhánh~~ | **ĐÃ CHUYỂN VỀ THEME (v0.5.0, Tùng chốt 2026-09-17)** — nay sửa ở **Customizer → “Chi nhánh & Hotline Cao Phát”** (theme_mod `cp_branches`, kéo thả từng dòng). Xem ghi chú ở khối `CP1.9` trong `tl-site-caophat.php` + README của child theme. |
-| Ghi công | `tlcp_credit_line()` in `Phiên bản <version> \| Bởi Tung Le Ads` ở **cuối trang Settings → Cao Phát**; **và** ở **/wp-admin/plugins.php** dòng `Phiên bản 0.1.2 \| Bởi Tung Le Ads` có **“Tung Le Ads” là link** — do header `Author URI: https://tungleads.com/` (WP core tự bọc `<a>`). Version lấy động từ header plugin. |
+| ~~Hotline chi nhánh~~ | **ĐÃ CHUYỂN VỀ THEME (v0.5.0, Tùng chốt 2026-09-17)** — nay sửa ở **Customizer của theme đang dùng** (theme_mod `cp_branches`, kéo thả từng dòng). Xem ghi chú ở khối `CP1.9` trong `tl-site-caophat.php` + README của child theme. |
+| Ghi công | `tlcp_credit_line()` in `Phiên bản <version> \| Bởi Tùng Lê Ads` ở **cuối trang Settings → PL Tiện Ích**; **và** ở **/wp-admin/plugins.php** dòng `Phiên bản <version> \| Bởi Tùng Lê Ads` có **“Tùng Lê Ads” là link** — do header `Author URI: https://tungleads.com/` (WP core tự bọc `<a>`). Version lấy động từ header plugin. |
 | Đặt hàng nhanh (CP3.3) | Handler AJAX `cp_quick_order` — nhận form từ popup ở trang chi tiết SP và tạo **đơn WooCommerce thật** (COD, trạng thái "Đang xử lý"). Chống spam: nonce + honeypot + 5 đơn/IP/10 phút. |
-| **Mục lục nội dung (CP8)** | Option `tlcp_toc` — **nút dọc cố định + drawer** VÀ/HOẶC **khối mục lục trong nội dung bài** (`<details>`, đặt đầu bài hoặc sau đoạn mở đầu; mở/thu được cả khi tắt JS), chỉnh ở **Settings → Cao Phát** (bật/tắt chung · post type · số cấp H2–H4 · ngưỡng heading tối thiểu · đánh số `1 · 2 · 2.1` · nhãn · mép trái/phải · màu · mobile ≤768 · scroll-spy · ID loại trừ). Quét heading ở `the_content` prio 12 (thêm `id` còn thiếu), in nút/drawer ở `wp_footer` prio 5. |
+| **Mục lục nội dung (CP8)** | Option `tlcp_toc` — **nút dọc cố định + drawer** VÀ/HOẶC **khối mục lục trong nội dung bài** (`<details>`, đặt đầu bài hoặc sau đoạn mở đầu; mở/thu được cả khi tắt JS), chỉnh ở **Settings → PL Tiện Ích** (bật/tắt chung · post type · số cấp H2–H4 · ngưỡng heading tối thiểu · đánh số `1 · 2 · 2.1` · nhãn · mép trái/phải · màu · mobile ≤768 · scroll-spy · ID loại trừ). Quét heading ở `the_content` prio 12 (thêm `id` còn thiếu), in nút/drawer ở `wp_footer` prio 5. |
 
 ### Đặt hàng nhanh (CP3.3)
 
@@ -25,16 +27,16 @@ Ranh giới: theme = trình bày · plugin = *dữ liệu gì tồn tại* + *h�
 
 ### Hotline chi nhánh — ĐÃ CHUYỂN VỀ THEME (v0.5.0)
 
-Trước đây mục này nằm ở **Settings → Cao Phát** (option `tlcp_support_branches`). Từ **v0.5.0** plugin **gỡ hẳn** (option, textarea, `tlcp_support_branches_default()/()/ _text()`, `register_setting`).
+Trước đây mục này nằm ở **Settings → PL Tiện Ích** (option `tlcp_support_branches`). Từ **v0.5.0** plugin **gỡ hẳn** (option, textarea, `tlcp_support_branches_default()/()/ _text()`, `register_setting`).
 
-- Nay sửa ở **Giao diện → Tuỳ biến → “Chi nhánh & Hotline Cao Phát”** (theme_mod `cp_branches`, repeater kéo thả) — dùng **`cp_support_branches()`** trong child theme `tungleads-theme-cp`.
+- Nay sửa ở **Giao diện → Tuỳ biến → “Chi nhánh & Hotline Cao Phát”** (theme_mod `cp_branches`, repeater kéo thả) — dùng **`cp_support_branches()`** trong theme đang dùng.
 - Lý do (Tùng chốt 2026-09-17): đây là **nội dung hiển thị**, không phải business logic — mà hotline CHÍNH `cp_hotline_tel` vốn đã ở Customizer ⇒ **1 chỗ sửa mọi số điện thoại**.
 - Trang Settings của plugin giờ có **3 mục**: Chèn mã tracking · Chế độ bảo trì · Mục lục nội dung (+ dòng link sang Customizer cho phần hotline).
 - **Dữ liệu cũ trên production:** chạy `wp eval-file docs/prod-migrate-branches.php` (dry-run) rồi `… go` để ghi sang theme_mod + xoá option. Theme có **cầu nối** đọc thẳng option cũ nếu theme_mod còn rỗng ⇒ deploy lệch thứ tự không mất số.
 
 ### ID tracking — nhập ở Settings, không sửa file (v0.6.0, Tùng hỏi 2026-09-17)
 
-**Settings → Cao Phát → mục đầu “ID tracking”**: công tắc **“In 4 khối tracking ở trên”** + 4 ô:
+**Settings → PL Tiện Ích → mục đầu “ID tracking”**: công tắc **“In 4 khối tracking ở trên”** + 4 ô:
 **Google Tag Manager** (`GTM-…`) · **GA4** (`G-…`) · **Google Ads** (`AW-…`) · **Meta Pixel** (số).
 
 - Option `tlcp_tracking_ids`; **chưa lưu bao giờ ⇒ dùng 4 hằng số mặc định** trong `tl-site-caophat.php`
@@ -44,9 +46,8 @@ Trước đây mục này nằm ở **Settings → Cao Phát** (option `tlcp_sup
 - Nhập gì cũng được: sanitize tự bỏ dấu cách/ngoặc, chỉ giữ `A–Z 0–9 - _` và viết hoa.
 - Filter `tlcp_tracking_ids` để ghi đè bằng code nếu cần.
 - **Vì sao cần:** mang plugin sang website khác chỉ cần **đổi 4 ID trong admin** (trước đây phải sửa code).
-  Để nguyên ID caophat.vn trên site khác = dữ liệu site đó chảy vào tài khoản GA/Ads/Pixel của caophat.vn.
-- ⚠️ **Deploy caophat.vn:** 4 khối này **sao y bản đang chạy ở Flatsome → Advanced → Global HTML** ⇒ khi
-  deploy phải **GỠ 4 khối đó khỏi Flatsome cùng lúc**, không để cả hai chạy (đếm đôi).
+  Để nguyên ID của dự án cũ trên site khác = dữ liệu site đó chảy vào tài khoản GA/Ads/Pixel của dự án đó.
+- ⚠️ **Khi deploy lên site đang dùng:** nếu 4 khối tracking đang nằm ở chỗ khác (ví dụ **Flatsome → Advanced → Global HTML**) thì phải **GỠ Ở CHỖ CŨ CÙNG LÚC**, không để cả hai chạy (đếm đôi).
 
 ### Kích hoạt tracking — đúng trình tự
 
@@ -57,7 +58,7 @@ Trước đây mục này nằm ở **Settings → Cao Phát** (option `tlcp_sup
 
 ### Chèn mã tracking vào 3 vị trí (v0.2.0 — Tùng yêu cầu 2026-09-16)
 
-**Settings → Cao Phát → mục “Chèn mã tracking”**: 3 ô dán mã — dán **NGUYÊN** mã nhà cung cấp cấp (kèm cả thẻ `<script>` nếu có).
+**Settings → PL Tiện Ích → mục “Chèn mã tracking”**: 3 ô dán mã — dán **NGUYÊN** mã nhà cung cấp cấp (kèm cả thẻ `<script>` nếu có).
 
 | Ô nhập | In ra ở đâu | Hook (độ ưu tiên) | Thường dùng cho |
 |---|---|---|---|
@@ -73,7 +74,7 @@ Trước đây mục này nằm ở **Settings → Cao Phát** (option `tlcp_sup
 
 ### Chế độ bảo trì (v0.3.0 — Tùng yêu cầu 2026-09-17)
 
-**Settings → Cao Phát → mục “Chế độ bảo trì”**: 1 **checkbox bật/tắt** + 1 **ô nội dung thông báo**.
+**Settings → PL Tiện Ích → mục “Chế độ bảo trì”**: 1 **checkbox bật/tắt** + 1 **ô nội dung thông báo**.
 
 - Khách **CHƯA đăng nhập** thấy trang bảo trì: **HTTP 503 + `Retry-After: 3600`** (đúng chuẩn bảo trì *tạm thời* — Google **giữ** trang trong index, không đánh rớt) · `<meta name="robots" content="noindex, nofollow">` · `nocache_headers()` + `DONOTCACHEPAGE` (LiteSpeed không cache trang bảo trì).
 - Người có quyền **`manage_options`** (đổi được qua filter `tlcp_maintenance_capability`) **vẫn xem web BÌNH THƯỜNG** ⇒ bật bảo trì rồi vẫn sửa nội dung / cài plugin.
@@ -84,7 +85,7 @@ Trước đây mục này nằm ở **Settings → Cao Phát** (option `tlcp_sup
 
 ### Mục lục nội dung (CP8 — v0.4.0 thêm khối trong bài ở v0.4.1, Tùng yêu cầu 2026-09-17)
 
-**Settings → Cao Phát → “Mục lục nội dung”** — 2 cách hiển thị, **bật/tắt độc lập** (bật cả 2 cũng được):
+**Settings → PL Tiện Ích → “Mục lục nội dung”** — 2 cách hiển thị, **bật/tắt độc lập** (bật cả 2 cũng được):
 
 1. **Nút DỌC cố định ở mép màn hình** → bấm mở **drawer** danh sách heading (layout theo demo
    `tungleads.com/khoa-hoc/khoa-hoc-quang-cao-google-ads-thuc-chien`).
@@ -120,16 +121,16 @@ CPT / taxonomy / form báo giá / webhook → thêm vào `tl-site-caophat.php` �
 | **4 ID tracking** | ✅ từ **v0.6.0** sửa được ở Settings ⇒ sang site khác chỉ cần nhập 4 ID mới, không sửa code |
 
 **Checklist khi mang đi:**
-1. **Settings → Cao Phát → “ID tracking”**: nhập 4 ID của site mới (hoặc bỏ tick công tắc nếu không dùng tracking).
+1. **Settings → PL Tiện Ích → “ID tracking”**: nhập 4 ID của site mới (hoặc bỏ tick công tắc nếu không dùng tracking).
 2. Cài **WooCommerce** nếu muốn “Thông số kỹ thuật” + “Đặt hàng nhanh”; plugin chạy tốt cả khi không có WC.
 3. 8 trường “Thông số kỹ thuật” là chuyên ngành **cửa** — sửa `tlcp_spec_fields()` nếu dùng cho ngành khác.
-4. Mục lục bù header sticky dựa vào class `.cp-header` của theme Cao Phát ⇒ theme khác thì offset = **0** (vẫn dùng được, chỉ là mục tiêu nằm sát mép trên).
-5. Plugin **không phụ thuộc theme/site nào** (không gọi hàm của theme) ⇒ gỡ theme Cao Phát vẫn chạy.
+4. Mục lục bù header sticky dựa vào class `.cp-header` của theme Cao Phát (theme này dùng) ⇒ theme khác thì offset = **0** (vẫn dùng được, chỉ là mục tiêu nằm sát mép trên).
+5. Plugin **không phụ thuộc theme/site nào** (không gọi hàm của theme) ⇒ gỡ theme đang dùng vẫn chạy.
 
 ## Deploy
 
-Plugin này nằm trong `wordpress/` (gitignore của repo gốc) → cần **git repo riêng** như 2 theme, hoặc đưa vào script deploy. Xem `deploy-caophat.sh` ở gốc repo.
+Plugin có **git repo riêng** (như 2 theme); mỗi dự án đưa lên production bằng script deploy của dự án đó.
 
-**Chỉ đẩy production (`deploy-caophat.sh --go`) khi Tùng yêu cầu rõ ràng.** Không tự ý chạy.
+**Chỉ đẩy production khi Tùng yêu cầu rõ ràng.** Không tự ý chạy.
 
 - Requires PHP 8.2 (giống theme). Nâng MultiPHP production **trước** khi activate.
