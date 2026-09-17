@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  TL Site — Cao Phát
  * Description:  Tầng dữ liệu / hành vi riêng của caophat.vn (tracking, sau này: CPT, taxonomy, form). Tách khỏi theme để đổi giao diện không mất data.
- * Version:      0.1.2
+ * Version:      0.2.0
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
  * Author URI:   https://tungleads.com/
@@ -64,6 +64,99 @@ add_action(
 		<?php
 	}
 );
+
+/*
+ * ---------------------------------------------------------------------------
+ * CHÈN MÃ TRACKING TÙY Ý — 3 VỊ TRÍ (Tùng yêu cầu 2026-09-16).
+ * Sửa ở Settings → Cao Phát, dán NGUYÊN mã nhà cung cấp cấp (kèm cả thẻ <script> nếu có):
+ *   head   → ngay sau thẻ <head>      (hook `wp_head` prio 1 — sớm nhất có thể)
+ *   body   → ngay sau thẻ mở <body>   (hook `wp_body_open` prio 1 — theme con + theme cha đều gọi)
+ *   footer → cuối trang, trước </body> (hook `wp_footer` prio 99 — sau mọi script khác)
+ * ⚠️ Dán mã TRÙNG với 4 khối tracking sẵn có ở trên (GTM/GA4/Google Ads/Meta Pixel) thì số liệu
+ *    sẽ BỊ ĐẾM ĐÔI ⇒ gỡ một trong hai chỗ (đúng cảnh báo ở đầu file).
+ * ---------------------------------------------------------------------------
+ */
+const TL_CP_TRACKING_OPTION = 'tlcp_tracking_code';
+
+/**
+ * Mã tracking đang lưu, luôn đủ 3 khoá `head` / `body` / `footer` (chuỗi, đã trim).
+ *
+ * @return array{head:string,body:string,footer:string}
+ */
+function tlcp_tracking_code(): array {
+	$saved = get_option( TL_CP_TRACKING_OPTION, array() );
+	$out   = array(
+		'head'   => '',
+		'body'   => '',
+		'footer' => '',
+	);
+
+	if ( is_array( $saved ) ) {
+		foreach ( $out as $key => $unused ) {
+			if ( isset( $saved[ $key ] ) && is_string( $saved[ $key ] ) ) {
+				$out[ $key ] = trim( $saved[ $key ] );
+			}
+		}
+	}
+
+	return (array) apply_filters( 'tlcp_tracking_code', $out );
+}
+
+/**
+ * Sanitize mã tracking khi lưu.
+ *
+ * Mã tracking LÀ code nên KHÔNG được lọc theo kiểu văn bản (lọc là hỏng mã), nhưng chỉ giữ nguyên
+ * văn khi người lưu có quyền `unfiltered_html`. Thiếu quyền đó (VD quản trị viên trên multisite)
+ * thì cho qua `wp_kses_post` ⇒ thẻ `<script>` bị bỏ, an toàn hơn là cho chèn JS tuỳ ý.
+ *
+ * @param mixed $value Giá trị từ form.
+ * @return array{head:string,body:string,footer:string}
+ */
+function tlcp_sanitize_tracking_code( $value ): array {
+	$out     = array(
+		'head'   => '',
+		'body'   => '',
+		'footer' => '',
+	);
+	$can_raw = current_user_can( 'unfiltered_html' );
+
+	if ( ! is_array( $value ) ) {
+		return $out;
+	}
+
+	foreach ( $out as $key => $unused ) {
+		$raw = isset( $value[ $key ] ) && is_string( $value[ $key ] ) ? trim( $value[ $key ] ) : '';
+		if ( '' === $raw ) {
+			continue;
+		}
+		$out[ $key ] = $can_raw ? $raw : wp_kses_post( $raw );
+	}
+
+	return $out;
+}
+
+/**
+ * In mã của 1 vị trí (không in gì khi ô trống).
+ *
+ * @param string $position `head` | `body` | `footer`.
+ */
+function tlcp_print_tracking_code( string $position ): void {
+	if ( is_admin() ) {
+		return; // Không in trong wp-admin.
+	}
+
+	$code = tlcp_tracking_code();
+	if ( ! isset( $code[ $position ] ) || '' === $code[ $position ] ) {
+		return;
+	}
+
+	echo "\n" . $code[ $position ] . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- mã do QUẢN TRỊ dán, in nguyên văn mới chạy được.
+}
+
+add_action( 'wp_head', static fn() => tlcp_print_tracking_code( 'head' ), 1 );
+add_action( 'wp_body_open', static fn() => tlcp_print_tracking_code( 'body' ), 1 );
+add_action( 'wp_footer', static fn() => tlcp_print_tracking_code( 'footer' ), 99 );
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -248,6 +341,21 @@ add_action(
 				'default'           => '',
 			)
 		);
+
+		// Chèn mã tracking 3 vị trí (mục "Chèn mã tracking" ở trên) — mảng 3 khoá, sanitize riêng.
+		register_setting(
+			'tlcp_support',
+			TL_CP_TRACKING_OPTION,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => 'tlcp_sanitize_tracking_code',
+				'default'           => array(
+					'head'   => '',
+					'body'   => '',
+					'footer' => '',
+				),
+			)
+		);
 	}
 );
 
@@ -288,6 +396,44 @@ function tlcp_support_page(): void {
 				<?php esc_html_e( 'Ví dụ: CN Quận 7 | 0834.484.484', 'tl-site-caophat' ); ?><br>
 				<?php esc_html_e( 'Thứ tự dòng = thứ tự hiển thị. Xoá trắng rồi lưu = quay về danh sách mặc định.', 'tl-site-caophat' ); ?>
 			</p>
+
+			<hr style="margin:28px 0 0;">
+			<h2><?php esc_html_e( 'Chèn mã tracking', 'tl-site-caophat' ); ?></h2>
+			<p>
+				<?php esc_html_e( 'Dán NGUYÊN mã nhà cung cấp cấp (kèm cả thẻ script nếu có) — Google Tag Manager, GA4, Meta Pixel, mã xác minh site, chat widget… Ô trống = không chèn gì.', 'tl-site-caophat' ); ?>
+			</p>
+			<?php
+			$tlcp_code = tlcp_tracking_code();
+			$tlcp_pos  = array(
+				'head'   => array(
+					__( 'Sau thẻ <head>', 'tl-site-caophat' ),
+					__( 'Chạy sớm nhất trong <head> — dùng cho GTM, GA4, Google Ads, mã xác minh site.', 'tl-site-caophat' ),
+				),
+				'body'   => array(
+					__( 'Sau thẻ mở <body>', 'tl-site-caophat' ),
+					__( 'Ngay sau thẻ mở body — thường là thẻ noscript của GTM / Meta Pixel.', 'tl-site-caophat' ),
+				),
+				'footer' => array(
+					__( 'Cuối trang (footer)', 'tl-site-caophat' ),
+					__( 'Trước </body>, sau mọi script khác — dùng cho chat widget hoặc script tải chậm.', 'tl-site-caophat' ),
+				),
+			);
+			foreach ( $tlcp_pos as $tlcp_key => $tlcp_meta ) :
+				?>
+				<h3 style="margin:20px 0 4px;"><?php echo esc_html( $tlcp_meta[0] ); ?></h3>
+				<textarea
+					name="<?php echo esc_attr( TL_CP_TRACKING_OPTION . '[' . $tlcp_key . ']' ); ?>"
+					rows="5"
+					class="large-text code"
+					spellcheck="false"
+					placeholder="<!-- dán mã vào đây -->"
+				><?php echo esc_textarea( $tlcp_code[ $tlcp_key ] ); ?></textarea>
+				<p class="description"><?php echo esc_html( $tlcp_meta[1] ); ?></p>
+			<?php endforeach; ?>
+			<p class="description" style="color:#b32d2e;">
+				<?php esc_html_e( 'Lưu ý: plugin này đang in sẵn 4 khối tracking ở đầu file (GTM / GA4 / Google Ads / Meta Pixel). Nếu dán mã TRÙNG ở đây thì số liệu sẽ BỊ ĐẾM ĐÔI — gỡ một trong hai chỗ.', 'tl-site-caophat' ); ?>
+			</p>
+
 			<?php submit_button(); ?>
 
 			<p class="tlcp-credit" style="margin-top:16px;color:#646970;font-style:italic;">
