@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  TL Site — Cao Phát
  * Description:  Tầng dữ liệu / hành vi riêng của caophat.vn (tracking, sau này: CPT, taxonomy, form). Tách khỏi theme để đổi giao diện không mất data.
- * Version:      0.5.0
+ * Version:      0.6.0
  * Requires PHP: 8.2
  * Author:       Tung Le Ads
  * Author URI:   https://tungleads.com/
@@ -16,19 +16,27 @@ defined( 'ABSPATH' ) || exit;
 define( 'TL_CP_FILE', __FILE__ );
 define( 'TL_CP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TL_CP_URL', plugin_dir_url( __FILE__ ) );
-define( 'TL_CP_VERSION', '0.5.0' );
+define( 'TL_CP_VERSION', '0.6.0' );
 
 /** CP8 — Mục lục nội dung (nút dọc + drawer): cấu hình ở Settings → Cao Phát. */
 require_once __DIR__ . '/includes/toc.php';
 
 /*
  * ---------------------------------------------------------------------------
- * Tracking — chuyển từ Flatsome → Advanced → Global HTML sang đây.
+ * TRACKING (4 khối mặc định) — v0.6.0: 4 ID nay SỬA ĐƯỢC ở Settings → Cao Phát.
+ *
+ * 4 hằng số dưới đây chỉ là GIÁ TRỊ MẶC ĐỊNH (ID của caophat.vn, chuyển từ Flatsome → Advanced →
+ * Global HTML). Giá trị ĐANG DÙNG đọc từ option `tlcp_tracking_ids` (Settings → Cao Phát → “ID
+ * tracking”): CHƯA lưu bao giờ ⇒ dùng 4 hằng số này (giữ nguyên hành vi cũ); đã lưu rồi thì option
+ * là chuẩn — **ô để trống = KHÔNG in khối đó**, bỏ tick “Bật” = không in khối nào.
+ *
+ * ⚠️ MANG PLUGIN SANG WEBSITE KHÁC THÌ PHẢI ĐỔI 4 ID NÀY (nhập ở Settings, không cần sửa file) —
+ *    nếu để ID của caophat.vn thì dữ liệu site mới sẽ chảy vào tài khoản GA/Ads/Pixel của caophat.vn.
+ * ⚠️ Dán mã TRÙNG ở mục “Chèn mã tracking” bên dưới ⇒ BỊ ĐẾM ĐÔI (gỡ một trong hai chỗ).
+ * ⚠️ **DEPLOY caophat.vn:** 4 khối này sao y bản đang dùng ở **Flatsome → Advanced → Global HTML** ⇒
+ *    khi deploy phải GỠ 4 khối đó khỏi Flatsome CÙNG LÚC, không để cả hai chạy (đếm đôi).
+ * Ghi chú: GTM thường đã chứa GA + Google Ads + Meta Pixel; nếu vậy thì để trống 3 ô kia, chỉ giữ GTM.
  * ID marketing là định danh công khai (đã lộ trong HTML trang), không phải secret.
- * XÁC MINH lại 4 ID dưới trước khi bật, rồi GỠ đoạn tương ứng khỏi Flatsome
- * Global HTML CÙNG LÚC — không để cả hai cùng chạy (double-count).
- * Ghi chú: GTM (KCVHR8P) thường đã chứa GA + Google Ads + Meta Pixel. Nếu đúng vậy
- * thì bỏ 3 khối gtag/pixel bên dưới, chỉ giữ GTM. Giữ nguyên 4 khối = sao y production.
  * ---------------------------------------------------------------------------
  */
 const TL_CP_GTM_ID   = 'GTM-KCVHR8P';
@@ -36,43 +44,147 @@ const TL_CP_GA4_ID    = 'G-L37N4Q06LP';
 const TL_CP_GADS_ID   = 'AW-10871632223';
 const TL_CP_PIXEL_ID  = '5267684856622253';
 
-/** Scripts trong <head>. */
+/** Scripts trong <head> — mỗi khối chỉ in khi ID của nó KHÔNG trống (v0.6.0: ID nhập ở Settings). */
 add_action(
 	'wp_head',
 	static function (): void {
-		?>
+		$tlcp_ids = tlcp_tracking_ids();
+		if ( empty( $tlcp_ids['on'] ) ) {
+			return;
+		}
+
+		if ( '' !== $tlcp_ids['gtm'] ) {
+			?>
 <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','<?php echo esc_js( TL_CP_GTM_ID ); ?>');</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','<?php echo esc_js( $tlcp_ids['gtm'] ); ?>');</script>
+			<?php
+		}
+
+		if ( '' !== $tlcp_ids['ga4'] || '' !== $tlcp_ids['gads'] ) {
+			?>
 <!-- gtag (GA4 + Google Ads) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( TL_CP_GA4_ID ); ?>"></script>
+			<?php if ( '' !== $tlcp_ids['ga4'] ) : ?>
+<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( $tlcp_ids['ga4'] ); ?>"></script>
+			<?php endif; ?>
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', '<?php echo esc_js( TL_CP_GA4_ID ); ?>');
-gtag('config', '<?php echo esc_js( TL_CP_GADS_ID ); ?>');
+			<?php if ( '' !== $tlcp_ids['ga4'] ) : ?>
+gtag('config', '<?php echo esc_js( $tlcp_ids['ga4'] ); ?>');
+			<?php endif; ?>
+			<?php if ( '' !== $tlcp_ids['gads'] ) : ?>
+gtag('config', '<?php echo esc_js( $tlcp_ids['gads'] ); ?>');
+			<?php endif; ?>
 </script>
+			<?php
+		}
+
+		if ( '' !== $tlcp_ids['pixel'] ) {
+			?>
 <!-- Meta Pixel -->
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '<?php echo esc_js( TL_CP_PIXEL_ID ); ?>');
+fbq('init', '<?php echo esc_js( $tlcp_ids['pixel'] ); ?>');
 fbq('track', 'PageView');
 </script>
-		<?php
+			<?php
+		}
 	},
 	1
 );
 
-/** Fallback <noscript> ngay sau <body>. */
+/** Fallback <noscript> ngay sau <body> — cũng theo ID đang nhập ở Settings. */
 add_action(
 	'wp_body_open',
 	static function (): void {
-		?>
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<?php echo esc_attr( TL_CP_GTM_ID ); ?>" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<?php echo esc_attr( TL_CP_PIXEL_ID ); ?>&ev=PageView&noscript=1" alt=""/></noscript>
-		<?php
-	}
+		$tlcp_ids = tlcp_tracking_ids();
+		if ( empty( $tlcp_ids['on'] ) ) {
+			return;
+		}
+
+		if ( '' !== $tlcp_ids['gtm'] ) {
+			echo "\n" . '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' . esc_attr( $tlcp_ids['gtm'] ) . '" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>';
+		}
+		if ( '' !== $tlcp_ids['pixel'] ) {
+			echo "\n" . '<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=' . esc_attr( $tlcp_ids['pixel'] ) . '&ev=PageView&noscript=1" alt=""/></noscript>';
+		}
+		if ( '' !== $tlcp_ids['gtm'] || '' !== $tlcp_ids['pixel'] ) {
+			echo "\n";
+		}
+	},
+	1
 );
+
+/* ============================ 4 ID TRACKING (v0.6.0) ============================ */
+
+const TL_CP_TRACKING_IDS_OPTION = 'tlcp_tracking_ids';
+
+/**
+ * 4 ID tracking ĐANG DÙNG — nhập ở **Settings → Cao Phát → “ID tracking”**.
+ *
+ * `get_option(..., null)`: CHƯA lưu bao giờ (null) ⇒ dùng 4 hằng số mặc định (đúng bằng hành vi cũ,
+ * nên nâng cấp plugin không đổi gì trên site đang chạy). ĐÃ lưu rồi thì option là CHUẨN: ô để trống
+ * nghĩa là **KHÔNG in khối đó** (không tự quay về mặc định — nếu không thì không tắt được khối nào).
+ *
+ * Dùng khi mang plugin sang website khác: đổi 4 ID ở Settings là xong, không cần sửa file.
+ *
+ * @return array{on:string,gtm:string,ga4:string,gads:string,pixel:string}
+ */
+function tlcp_tracking_ids(): array {
+	$saved = get_option( TL_CP_TRACKING_IDS_OPTION, null );
+
+	if ( is_array( $saved ) ) {
+		$out = array(
+			'on'    => empty( $saved['on'] ) ? '' : '1',
+			'gtm'   => (string) ( $saved['gtm'] ?? '' ),
+			'ga4'   => (string) ( $saved['ga4'] ?? '' ),
+			'gads'  => (string) ( $saved['gads'] ?? '' ),
+			'pixel' => (string) ( $saved['pixel'] ?? '' ),
+		);
+	} else {
+		$out = array(
+			'on'    => '1',
+			'gtm'   => TL_CP_GTM_ID,
+			'ga4'   => TL_CP_GA4_ID,
+			'gads'  => TL_CP_GADS_ID,
+			'pixel' => TL_CP_PIXEL_ID,
+		);
+	}
+
+	/**
+	 * Lọc 4 ID tracking (đổi bằng code mà không cần vào Settings).
+	 *
+	 * @param array<string,string> $out 4 ID đang dùng.
+	 */
+	return (array) apply_filters( 'tlcp_tracking_ids', $out );
+}
+
+/**
+ * Sanitize 4 ID: chỉ giữ chữ HOA + số + `-` + `_` (đúng dạng `GTM-KCVHR8P`, `G-L37N4Q06LP`,
+ * `AW-10871632223`, số pixel) — dán kèm dấu cách/ngoặc cũng tự sạch.
+ *
+ * @param mixed $value Giá trị từ form.
+ * @return array{on:string,gtm:string,ga4:string,gads:string,pixel:string}
+ */
+function tlcp_sanitize_tracking_ids( $value ): array {
+	$value = is_array( $value ) ? $value : array();
+	$out   = array(
+		'on'    => empty( $value['on'] ) ? '' : '1',
+		'gtm'   => '',
+		'ga4'   => '',
+		'gads'  => '',
+		'pixel' => '',
+	);
+
+	foreach ( array( 'gtm', 'ga4', 'gads', 'pixel' ) as $tlcp_key ) {
+		$tlcp_raw = isset( $value[ $tlcp_key ] ) ? strtoupper( sanitize_text_field( (string) $value[ $tlcp_key ] ) ) : '';
+		$out[ $tlcp_key ] = (string) preg_replace( '/[^A-Z0-9_-]/', '', $tlcp_raw );
+	}
+
+	return $out;
+}
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -428,6 +540,17 @@ add_action(
 add_action(
 	'admin_init',
 	static function (): void {
+		// 4 ID tracking (v0.6.0) — nay SỬA ĐƯỢC ở Settings nên mang plugin sang site khác không phải sửa file.
+		register_setting(
+			'tlcp_support',
+			TL_CP_TRACKING_IDS_OPTION,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => 'tlcp_sanitize_tracking_ids',
+				'default'           => array(),
+			)
+		);
+
 		// Chèn mã tracking 3 vị trí (mục "Chèn mã tracking" ở trên) — mảng 3 khoá, sanitize riêng.
 		register_setting(
 			'tlcp_support',
@@ -498,6 +621,38 @@ function tlcp_support_page(): void {
 		</p>
 		<form action="options.php" method="post">
 			<?php settings_fields( 'tlcp_support' ); ?>
+			<?php $tlcp_ids = tlcp_tracking_ids(); ?>
+			<h2><?php esc_html_e( 'ID tracking', 'tl-site-caophat' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( '4 khối plugin TỰ in trên mọi trang: Google Tag Manager · GA4 · Google Ads · Meta Pixel. Đổi ID ở đây, KHÔNG cần sửa file.', 'tl-site-caophat' ); ?><br>
+				<?php esc_html_e( 'Để TRỐNG một ô = không in khối đó. Bỏ tick “Bật” = không in khối nào (chỉ còn mã dán ở mục dưới).', 'tl-site-caophat' ); ?>
+			</p>
+			<label style="display:flex;align-items:center;gap:8px;font-weight:600;margin:10px 0 0;">
+				<input type="checkbox" name="<?php echo esc_attr( TL_CP_TRACKING_IDS_OPTION . '[on]' ); ?>" value="1" <?php checked( ! empty( $tlcp_ids['on'] ) ); ?>>
+				<?php esc_html_e( 'In 4 khối tracking ở trên', 'tl-site-caophat' ); ?>
+			</label>
+			<p style="display:grid;grid-template-columns:190px minmax(240px,1fr);gap:8px 12px;align-items:center;max-width:680px;margin:12px 0 0;">
+				<label for="tlcp-track-gtm"><?php esc_html_e( 'Google Tag Manager', 'tl-site-caophat' ); ?></label>
+				<input id="tlcp-track-gtm" type="text" class="code" name="<?php echo esc_attr( TL_CP_TRACKING_IDS_OPTION . '[gtm]' ); ?>" value="<?php echo esc_attr( $tlcp_ids['gtm'] ); ?>" placeholder="GTM-XXXXXXX">
+
+				<label for="tlcp-track-ga4"><?php esc_html_e( 'GA4 (Google Analytics)', 'tl-site-caophat' ); ?></label>
+				<input id="tlcp-track-ga4" type="text" class="code" name="<?php echo esc_attr( TL_CP_TRACKING_IDS_OPTION . '[ga4]' ); ?>" value="<?php echo esc_attr( $tlcp_ids['ga4'] ); ?>" placeholder="G-XXXXXXXXXX">
+
+				<label for="tlcp-track-gads"><?php esc_html_e( 'Google Ads', 'tl-site-caophat' ); ?></label>
+				<input id="tlcp-track-gads" type="text" class="code" name="<?php echo esc_attr( TL_CP_TRACKING_IDS_OPTION . '[gads]' ); ?>" value="<?php echo esc_attr( $tlcp_ids['gads'] ); ?>" placeholder="AW-XXXXXXXXXX">
+
+				<label for="tlcp-track-pixel"><?php esc_html_e( 'Meta Pixel', 'tl-site-caophat' ); ?></label>
+				<input id="tlcp-track-pixel" type="text" class="code" name="<?php echo esc_attr( TL_CP_TRACKING_IDS_OPTION . '[pixel]' ); ?>" value="<?php echo esc_attr( $tlcp_ids['pixel'] ); ?>" placeholder="1234567890">
+			</p>
+			<p class="description">
+				<?php esc_html_e( 'Để trống hết + bỏ tick = website không gửi dữ liệu đi đâu cả.', 'tl-site-caophat' ); ?><br>
+				<?php esc_html_e( 'GTM thường đã chứa GA4 + Google Ads + Meta Pixel — nếu vậy chỉ giữ ô GTM, để trống 3 ô kia để khỏi bắn 2 lần.', 'tl-site-caophat' ); ?><br>
+				<span style="color:#b32d2e;">
+					<?php esc_html_e( '⚠️ Mang plugin sang website KHÁC thì ĐỔI 4 ID này — để nguyên ID caophat.vn là dữ liệu site mới chảy vào tài khoản của caophat.vn.', 'tl-site-caophat' ); ?>
+				</span>
+			</p>
+
+			<hr style="margin:28px 0 0;">
 			<h2><?php esc_html_e( 'Chèn mã tracking', 'tl-site-caophat' ); ?></h2>
 			<p>
 				<?php esc_html_e( 'Dán NGUYÊN mã nhà cung cấp cấp (kèm cả thẻ script nếu có) — Google Tag Manager, GA4, Meta Pixel, mã xác minh site, chat widget… Ô trống = không chèn gì.', 'tl-site-caophat' ); ?>
@@ -531,7 +686,7 @@ function tlcp_support_page(): void {
 				<p class="description"><?php echo esc_html( $tlcp_meta[1] ); ?></p>
 			<?php endforeach; ?>
 			<p class="description" style="color:#b32d2e;">
-				<?php esc_html_e( 'Lưu ý: plugin này đang in sẵn 4 khối tracking ở đầu file (GTM / GA4 / Google Ads / Meta Pixel). Nếu dán mã TRÙNG ở đây thì số liệu sẽ BỊ ĐẾM ĐÔI — gỡ một trong hai chỗ.', 'tl-site-caophat' ); ?>
+				<?php esc_html_e( 'Lưu ý: plugin đang in sẵn 4 khối tracking ở mục “ID tracking” phía trên (GTM / GA4 / Google Ads / Meta Pixel). Nếu dán mã TRÙNG ở đây thì số liệu sẽ BỊ ĐẾM ĐÔI — gỡ một trong hai chỗ (hoặc để trống ô ID ở trên).', 'tl-site-caophat' ); ?>
 			</p>
 
 			<hr style="margin:28px 0 0;">
