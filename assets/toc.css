@@ -2,7 +2,7 @@
    CP8 — MỤC LỤC NỘI DUNG (plugin PL Tiện Ích - TungLeAds)
    Nút DỌC cố định ở mép màn hình + drawer danh sách heading.
    Tham số lấy từ Settings → PL Tiện Ích (màu/mép/nhãn…): plugin in class quyết định mép
-   (`--left`/`--right`), trạng thái mobile (`--no-mobile`) và biến `--tlcp-toc-color`.
+   (`--left`/`--right`), trạng thái mobile (`--no-mobile`) và biến `--tlpi-toc-color`.
    Màu mặc định = TOKEN CỦA THEME (`--cp-accent`) ⇒ tự khớp skin theme; theme khác vẫn có
    fallback cứng nên không bị "trần".
    Đo demo tungleads.com (2026-09-17) để lấy tỉ lệ: nút 41×163 · drawer 340px · chữ dọc
@@ -13,28 +13,28 @@
    để không che menu. Drawer thì nổi hẳn lên (90) vì là lớp phủ tạm. */
 
 /* Bù header sticky cho MỌI cú nhảy anchor (deep link `…#ten-muc` của Google “jump to” hoặc link khách
-   dán): JS đặt `--tlcp-scroll-pad` = chiều cao header + thanh admin (xem assets/toc.js). */
-html { scroll-padding-top: var(--tlcp-scroll-pad, 90px); }
-.tlcp-toc__toggle {
+   dán): JS đặt `--tlpi-scroll-pad` = chiều cao header + thanh admin (xem assets/toc.js). */
+html { scroll-padding-top: var(--tlpi-scroll-pad, 90px); }
+.tlpi-toc__toggle {
   position: fixed; top: 50%; transform: translateY(-50%);
   z-index: 45;
   display: inline-flex; flex-direction: column; align-items: center; gap: 7px;
   padding: 14px 10px; border: 0; cursor: pointer;
-  background: var(--tlcp-toc-color, var(--cp-accent, #c8471f)); color: #fff;
+  background: var(--tlpi-toc-color, var(--cp-accent, #c8471f)); color: #fff;
   font-family: inherit; font-size: 12.5px; font-weight: 700; line-height: 1;
   box-shadow: 0 10px 24px rgba(38, 34, 30, .22);
   transition: background .18s ease, transform .18s ease;
 }
-.tlcp-toc__toggle:hover { background: var(--cp-accent-dark, #a63817); }
-.tlcp-toc--right .tlcp-toc__toggle { right: 0; border-radius: 12px 0 0 12px; }
-.tlcp-toc--left .tlcp-toc__toggle { left: 0; border-radius: 0 12px 12px 0; }
+.tlpi-toc__toggle:hover { background: var(--cp-accent-dark, #a63817); }
+.tlpi-toc--right .tlpi-toc__toggle { right: 0; border-radius: 12px 0 0 12px; }
+.tlpi-toc--left .tlpi-toc__toggle { left: 0; border-radius: 0 12px 12px 0; }
 /* Chữ XOAY DỌC như demo. `white-space: nowrap` để nhãn dài không bị bẻ dòng. */
-.tlcp-toc__toggle-txt { writing-mode: vertical-rl; letter-spacing: .3px; white-space: nowrap; }
-.tlcp-toc__toggle-ic { display: inline-flex; }
-.tlcp-toc__toggle-ic svg { display: block; }
+.tlpi-toc__toggle-txt { writing-mode: vertical-rl; letter-spacing: .3px; white-space: nowrap; }
+.tlpi-toc__toggle-ic { display: inline-flex; }
+.tlpi-toc__toggle-ic svg { display: block; }
 
 /* Drawer */
-.tlcp-toc__panel {
+.tlpi-toc__panel {
   position: fixed; top: 0; bottom: 0; width: min(340px, 88vw);
   z-index: 90; display: flex; flex-direction: column;
   background: #fff; color: var(--cp-text, #26221e);
@@ -42,88 +42,88 @@ html { scroll-padding-top: var(--tlcp-scroll-pad, 90px); }
   visibility: hidden;
   transition: transform .24s ease, visibility .24s ease;
 }
-.tlcp-toc--right .tlcp-toc__panel {
+.tlpi-toc--right .tlpi-toc__panel {
   right: 0; transform: translateX(103%);
   box-shadow: -18px 0 48px rgba(38, 34, 30, .16);
 }
-.tlcp-toc--left .tlcp-toc__panel {
+.tlpi-toc--left .tlpi-toc__panel {
   left: 0; transform: translateX(-103%);
   box-shadow: 18px 0 48px rgba(38, 34, 30, .16);
 }
-.tlcp-toc.is-open .tlcp-toc__panel { visibility: visible; transform: none; }
+.tlpi-toc.is-open .tlpi-toc__panel { visibility: visible; transform: none; }
 
 /* Đầu drawer */
-.tlcp-toc__head {
+.tlpi-toc__head {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   padding: 16px 14px 14px 18px; border-bottom: 1px solid var(--cp-line, #e5e0d9);
 }
-.tlcp-toc__title {
+.tlpi-toc__title {
   font-size: 15px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase;
   color: var(--cp-primary-dark, #c88a00);
 }
-.tlcp-toc__close {
+.tlpi-toc__close {
   display: grid; place-items: center; flex: 0 0 auto;
   width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%;
   background: transparent; color: var(--cp-muted, #6f6a63); cursor: pointer;
   transition: background .15s ease, color .15s ease;
 }
-.tlcp-toc__close:hover { background: var(--cp-surface, #f6f4f1); color: var(--cp-text, #26221e); }
-.tlcp-toc__close svg { display: block; }
+.tlpi-toc__close:hover { background: var(--cp-surface, #f6f4f1); color: var(--cp-text, #26221e); }
+.tlpi-toc__close svg { display: block; }
 
 
 /* Danh sách mục */
-.tlcp-toc__list {
+.tlpi-toc__list {
   flex: 1 1 auto; margin: 0; padding: 10px 12px 28px; list-style: none;
   overflow-y: auto; overscroll-behavior: contain;
 }
-.tlcp-toc__item { margin: 0; list-style: none; }
-.tlcp-toc__link {
+.tlpi-toc__item { margin: 0; list-style: none; }
+.tlpi-toc__link {
   display: flex; gap: 8px;
   padding: 9px 10px; border-radius: 8px;
   color: var(--cp-muted, #6f6a63); font-size: 13.5px; line-height: 1.45; text-decoration: none;
   transition: background .15s ease, color .15s ease;
 }
-.tlcp-toc__link:hover { background: var(--cp-surface, #f6f4f1); color: var(--cp-text, #26221e); }
-.tlcp-toc__link:focus-visible { outline: 2px solid var(--tlcp-toc-color, var(--cp-accent, #c8471f)); outline-offset: -2px; }
+.tlpi-toc__link:hover { background: var(--cp-surface, #f6f4f1); color: var(--cp-text, #26221e); }
+.tlpi-toc__link:focus-visible { outline: 2px solid var(--tlpi-toc-color, var(--cp-accent, #c8471f)); outline-offset: -2px; }
 /* Số thứ tự (tắt được trong Settings): cột số rộng đều để nhãn thẳng hàng. */
-.tlcp-toc__num { flex: 0 0 auto; min-width: 1.7em; opacity: .8; font-variant-numeric: tabular-nums; }
+.tlpi-toc__num { flex: 0 0 auto; min-width: 1.7em; opacity: .8; font-variant-numeric: tabular-nums; }
 /* Cấp bậc: H2 đậm, H3/H4 thụt lề tăng dần (demo cũng phân cấp bằng độ đậm/màu). */
-.tlcp-toc__item--lvl2 > .tlcp-toc__link { color: var(--cp-text, #26221e); font-weight: 700; }
-.tlcp-toc__item--lvl3 > .tlcp-toc__link { padding-left: 22px; font-weight: 500; }
-.tlcp-toc__item--lvl4 > .tlcp-toc__link { padding-left: 34px; font-size: 13px; font-weight: 500; }
+.tlpi-toc__item--lvl2 > .tlpi-toc__link { color: var(--cp-text, #26221e); font-weight: 700; }
+.tlpi-toc__item--lvl3 > .tlpi-toc__link { padding-left: 22px; font-weight: 500; }
+.tlpi-toc__item--lvl4 > .tlpi-toc__link { padding-left: 34px; font-size: 13px; font-weight: 500; }
 
 /* Mục ĐANG XEM — demo tô nền xanh nhạt; ở đây tô bằng màu nhấn của theme.
    Dòng `background` đầu là bản dự phòng cho trình duyệt chưa hỗ trợ `color-mix()`. */
-.tlcp-toc__item.is-active > .tlcp-toc__link { background: var(--cp-surface, #f6f4f1); }
-.tlcp-toc__item.is-active > .tlcp-toc__link {
-  background: color-mix(in srgb, var(--tlcp-toc-color, var(--cp-accent, #c8471f)) 12%, #fff);
-  color: var(--tlcp-toc-color, var(--cp-accent, #c8471f));
+.tlpi-toc__item.is-active > .tlpi-toc__link { background: var(--cp-surface, #f6f4f1); }
+.tlpi-toc__item.is-active > .tlpi-toc__link {
+  background: color-mix(in srgb, var(--tlpi-toc-color, var(--cp-accent, #c8471f)) 12%, #fff);
+  color: var(--tlpi-toc-color, var(--cp-accent, #c8471f));
 }
-.tlcp-toc__item.is-active > .tlcp-toc__link .tlcp-toc__num { opacity: 1; }
+.tlpi-toc__item.is-active > .tlpi-toc__link .tlpi-toc__num { opacity: 1; }
 
 /* Mobile: nút gọn hơn, drawer hẹp hơn; khoá cuộn trang khi drawer mở để cuộn trong danh sách
    không "lây" sang trang. */
 @media (max-width: 768px) {
-  .tlcp-toc__toggle { padding: 12px 8px; font-size: 12px; gap: 6px; }
-  .tlcp-toc__panel { width: min(320px, 86vw); }
-  body.tlcp-toc-open { overflow: hidden; }
+  .tlpi-toc__toggle { padding: 12px 8px; font-size: 12px; gap: 6px; }
+  .tlpi-toc__panel { width: min(320px, 86vw); }
+  body.tlpi-toc-open { overflow: hidden; }
 }
 /* Settings tắt "hiện trên mobile" ⇒ ẩn cả nút lẫn drawer ở ≤768px. */
 @media (max-width: 768px) {
-  .tlcp-toc--no-mobile .tlcp-toc__toggle,
-  .tlcp-toc--no-mobile .tlcp-toc__panel { display: none; }
+  .tlpi-toc--no-mobile .tlpi-toc__toggle,
+  .tlpi-toc--no-mobile .tlpi-toc__panel { display: none; }
 }
 
 /* Widget liên hệ nổi (plugin button-call-zalo-tungleads, z-index 999999) nằm CÙNG mép phải ⇒ che
    drawer; ẩn nó khi drawer đang mở. Class lấy từ plugin kia; plugin đó tắt thì rule này vô hại. */
-body.tlcp-toc-open .wd-contact-widget { opacity: 0; visibility: hidden; pointer-events: none; }
+body.tlpi-toc-open .wd-contact-widget { opacity: 0; visibility: hidden; pointer-events: none; }
 
 /* Tôn trọng "giảm chuyển động" + không in nút/drawer ra giấy. */
 @media (prefers-reduced-motion: reduce) {
-  .tlcp-toc__panel, .tlcp-toc__toggle { transition: none; }
+  .tlpi-toc__panel, .tlpi-toc__toggle { transition: none; }
 }
 @media print {
-  .tlcp-toc { display: none !important; }
+  .tlpi-toc { display: none !important; }
 }
 
 /* ==========================================================================
@@ -132,53 +132,53 @@ body.tlcp-toc-open .wd-contact-widget { opacity: 0; visibility: hidden; pointer-
    Dùng `<details>/<summary>` HTML gốc ⇒ bấm mở/thu được **cả khi tắt JS** (`open` = mở sẵn).
    Màu theo token theme; viền trái đậm bằng màu nhấn để tách khỏi đoạn văn.
    ========================================================================== */
-.tlcp-toc-inline {
+.tlpi-toc-inline {
   display: block;
   margin: 0 0 24px; padding: 14px 18px 16px;
   background: var(--cp-surface, #f6f4f1);
   border: 1px solid var(--cp-line, #e5e0d9);
-  border-left: 4px solid var(--tlcp-toc-color, var(--cp-accent, #c8471f));
+  border-left: 4px solid var(--tlpi-toc-color, var(--cp-accent, #c8471f));
   border-radius: 10px;
 }
-.tlcp-toc-inline__sum {
+.tlpi-toc-inline__sum {
   display: flex; align-items: center; gap: 8px;
   cursor: pointer; list-style: none;
   font-size: 15px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase;
   color: var(--cp-primary-dark, #c88a00);
 }
-.tlcp-toc-inline__sum::-webkit-details-marker { display: none; }
-.tlcp-toc-inline__sum::marker { content: ''; }
+.tlpi-toc-inline__sum::-webkit-details-marker { display: none; }
+.tlpi-toc-inline__sum::marker { content: ''; }
 /* Mũi tên chỉ trạng thái: mở sẵn thì chúc xuống, thu gọn thì chúc sang. */
-.tlcp-toc-inline__sum::after {
+.tlpi-toc-inline__sum::after {
   content: ''; margin-left: auto; width: 8px; height: 8px; flex: 0 0 auto;
   border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
   transform: rotate(45deg); transition: transform .2s ease;
 }
-.tlcp-toc-inline:not([open]) .tlcp-toc-inline__sum::after { transform: rotate(-45deg); }
-.tlcp-toc-inline__list { margin: 12px 0 0; padding: 0; list-style: none; }
-.tlcp-toc-inline__item { margin: 0; list-style: none; }
-.tlcp-toc-inline__item + .tlcp-toc-inline__item { margin-top: 2px; }
-.tlcp-toc-inline__link {
+.tlpi-toc-inline:not([open]) .tlpi-toc-inline__sum::after { transform: rotate(-45deg); }
+.tlpi-toc-inline__list { margin: 12px 0 0; padding: 0; list-style: none; }
+.tlpi-toc-inline__item { margin: 0; list-style: none; }
+.tlpi-toc-inline__item + .tlpi-toc-inline__item { margin-top: 2px; }
+.tlpi-toc-inline__link {
   display: flex; gap: 8px;
   padding: 5px 0;
   color: var(--cp-text, #26221e); font-size: 14px; line-height: 1.5; text-decoration: none;
   transition: color .15s ease;
 }
-.tlcp-toc-inline__num {
+.tlpi-toc-inline__num {
   flex: 0 0 auto; min-width: 1.7em;
-  color: var(--tlcp-toc-color, var(--cp-accent, #c8471f));
+  color: var(--tlpi-toc-color, var(--cp-accent, #c8471f));
   font-weight: 700; font-variant-numeric: tabular-nums;
 }
-.tlcp-toc-inline__item--lvl3 > .tlcp-toc-inline__link { padding-left: 20px; }
-.tlcp-toc-inline__item--lvl4 > .tlcp-toc-inline__link { padding-left: 38px; font-size: 13.5px; }
-.tlcp-toc-inline__item--lvl3 > .tlcp-toc-inline__link,
-.tlcp-toc-inline__item--lvl4 > .tlcp-toc-inline__link { color: var(--cp-muted, #6f6a63); }
+.tlpi-toc-inline__item--lvl3 > .tlpi-toc-inline__link { padding-left: 20px; }
+.tlpi-toc-inline__item--lvl4 > .tlpi-toc-inline__link { padding-left: 38px; font-size: 13.5px; }
+.tlpi-toc-inline__item--lvl3 > .tlpi-toc-inline__link,
+.tlpi-toc-inline__item--lvl4 > .tlpi-toc-inline__link { color: var(--cp-muted, #6f6a63); }
 /* :hover đặt SAU các rule cấp bậc để thắng về thứ tự (cùng độ ưu tiên). */
-.tlcp-toc-inline__link:hover { color: var(--tlcp-toc-color, var(--cp-accent, #c8471f)); }
-.tlcp-toc-inline__link:focus-visible { outline: 2px solid var(--tlcp-toc-color, var(--cp-accent, #c8471f)); outline-offset: 2px; }
+.tlpi-toc-inline__link:hover { color: var(--tlpi-toc-color, var(--cp-accent, #c8471f)); }
+.tlpi-toc-inline__link:focus-visible { outline: 2px solid var(--tlpi-toc-color, var(--cp-accent, #c8471f)); outline-offset: 2px; }
 @media (max-width: 768px) {
-  .tlcp-toc-inline { padding: 12px 14px 14px; margin-bottom: 20px; }
-  .tlcp-toc-inline__sum { font-size: 14px; }
-  .tlcp-toc-inline__link { font-size: 13.5px; }
+  .tlpi-toc-inline { padding: 12px 14px 14px; margin-bottom: 20px; }
+  .tlpi-toc-inline__sum { font-size: 14px; }
+  .tlpi-toc-inline__link { font-size: 13.5px; }
 }
 

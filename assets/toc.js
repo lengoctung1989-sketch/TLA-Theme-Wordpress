@@ -1,9 +1,9 @@
 /**
  * CP8 — Mục lục nội dung (plugin PL Tiện Ích - TungLeAds). Hai phần chạy ĐỘC LẬP nhau:
  *
- * A) KHỐI MỤC LỤC TRONG NỘI DUNG (`.tlcp-toc-inline`) — thẻ `<details>` do PHP in nên mở/thu được
+ * A) KHỐI MỤC LỤC TRONG NỘI DUNG (`.tlpi-toc-inline`) — thẻ `<details>` do PHP in nên mở/thu được
  *    **không cần JS**; JS chỉ thêm cuộn mượt + bù chiều cao header sticky cho các link mục.
- * B) NÚT DỌC + DRAWER (`.tlcp-toc`) — mở/đóng drawer (`is-open` + `aria-expanded` + `inert`),
+ * B) NÚT DỌC + DRAWER (`.tlpi-toc`) — mở/đóng drawer (`is-open` + `aria-expanded` + `inert`),
  *    cuộn tới heading, scroll-spy tô nền mục đang xem, đóng bằng ✕ / `Esc` / bấm ra ngoài.
  *
  * Hai phần dùng chung `offsetTop()` + `goTo()`. Bật/tắt từng phần ở **Settings → PL Tiện Ích**
@@ -38,12 +38,12 @@
 	}
 
 	/**
-	 * Ghi độ bù vào biến CSS `--tlcp-scroll-pad` (CSS đặt `html { scroll-padding-top: … }`):
+	 * Ghi độ bù vào biến CSS `--tlpi-scroll-pad` (CSS đặt `html { scroll-padding-top: … }`):
 	 * nhờ vậy DEEP LINK `…#ten-muc` (Google “jump to”, link dán cho khách) cũng dừng dưới header
 	 * sticky, không cần JS can thiệp vào cú nhảy của trình duyệt.
 	 */
 	function syncScrollPad() {
-		document.documentElement.style.setProperty('--tlcp-scroll-pad', offsetTop() + 'px');
+		document.documentElement.style.setProperty('--tlpi-scroll-pad', offsetTop() + 'px');
 	}
 
 	syncScrollPad();
@@ -115,28 +115,28 @@
 
 	/* ==================== A. KHỐI MỤC LỤC TRONG NỘI DUNG ==================== */
 	(function () {
-		var box = document.querySelector('.tlcp-toc-inline');
+		var box = document.querySelector('.tlpi-toc-inline');
 		if (!box) { return; }
 
-		bindAnchors(Array.prototype.slice.call(box.querySelectorAll('.tlcp-toc-inline__link')));
+		bindAnchors(Array.prototype.slice.call(box.querySelectorAll('.tlpi-toc-inline__link')));
 	})();
 
 	/* ========================= B. NÚT DỌC + DRAWER ========================= */
 	(function () {
-		var root = document.querySelector('.tlcp-toc');
+		var root = document.querySelector('.tlpi-toc');
 		if (!root) { return; }
 
-		var toggle = root.querySelector('.tlcp-toc__toggle');
-		var panel = root.querySelector('.tlcp-toc__panel');
-		var closeBtn = root.querySelector('.tlcp-toc__close');
-		var list = root.querySelector('.tlcp-toc__list');
+		var toggle = root.querySelector('.tlpi-toc__toggle');
+		var panel = root.querySelector('.tlpi-toc__panel');
+		var closeBtn = root.querySelector('.tlpi-toc__close');
+		var list = root.querySelector('.tlpi-toc__list');
 
 		if (!toggle || !panel || !list) { return; }
 
-		var links = Array.prototype.slice.call(list.querySelectorAll('.tlcp-toc__link'));
+		var links = Array.prototype.slice.call(list.querySelectorAll('.tlpi-toc__link'));
 		if (!links.length) { return; }
 
-		var spyOn = !root.classList.contains('tlcp-toc--no-spy');
+		var spyOn = !root.classList.contains('tlpi-toc--no-spy');
 		var items = links.map(function (a) {
 			var id = (a.getAttribute('href') || '').replace(/^#/, '');
 			return { a: a, li: a.parentElement, el: id ? document.getElementById(id) : null };
@@ -145,13 +145,13 @@
 		/** Mở/đóng drawer: class `is-open` (CSS trượt panel) + `aria-expanded` + `inert` cho a11y. */
 		function setOpen(open) {
 			root.classList.toggle('is-open', open);
-			document.body.classList.toggle('tlcp-toc-open', open);
+			document.body.classList.toggle('tlpi-toc-open', open);
 			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
 
 			if (open) {
 				panel.removeAttribute('inert');
 				window.setTimeout(function () {
-					var act = list.querySelector('.tlcp-toc__item.is-active .tlcp-toc__link') || links[0];
+					var act = list.querySelector('.tlpi-toc__item.is-active .tlpi-toc__link') || links[0];
 					if (act) { act.focus({ preventScroll: true }); }
 				}, 260);
 			} else {
