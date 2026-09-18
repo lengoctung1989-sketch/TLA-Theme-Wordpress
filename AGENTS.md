@@ -11,6 +11,12 @@ Repo dùng **2 model chạy TUẦN TỰ: `claude` (Claude Code) và `deepseek` (
 - **`.ai/FEATURE_MAP.md`** = **nơi DUY NHẤT chứa chi tiết**: quyết định đã chốt sau khi đo · số đo thật · bẫy · file thật. File lớn ⇒ **chỉ đọc bằng `grep -n` + `sed -n`**, không mở cả file.
 - **`.ai/WORKLOG.md`** = nhật ký (§1 ghi đè · §2 chỉ ghi thêm).
 
+**Nguồn sự thật — phân biệt SỰ THẬT và LỊCH SỬ (Tùng chốt 2026-09-18):**
+- **SỰ THẬT HIỆN TẠI** = **§1 `.ai/WORKLOG.md`** + **`.ai/FEATURE_MAP.md`** (mục `### CPx.y`). Hai file này **ĐƯỢC PHÉP và PHẢI SỬA TẠI CHỖ** khi có gì đổi — cấm để “sự thật mới chỉ nằm ở dòng nhật ký”.
+- **LỊCH SỬ** = **§2 `.ai/WORKLOG.md`** + `.ai/WORKLOG-archive-<quý>.md`: **chỉ ghi thêm**, **không bao giờ là nguồn sự thật** (tra xong phải đối chiếu §1/FEATURE_MAP trước khi dùng).
+- **Khi phiên này phủ định điều đã ghi trước đó:** (1) sửa mục `### CPx.y` trong FEATURE_MAP **tại chỗ**; (2) dòng §2 mới **mở đầu bằng `❌ ĐÍNH CHÍNH <ngày>:`** và nói rõ cái gì đã sai; (3) **THÊM nhãn** vào dòng cũ nếu nó gây hiểu nhầm (ví dụ `— ❌ đã đổi tên 2026-09-17 → pl-tien-ich-tungleads`) — **chỉ được THÊM nhãn, KHÔNG xoá/viết lại nội dung dòng cũ** (giữ audit, git vẫn là lịch sử đầy đủ).
+- **Mẫu viết mục CP trong FEATURE_MAP:** “**hiện tại là gì** → *trước <ngày>* là gì (nếu đã đổi)” (xem CP1.9 làm mẫu).
+
 **Hạn mức tài liệu (kiểm bằng `wc -c` trước khi commit — vượt thì CẮT hoặc TÁCH):**
 
 | File | Hạn mức | Nếu vượt |
