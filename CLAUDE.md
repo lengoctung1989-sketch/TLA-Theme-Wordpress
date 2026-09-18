@@ -30,6 +30,12 @@ WordPress **Classic Theme + theme.json** (hybrid, KHÔNG phải FSE/Block Theme)
 
 ## Phối hợp giữa các model (BẮT BUỘC)
 
+**Nguồn sự thật — phân biệt SỰ THẬT và LỊCH SỬ (Tùng chốt 2026-09-18):**
+
+- **SỰ THẬT HIỆN TẠI** = **§1 `.ai/WORKLOG.md`** + **`.ai/FEATURE_MAP.md`** ⇒ **ĐƯỢC PHÉP và PHẢI SỬA TẠI CHỖ** khi có gì đổi.
+- **LỊCH SỬ** = **§2 `.ai/WORKLOG.md`** + `.ai/WORKLOG-archive-<quý>.md` ⇒ **chỉ ghi thêm**, không bao giờ là nguồn sự thật (tra xong phải đối chiếu §1/FEATURE_MAP).
+- **Khi phiên này phủ định điều đã ghi trước đó:** (1) sửa mục trong FEATURE_MAP **tại chỗ**; (2) dòng §2 mới mở đầu bằng **`❌ ĐÍNH CHÍNH <ngày>:`**; (3) **THÊM nhãn** vào dòng cũ nếu gây hiểu nhầm (`— ❌ đã đổi 2026-09-17`) — chỉ thêm nhãn, KHÔNG xoá/viết lại nội dung cũ.
+
 Repo này chỉ dùng **2 model: `claude` (Claude Code) và `deepseek` (DeepSeek)** — **chạy tuần tự, không đồng thời**. Nhãn model chỉ được là 1 trong 2 tên này.
 Trạng thái bàn giao nằm ở `.ai/WORKLOG.md` — không script, không cài thêm gì.
 

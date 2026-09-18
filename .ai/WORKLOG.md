@@ -17,12 +17,11 @@
 
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
-- **Model:** deepseek (phiên này chạy **Cline**/VS Code — nhãn commit do Tùng chốt: `[deepseek]`).
-- **Việc ĐÃ XONG (2026-09-18):** (a) `fix(P2.3)` gỡ twemoji cả trong **wp-admin** (`admin_init`) + bỏ `emoji_svg_url`=`false`;
-  (b) **tối ưu tài liệu theo yêu cầu Tùng**: `AGENTS.md` rút từ 9,9 KB → ~1,6 KB (trước trùng 97,6% với `CLAUDE.md`).
-  `CLAUDE.md` của parent (9,9 KB) giữ nguyên = **luật đầy đủ + P-index** — đây là nguồn sự thật duy nhất của repo này.
-- **Đang dở:** (không). Còn 1 việc của Tùng: khi deploy thì **ship cả parent** (fix P2.3 áp cho mọi child theme).
-
+- **Model:** deepseek (phiên chạy **Cline**/VS Code — nhãn commit do Tùng chốt: `[deepseek]`).
+- **Việc ĐÃ XONG (2026-09-18):** (a) `fix(P2.3)` gỡ twemoji cả trong **wp-admin**; (b) rút `AGENTS.md` 9,9 KB → 1,96 KB;
+  (c) thêm luật **nguồn sự thật** vào `CLAUDE.md`: SỰ THẬT = §1 + FEATURE_MAP (sửa tại chỗ) · LỊCH SỬ = §2 + archive
+  (chỉ ghi thêm, phải dán nhãn đính chính) — theo lo ngại của Tùng về “dòng cũ sai còn nằm lại”.
+- **Đang dở:** (không). Việc của Tùng khi deploy: **ship cả parent** (fix P2.3 áp cho mọi child theme).
 ---
 
 ## §2 NHẬT KÝ (chỉ ghi thêm, mới nhất ở dưới)
@@ -35,3 +34,4 @@
 
 
 | 2026-09-18 12:32 | deepseek | Rút `AGENTS.md` 9,9 KB → 1,6 KB (trước trùng **97,6%** với `CLAUDE.md`) + thêm hạn mức tài liệu & luật “chỉ TRỎ, không chép lại”. Không mất luật nào. | `AGENTS.md`, `.ai/WORKLOG.md` | xong |
+| 2026-09-18 13:28 (giờ thật) | deepseek | ❌ **ĐÍNH CHÍNH luật §2** — thêm luật “SỰ THẬT = §1 + FEATURE_MAP (sửa tại chỗ) · LỊCH SỬ = §2 + archive (chỉ thêm, phải có nhãn `❌ đã …`)”. | `CLAUDE.md`, `.ai/WORKLOG.md` | xong |
