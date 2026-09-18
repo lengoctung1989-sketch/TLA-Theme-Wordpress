@@ -20,6 +20,7 @@ Repo dùng **2 model chạy TUẦN TỰ: `claude` (Claude Code) và `deepseek` (
 | 1 dòng §2 WORKLOG | **≤ 300 ký tự** (≈ 350 byte vì tiếng Việt) | Rút còn “việc · file · trạng thái”, số đo để ở FEATURE_MAP |
 | 1 hàng bảng CP ở FEATURE_MAP | **≤ 3 KB** | Tách mục `### CPx.y` riêng bên dưới bảng |
 | §1 WORKLOG | **≤ 10 dòng** | Ghi đè mỗi phiên (không cộng dồn bullet) |
+| §2 WORKLOG | **≤ 20 dòng** | **Rotate**: chuyển các dòng cũ **NGUYÊN VĂN** sang `.ai/WORKLOG-archive-<quý>.md` (làm lần đầu 2026-09-18, script giữ 20 dòng gần nhất) |
 
 **Cấm chép lại nội dung giữa các file** — chỉ được **trỏ** (tên file + mục). Một sự thật chỉ có **một nhà**: luật → `AGENTS.md` · chi tiết CP → `.ai/FEATURE_MAP.md` · việc theo phiên → `.ai/WORKLOG.md`.
 
