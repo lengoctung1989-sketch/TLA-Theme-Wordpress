@@ -24,6 +24,35 @@ Copy/deploy đúng thư mục đích:
 
 Kích hoạt theo thứ tự: **parent theme trước** (không kích hoạt trực tiếp, chỉ cần có mặt) → **kích hoạt child theme** (Giao diện > Themes) → **kích hoạt plugin**.
 
+## Cách dùng repo này
+
+### 1. Clone về máy (chỉ để xem/sửa code, không phải để chạy WordPress ngay)
+
+```bash
+git clone git@github.com:lengoctung1989-sketch/TLA-Theme-Wordpress.git
+```
+
+> Lưu ý: **gốc repo không phải 1 theme WordPress** (không có `style.css` ở root) — WordPress phải trỏ vào từng thư mục con (`child-theme-cp/`, `parent-theme/`...) theo bảng "Cài đặt lên WordPress" ở trên, KHÔNG trỏ vào gốc repo.
+
+### 2. Deploy lên site thật (chỉ áp dụng cho caophat.vn)
+
+Repo này không có script deploy — script deploy (`deploy-caophat.sh`, rsync-based, mặc định dry-run) nằm **ngoài repo**, trong máy dev nội bộ (`/Volumes/DATA/Claude-Code/TLA Theme/`), không public. Muốn deploy: dùng máy dev đó, không chạy trực tiếp từ bản clone GitHub.
+
+### 3. Lấy 1 phần (VD chỉ plugin) ra dùng cho dự án khác
+
+```bash
+# Copy thô 1 thư mục con (mất lịch sử commit riêng của phần đó)
+git clone --depth 1 git@github.com:lengoctung1989-sketch/TLA-Theme-Wordpress.git tmp-clone
+cp -R tmp-clone/plugin-tien-ich ./plugin-moi
+rm -rf tmp-clone
+```
+
+Muốn giữ nguyên lịch sử commit của riêng 1 thư mục con (VD tách `plugin-zalo/` ra repo riêng): dùng `git subtree split --prefix=plugin-zalo -b plugin-zalo-only` rồi push nhánh đó sang repo mới.
+
+### 4. Theme/plugin phụ thuộc lẫn nhau — không dùng lẻ `child-theme-cp/`
+
+`child-theme-cp/` bắt buộc phải có `parent-theme/` cài cùng cấp trong `wp-content/themes/`, nếu không WordPress báo lỗi thiếu theme cha. 2 plugin (`plugin-tien-ich/`, `plugin-zalo/`) độc lập, có thể dùng riêng cho site khác.
+
 ## Tài liệu chi tiết từng phần
 
 Mỗi thư mục con là 1 dự án con độc lập, có tài liệu riêng:
