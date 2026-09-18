@@ -3,6 +3,8 @@
 Nghĩa từng số ở `CLAUDE.md`. Bảng này liệt kê file + chi tiết kỹ thuật.
 Tiền tố `CP` để tách khỏi P-index của theme cha.
 
+> ⚠️ **File lớn (~300KB)** — CHỈ đọc bằng `grep -n "^### CPx.y"` rồi `sed -n "X,Yp"` đúng mục cần. KHÔNG `cat`/mở cả file.
+
 | CP-index | Chức năng / nhiệm vụ | File | Chi tiết kỹ thuật |
 | :--- | :--- | :--- | :--- |
 | **CP1.1** bootstrap | Nạp font + CSS skin sau bundle theme cha, khai báo custom-logo, gắn body class `cp`, cung cấp helper dùng chung. | `functions.php` | `wp_enqueue_scripts` prio 20: `cp-fonts` (Be Vietnam Pro) + `cp-style` (`assets/caophat.css`). `after_setup_theme`: `add_theme_support('custom-logo')` + **`title-tag`** (2026-09-16 — cha TẮT `title-tag` khi có plugin SEO active ⇒ site **mất hẳn thẻ `<title>`** vì Rank Math chỉ lọc tiêu đề; child khai lại). `body_class` += `cp`. `cp_hotline_display()`/`cp_hotline_tel()` (filterable), `cp_product_card(WC_Product)` |

@@ -3,6 +3,7 @@
 > Các dòng nhật ký §2 CŨ được **DI CHUYỂN NGUYÊN VĂN** về đây khi §2 vượt hạn mức
 > (luật: `.ai/WORKLOG.md` giữ ≤20 dòng gần nhất). Không sửa nội dung, chỉ chuyển chỗ.
 > Tìm nhanh: `grep -n "<từ khoá hoặc CPx.y>" .ai/WORKLOG-archive-2026-Q3.md`
+> ⚠️ **Chỉ tra cứu lịch sử cũ khi cần** — KHÔNG đọc file này khi bắt đầu phiên làm việc bình thường.
 
 | Thời gian | Model | Việc đã làm | File chính | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- |
