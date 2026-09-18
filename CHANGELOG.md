@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Sửa lỗi — gỡ emoji/twemoji triệt để (P2.3)
+
+- **`Performance::disableEmoji()` chạy ở CẢ `init` LẪN `admin_init`.** Lý do: hook `print_emoji_detection_script` ở front-end nằm tại `wp-includes/default-filters.php:359` (gỡ ở `init` là đủ), nhưng bản của admin nằm ở `wp-admin/includes/admin-filters.php:59` — file này được nạp **sau** `init` nên nó **gắn lại** hook vừa gỡ ⇒ trước đây **front-end sạch nhưng wp-admin vẫn nạp twemoji**. Nay gỡ thêm `embed_head` và `admin_enqueue_scripts` → `wp_enqueue_emoji_styles`.
+- **Bỏ `add_filter( 'emoji_svg_url', '__return_false' )`.** `_wpemojiSettings.svgUrl` rỗng làm thư viện twemoji rơi về **base mặc định của chính nó** = `https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.1/assets/`, rồi build `<base><code>.svg` ⇒ URL **404** (đúng phải có `svg/` hoặc dùng `72x72/*.png`) ⇒ mọi emoji trong wp-admin hiện thành **ảnh vỡ** (Tùng báo 2026-09-18, URL `…/assets/26a0.svg`). Gỡ sạch script thì URL không còn ý nghĩa; nếu plugin khác lỡ nạp emoji ở màn nào đó, core sẽ dùng mặc định `s.w.org/images/core/emoji/<ver>/svg/` (chạy tốt).
+- **Đo sau khi sửa** (Playwright; 4 màn admin: Settings plugin · soạn bài viết · danh sách sản phẩm · người dùng; + front-end): `_wpemojiSettings` **không còn**, `window.twemoji` = `undefined`; tiêm `⚠️ ✅ 🔴 ★` vào DOM rồi chờ 1,5s ⇒ **0 `<img>`** (vẫn là ký tự). `php -l` + `vendor/bin/phpcs` sạch.
+
+
 ### Chốt lại mô hình nhân bản — parent/child thay cho "Composer package"
 - Quyết định: `tungleads-theme` là **parent theme classic**; mỗi site khách = 1 **child theme mỏng** (`Template:` header). Child kế thừa bootstrap/FeatureRegistry/SiteMode/Features/WooCommerce integration của parent qua cơ chế parent/child sẵn có của WordPress — không cần tự viết lại `locate_template` fallback trong `vendor/`.
 - Lý do đổi: mô hình V1 "Composer/Git package, không parent/child" (spec `TL-Base-Theme-Claude-Code-Prompt.md`) chưa từng được triển khai; `vendor/` + `assets/dist/` đã commit sẵn nên Composer/Node không còn cần lúc deploy → Composer thực chất chỉ còn là dev-dep.
