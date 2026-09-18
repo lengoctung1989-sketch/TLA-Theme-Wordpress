@@ -19,17 +19,16 @@
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
 - **Model:** phiên này chạy **Cline** (VS Code) — **nhãn commit do Tùng chốt: `[deepseek]`**.
-- **Việc ĐÃ XONG phiên 2026-09-18:** (1) `.cp-spec__ic` 40→30px; (2) `.cp-contact-btn` thêm `padding: 10px`;
-  (3) plugin: bỏ emoji khỏi 2 chuỗi Settings (ảnh vỡ Twemoji); (4) **theme cha** fix P2.3: gỡ twemoji cả trong wp-admin;
-  (5) **tối ưu tài liệu**: `CLAUDE.md` thành **chỉ mục CP** (131,6 KB → **6,9 KB**, -95%), chi tiết dồn về `.ai/FEATURE_MAP.md`,
-  thêm **hạn mức chống phình** + luật “một sự thật một nhà” vào `AGENTS.md`. (6) **ngoài repo**: chốt + áp 6 chỉnh sửa vào chuẩn cấu trúc dự án `~/.claude/docs/project-structure-standard.md` (bản 18b) — Tùng tự xử 2 việc còn lại. Chi tiết: §2 các dòng `08:06` · `10:48` · `10:58` · `11:56` · `12:20` · `12:50` · `13:25` · `14:10`.
-- **Đang dở:** (không) — cả 5 repo đã commit SẠCH.
-- **Chờ TÙNG (việc duy nhất còn lại):** chạy `./deploy-caophat.sh --go` để đẩy production — checklist 16 bước nằm ngay trong
-  file đó (nhóm A/B/C/D). Khi deploy: plugin đã **v1.2.0** + **theme cha có fix P2.3** ⇒ phải ship **cả parent**.
-  Muốn dùng 2FA / đổi đường dẫn admin thì **bật SAU** khi deploy xong.
+- **Việc ĐÃ XONG phiên 2026-09-18:** (1) `.cp-spec__ic` 40→30px; (2) `.cp-contact-btn` thêm `padding: 10px`; (3) plugin: bỏ emoji 2 chuỗi Settings;
+  (4) **theme cha** fix P2.3 (gỡ twemoji cả trong wp-admin); (5) **tối ưu tài liệu**: `CLAUDE.md` thành chỉ mục CP (131,6 KB → 6,9 KB)
+  + hạn mức + luật “một sự thật một nhà”; (6) **ngoài repo**: chuẩn cấu trúc dự án **v1.0** + `CHANGELOG.md`;
+  (7) **MONOREPO**: gộp `parent-theme/` + `plugin-tien-ich/` + `plugin-zalo/` (subtree, giữ lịch sử) + sửa 2 lỗi chặn deploy + fix fatal autoloader parent + `AGENTS.md`/`CLAUDE.md` gốc.
+- **Đang dở:** (không) — repo sạch, site local **smoke 24/24**, theme 0 lỗi.
+- **⚠️ Bàn giao:** path WordPress KHÔNG đổi, nhưng **nguồn code giờ là các thư mục con** của monorepo (`child-theme-cp/` …).
+  Local = 4 bind mount trong `docker-compose.yml`; deploy = rsync thư mục con (xem `AGENTS.md` gốc + script). **Gốc monorepo KHÔNG phải theme.**
+- **Chờ TÙNG:** `./deploy-caophat.sh --go` khi muốn đẩy production (plugin v1.2.0 + theme cha có fix P2.3 ⇒ ship cả parent).
 - **Còn tồn trên production (phần Tùng):** regenerate thumbnail (96 ảnh lỗi) · ảnh `.webp` do LiteSpeed sinh · sửa dữ liệu host.
 
----
 ## §2 NHẬT KÝ (chỉ ghi thêm, mới nhất ở dưới)
 
 | Thời gian | Model | Việc đã làm | File chính | Trạng thái |
@@ -37,7 +36,6 @@
 
 > 📦 **Rotate 2026-09-18:** 144 dòng cũ (trước 2026-09-13 19:45) đã chuyển **nguyên văn** sang `.ai/WORKLOG-archive-2026-Q3.md`. §2 chỉ giữ **≤20 dòng gần nhất** (luật ở `AGENTS.md`). Tra việc cũ: `grep -n "<khoá>" .ai/WORKLOG-archive-2026-Q3.md` **Rút gọn 2026-09-18:** 20 dòng đang giữ đã viết lại ≤ 300 ký tự/dòng; bản ĐẦY ĐỦ ở `.ai/FEATURE_MAP.md` §“§2 GỐC”.
 
-| 2026-09-17 14:35 (giờ thật) | cline | **Đo lại mục lục theo CẤU HÌNH TÙNG TỰ CHỈNH** (Tùng vào Settings → Cao Phát đổi: nhãn **“Mục lục”**, mép **TRÁI**, màu **`#ffa305`**): xác nhận từng… *(xem FEATURE_MAP §2 GỐC)* | `docs/measure/toc-left.mjs`, `docs/measure/README.md` | ✅ |
 | 2026-09-17 14:12 (giờ thật) | cline | **CP8 v0.4.1 — THÊM KHỐI MỤC LỤC TRONG NỘI DUNG BÀI VIẾT** (Tùng: *“thêm tuỳ chọn mục lục hiển thị trong phần nội dung bài viết”*, ngay sau khi tự tay… *(xem FEATURE_MAP §2 GỐC)* | plugin: `includes/toc.php`, `assets/toc.css`, `assets/t | ✅ |
 | 2026-09-17 14:38 (giờ thật) | cline | **CP1.9 — “CHI NHÁNH & HOTLINE CAO PHÁT” CHUYỂN TỪ PLUGIN VỀ THEME** (Tùng hỏi *“chuyển phần (Hotline chi nhánh) trong plugin ra ngoài phần cài đặt …… *(xem FEATURE_MAP §2 GỐC)* | theme: `inc/customizer.php`, `functions.php`, `inc/wooc | ✅ |
 | 2026-09-17 14:57 (giờ thật) | cline | **1) TRẢ LỜI CÂU HỎI “mang plugin sang WordPress khác có chạy không?” — ĐÃ ĐO THẬT:** dựng **một WordPress MỚI** trong Docker (WP 7.1 + t | plugin: `tl-site-caophat.php` (**v0.6.0* | ✅ — ❌ đã đổi tên 2026-09-17 → plugin `pl-tien-ich-tungleads` |
@@ -90,3 +88,4 @@
 | 2026-09-18 13:25 (giờ thật) | cline | ❌ **ĐÍNH CHÍNH luật §2**: SỰ THẬT = §1 + FEATURE_MAP (sửa tại chỗ) · LỊCH SỬ = §2 + archive (chỉ thêm + phải dán nhãn đính chính); đã dán nhãn 13 dòng cũ. | AGENTS, WORKLOG, archive, plugin README | ✅ |
 
 | 2026-09-18 14:10 (giờ thật) | cline | **Ngoài repo:** áp 6 chỉnh sửa vào chuẩn cấu trúc dự án `~/.claude/docs/project-structure-standard.md` (bản 18b) — khối tool tự sinh = **config-first**, tag `[FE]/[BE]/[DB]`, ngân sách ≤6k token/phiên, mục nhiều repo, cấm | ngoài repo | ✅ |
+| 2026-09-18 20:55 (giờ thật) | cline | ❌ **ĐÍNH CHÍNH cấu trúc**: repo này giờ là **MONOREPO** (`parent-theme/` `plugin-tien-ich/` `plugin-zalo/`) — hết 4 repo riêng; local cần 4 bind mount (thiếu ⇒ `theme_no_stylesheet`); kèm fix fatal autoloader parent + deploy script trỏ thư mục con. | `AGENTS.md`/`CLAUDE.md` gốc, `docker-compose.yml`, `deploy-caophat.sh` | ✅ |
