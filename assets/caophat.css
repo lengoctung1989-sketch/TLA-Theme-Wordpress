@@ -1500,9 +1500,12 @@ body.cp main#main { padding-block: 0; }
 .cp-single-layout form.cart .cp-contact-row {
   grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;
 }
+/* `padding: 10px` — Tùng chốt 2026-09-18: hiện KHÔNG đổi hình vì `height: 48px` + flex center đã lo phần đệm
+   (đo 1280/1024/768/390: nút vẫn 192–342 × 48, số dòng chữ y hệt, tràn ngang 0). Giữ để code rõ ràng và sẵn
+   khi nào bỏ `height` (bỏ height mà không có padding ⇒ chữ sát mép nút). */
 .cp-contact-btn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  height: 48px; border-radius: var(--cp-radius-sm);
+  height: 48px; padding: 10px; border-radius: var(--cp-radius-sm);
   font-weight: 700; font-size: 14px; transition: background .18s ease;
 }
 .cp-contact-btn__ic { flex: 0 0 auto; display: inline-flex; }
