@@ -53,7 +53,7 @@ docker compose run --rm --user root --entrypoint sh wpcli -c \
 ## Local WordPress (Docker Compose — cần Docker Desktop)
 
 Toàn bộ code WordPress nằm trong repo tại `./wordpress/`. Theme phát triển trực tiếp tại
-`./wordpress/wp-content/themes/tungleads-theme/`. Chạy từ thư mục gốc repo:
+`./wordpress/wp-content/themes/tungleads-theme-cp/parent-theme/` (monorepo, từ 2026-09-18). Chạy từ thư mục gốc repo:
 
 ```bash
 docker compose up -d          # khởi động WordPress + MariaDB

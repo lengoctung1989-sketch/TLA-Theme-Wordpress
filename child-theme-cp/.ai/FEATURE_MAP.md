@@ -166,7 +166,7 @@ Cùng cách tiếp cận CP3.4: `cp_is_checkout_page()` (guard **loại trừ** 
 
 ## Ngoài theme — plugin `button-call-zalo-tungleads` (“Button call/zalo - TungLeAds”)
 
-Widget liên hệ nổi (Gọi điện + Zalo) neo sát **lề phải**, in ở `wp_footer` **prio 5**; số nhập ở **Settings → Button Call/Zalo**. Đây là **repo git riêng** (`wordpress/wp-content/plugins/button-call-zalo-tungleads/`), **KHÔNG** thuộc child theme — **không** đọc/ghi gì của theme. (v1.0.0 từng có tuỳ chọn “Ẩn nút gọi nổi của theme” in `.cp-fab{display:none!important}`; **bỏ ở v1.0.1** vì theme xoá hẳn `.cp-fab` cùng ngày — CP1.3.)
+Widget liên hệ nổi (Gọi điện + Zalo) neo sát **lề phải**, in ở `wp_footer` **prio 5**; số nhập ở **Settings → Button Call/Zalo**. Từ **2026-09-18** nằm trong **monorepo `TLA-Theme-Wordpress`** (`plugin-zalo/`) — trước đó là repo git riêng (`wordpress/wp-content/plugins/button-call-zalo-tungleads/`), **KHÔNG** thuộc child theme — **không** đọc/ghi gì của theme. (v1.0.0 từng có tuỳ chọn “Ẩn nút gọi nổi của theme” in `.cp-fab{display:none!important}`; **bỏ ở v1.0.1** vì theme xoá hẳn `.cp-fab` cùng ngày — CP1.3.)
 
 | Phần | Việc |
 |---|---|

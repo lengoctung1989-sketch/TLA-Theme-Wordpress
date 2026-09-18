@@ -7,7 +7,8 @@ Cả 3 phải cài đủ thì site mới chạy đúng — child theme không t�
 TLA-Theme-Wordpress/
 ├── parent-theme/        # Parent theme tuỳ biến (tungleads-theme) — nền tảng dùng chung nhiều site
 ├── child-theme-cp/       # Child theme riêng cho caophat.vn (tungleads-theme-cp) — style/tính năng riêng site
-└── plugin-tien-ich/       # Plugin tiện ích riêng site (pl-tien-ich-tungleads) — 2FA, term editor, v.v.
+├── plugin-tien-ich/       # Plugin tiện ích riêng site (pl-tien-ich-tungleads) — 2FA, term editor, v.v.
+└── plugin-zalo/           # Plugin widget nút liên hệ nổi (button-call-zalo-tungleads)
 ```
 
 ## Cài đặt lên WordPress
@@ -19,6 +20,7 @@ Copy/deploy đúng thư mục đích:
 | `parent-theme/` | `wp-content/themes/tungleads-theme/` |
 | `child-theme-cp/` | `wp-content/themes/tungleads-theme-cp/` |
 | `plugin-tien-ich/` | `wp-content/plugins/pl-tien-ich-tungleads/` |
+| `plugin-zalo/` | `wp-content/plugins/button-call-zalo-tungleads/` |
 
 Kích hoạt theo thứ tự: **parent theme trước** (không kích hoạt trực tiếp, chỉ cần có mặt) → **kích hoạt child theme** (Giao diện > Themes) → **kích hoạt plugin**.
 
@@ -32,4 +34,4 @@ Mỗi thư mục con là 1 dự án con độc lập, có tài liệu riêng:
 
 ## Lịch sử gộp repo
 
-3 thư mục trên trước đây là 3 git repo riêng (đúng với cách chúng được version độc lập trong máy dev), được gộp vào monorepo này bằng `git subtree` (giữ nguyên lịch sử commit từng phần) ngày 2026-09-18, để dễ quản lý trên GitHub và phản ánh đúng quan hệ phụ thuộc (child theme không chạy được nếu thiếu parent theme).
+4 thư mục trên trước đây là 4 git repo riêng (đúng với cách chúng được version độc lập trong máy dev), được gộp vào monorepo này bằng `git subtree` (giữ nguyên lịch sử commit từng phần) ngày 2026-09-18 — `plugin-zalo/` gộp sau cùng, để dễ quản lý trên GitHub và phản ánh đúng quan hệ phụ thuộc (child theme không chạy được nếu thiếu parent theme).

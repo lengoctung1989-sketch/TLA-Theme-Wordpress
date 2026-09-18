@@ -75,4 +75,4 @@
 - Vite + `Features\Enqueue` đọc manifest (dev HMR / prod hash + module/defer).
 - `Features\Setup` — theme supports, nav menus, textdomain.
 - Template tối thiểu: `index.php`, `header.php`, `footer.php`.
-- `docker-compose.yml` (gốc repo) — WordPress + MariaDB + wp-cli; toàn bộ WP core nằm trong `./wordpress/`, theme phát triển tại `./wordpress/wp-content/themes/tungleads-theme/`.
+- `docker-compose.yml` (gốc repo) — WordPress + MariaDB + wp-cli; toàn bộ WP core nằm trong `./wordpress/`, theme phát triển tại `./wordpress/wp-content/themes/tungleads-theme-cp/parent-theme/` (monorepo từ 2026-09-18).
