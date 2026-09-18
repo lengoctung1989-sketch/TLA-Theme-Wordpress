@@ -1,0 +1,10 @@
+# Commit bản build + autoloader production để deploy được lên hosting
+# không có Composer/Node (composer require + kích hoạt là chạy).
+# Theme không có runtime dependency nên vendor/ chỉ giữ autoloader.
+/vendor/*
+!/vendor/autoload.php
+!/vendor/composer/
+/node_modules/
+/languages/*.mo
+*.log
+.DS_Store

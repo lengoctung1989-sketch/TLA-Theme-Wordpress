@@ -1,0 +1,21 @@
+parameters:
+	level: 5
+	paths:
+		- functions.php
+		- src
+		- template-parts
+		- patterns
+		- front-page.php
+		- home.php
+		- archive.php
+		- single.php
+		- page.php
+		- comments.php
+		- index.php
+		- header.php
+		- footer.php
+		- archive-dichvu.php
+		- single-dichvu.php
+	bootstrapFiles:
+		- phpstan-bootstrap.php
+	treatPhpDocTypesAsCertain: false

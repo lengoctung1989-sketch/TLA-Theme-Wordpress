@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/theme.json",
+    "version": 2,
+    "settings": {
+        "appearanceTools": true,
+        "useRootPaddingAwareAlignments": true,
+        "layout": {
+            "contentSize": "720px",
+            "wideSize": "1200px"
+        },
+        "color": {
+            "defaultPalette": false,
+            "defaultGradients": false,
+            "custom": false,
+            "customDuotone": false,
+            "palette": [
+                { "slug": "base", "color": "#ffffff", "name": "Base" },
+                { "slug": "surface", "color": "#f4f5f7", "name": "Surface" },
+                { "slug": "contrast", "color": "#16181d", "name": "Contrast" },
+                { "slug": "muted", "color": "#5b616e", "name": "Muted" },
+                { "slug": "border", "color": "#d9dce1", "name": "Border" },
+                { "slug": "primary", "color": "#1d4ed8", "name": "Primary" },
+                { "slug": "primary-hover", "color": "#1739a8", "name": "Primary hover" },
+                { "slug": "accent", "color": "#0f766e", "name": "Accent" }
+            ]
+        },
+        "typography": {
+            "fluid": true,
+            "defaultFontSizes": false,
+            "customFontSize": false,
+            "fontFamilies": [
+                {
+                    "slug": "system",
+                    "name": "System",
+                    "fontFamily": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+                },
+                {
+                    "slug": "mono",
+                    "name": "Mono",
+                    "fontFamily": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+                }
+            ],
+            "fontSizes": [
+                { "slug": "sm", "name": "Small", "size": "0.875rem", "fluid": false },
+                { "slug": "md", "name": "Medium", "size": "1rem", "fluid": false },
+                { "slug": "lg", "name": "Large", "size": "1.25rem", "fluid": { "min": "1.125rem", "max": "1.375rem" } },
+                { "slug": "xl", "name": "XL", "size": "1.75rem", "fluid": { "min": "1.5rem", "max": "2rem" } },
+                { "slug": "2xl", "name": "2XL", "size": "2.5rem", "fluid": { "min": "2rem", "max": "3rem" } }
+            ]
+        },
+        "spacing": {
+            "customSpacingSize": false,
+            "units": [ "px", "rem", "vw", "%" ],
+            "spacingSizes": [
+                { "slug": "20", "name": "1", "size": "0.5rem" },
+                { "slug": "30", "name": "2", "size": "1rem" },
+                { "slug": "40", "name": "3", "size": "1.5rem" },
+                { "slug": "50", "name": "4", "size": "2.5rem" },
+                { "slug": "60", "name": "5", "size": "4rem" },
+                { "slug": "70", "name": "6", "size": "6rem" }
+            ]
+        }
+    },
+    "styles": {
+        "color": {
+            "background": "var(--wp--preset--color--base)",
+            "text": "var(--wp--preset--color--contrast)"
+        },
+        "typography": {
+            "fontFamily": "var(--wp--preset--font-family--system)",
+            "fontSize": "var(--wp--preset--font-size--md)",
+            "lineHeight": "1.6"
+        },
+        "elements": {
+            "link": {
+                "color": { "text": "var(--wp--preset--color--primary)" },
+                ":hover": { "color": { "text": "var(--wp--preset--color--primary-hover)" } }
+            },
+            "heading": {
+                "typography": { "fontWeight": "650", "lineHeight": "1.25" }
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "extends": "stylelint-config-standard",
+    "rules": {
+        "at-rule-no-unknown": [true, { "ignoreAtRules": ["layer"] }],
+        "at-rule-empty-line-before": null,
+        "no-descending-specificity": null,
+        "selector-class-pattern": null,
+        "custom-property-pattern": null,
+        "value-keyword-case": null
+    },
+    "ignoreFiles": ["assets/dist/**", "node_modules/**", "vendor/**"]
+}

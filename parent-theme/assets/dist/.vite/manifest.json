@@ -1,0 +1,20 @@
+{
+  "main.js": {
+    "file": "assets/main-BD8JQ_yf.js",
+    "name": "main",
+    "src": "main.js",
+    "isEntry": true,
+    "css": [
+      "assets/main-Cag1kMs9.css"
+    ]
+  },
+  "woocommerce.js": {
+    "file": "assets/woocommerce-JPUr_xV9.js",
+    "name": "woocommerce",
+    "src": "woocommerce.js",
+    "isEntry": true,
+    "css": [
+      "assets/woocommerce-DqNhUKBT.css"
+    ]
+  }
+}

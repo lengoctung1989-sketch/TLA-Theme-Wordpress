@@ -1,0 +1,42 @@
+/* P3.2 design-tokens — tầng 2 token nội bộ theme, KHÔNG lộ ra Site Editor. */
+
+@layer reset, tokens, base, components, utilities, woocommerce, overrides;
+
+@layer tokens {
+    :root {
+        /* Breakpoint (chỉ dùng trong JS / container queries; @media vẫn viết số trực tiếp) */
+        --tl-bp-sm: 480px;
+        --tl-bp-md: 768px;
+        --tl-bp-lg: 1024px;
+        --tl-bp-xl: 1280px;
+
+        /* z-index scale */
+        --tl-z-header: 100;
+        --tl-z-dropdown: 200;
+        --tl-z-overlay: 900;
+        --tl-z-drawer: 950;
+        --tl-z-modal: 1000;
+        --tl-z-toast: 1100;
+
+        /* Animation */
+        --tl-ease: cubic-bezier(0.4, 0, 0.2, 1);
+        --tl-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --tl-dur-fast: 120ms;
+        --tl-dur-base: 200ms;
+        --tl-dur-slow: 320ms;
+
+        /* Layout */
+        --tl-container-max: 1200px;
+        --tl-container-pad: clamp(1rem, 4vw, 2rem);
+        --tl-radius: 0.5rem;
+        --tl-focus-ring: 2px solid var(--wp--preset--color--primary, #1d4ed8);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        :root {
+            --tl-dur-fast: 0ms;
+            --tl-dur-base: 0ms;
+            --tl-dur-slow: 0ms;
+        }
+    }
+}
