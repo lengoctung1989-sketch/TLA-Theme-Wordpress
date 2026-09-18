@@ -24,6 +24,9 @@ require get_stylesheet_directory() . '/inc/system.php';
 // CP2.6 — Customizer: khối "Danh mục nổi bật" (chọn + kéo thả thứ tự + bố cục).
 require get_stylesheet_directory() . '/inc/customizer.php';
 
+// CP3.12 — Ô "Miêu tả" của danh mục sản phẩm dùng trình soạn thảo đầy đủ (như trang thêm bài viết).
+require get_stylesheet_directory() . '/inc/admin-editor.php';
+
 /**
  * Hotline hiển thị + số gọi (tel:). Dùng ở header, footer, FAB, trang sản phẩm.
  *

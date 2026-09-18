@@ -3151,3 +3151,27 @@ body.cp .cp-rv #review_form .stars a:focus-visible { outline: 2px solid var(--cp
     display: block; width: max-content; max-width: 100%; margin: 4px 0 0;
   }
 }
+
+/* ==========================================================================
+   CP3.12 — Mô tả danh mục sản phẩm nay do TRÌNH SOẠN THẢO soạn (có <p>, <ul>, <h3>, <strong>…).
+   Vì sao cần: reset chung `.cp ul { margin:0; padding:0; list-style:none }` (dòng 49) làm MẤT dấu đầu
+   dòng; đo 2026-09-17 trên /danh-muc/<cat>/: `list-style-type: none`, `padding-left: 0`. Mở lại đúng
+   như đã làm cho footer (dòng 741) và tab sản phẩm (dòng 841).
+   ========================================================================== */
+.cp-shop-desc__body p { margin: 0 0 12px; }
+.cp-shop-desc__body ul,
+.cp-shop-desc__body ol { margin: 0 0 12px; padding-left: 22px; }
+.cp-shop-desc__body ul { list-style: disc; }
+.cp-shop-desc__body ol { list-style: decimal; }
+.cp-shop-desc__body ul ul { list-style: circle; }
+.cp-shop-desc__body ol ol { list-style: lower-alpha; }
+.cp-shop-desc__body li { margin: 0 0 4px; }
+/* Tiêu đề trong mô tả không được to như tiêu đề bài (h1..h6 của theme) — hạ về cỡ chữ thân bài. */
+.cp-shop-desc__body h1,
+.cp-shop-desc__body h2,
+.cp-shop-desc__body h3 { margin: 0 0 10px; font-size: 18px; line-height: 1.4; }
+.cp-shop-desc__body h4,
+.cp-shop-desc__body h5,
+.cp-shop-desc__body h6 { margin: 0 0 10px; font-size: 16px; line-height: 1.4; }
+.cp-shop-desc__body > .term-description > *:last-child { margin-bottom: 0; }
+
