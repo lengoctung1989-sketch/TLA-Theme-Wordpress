@@ -1,0 +1,9 @@
+# Plugin PL Tiện Ích - TungLeAds — repo riêng; dùng chung cho nhiều website WordPress.
+.DS_Store
+*.log
+*.bak
+*.bak-*
+# Bí mật — KHÔNG bao giờ commit
+.env
+.env.local
+.env.*.local

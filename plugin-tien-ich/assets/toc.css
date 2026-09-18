@@ -1,0 +1,184 @@
+/* ==========================================================================
+   CP8 — MỤC LỤC NỘI DUNG (plugin PL Tiện Ích - TungLeAds)
+   Nút DỌC cố định ở mép màn hình + drawer danh sách heading.
+   Tham số lấy từ Settings → PL Tiện Ích (màu/mép/nhãn…): plugin in class quyết định mép
+   (`--left`/`--right`), trạng thái mobile (`--no-mobile`) và biến `--tlpi-toc-color`.
+   Màu mặc định = TOKEN CỦA THEME (`--cp-accent`) ⇒ tự khớp skin theme; theme khác vẫn có
+   fallback cứng nên không bị "trần".
+   Đo demo tungleads.com (2026-09-17) để lấy tỉ lệ: nút 41×163 · drawer 340px · chữ dọc
+   (`writing-mode: vertical-rl`) · mục H2 đậm / H3 nhạt · mục đang xem tô nền nhạt.
+   ========================================================================== */
+
+/* Nút dọc — z-index 45: TRÊN nội dung nhưng DƯỚI header sticky (50) và panel mega (60) của theme
+   để không che menu. Drawer thì nổi hẳn lên (90) vì là lớp phủ tạm. */
+
+/* Bù header sticky cho MỌI cú nhảy anchor (deep link `…#ten-muc` của Google “jump to” hoặc link khách
+   dán): JS đặt `--tlpi-scroll-pad` = chiều cao header + thanh admin (xem assets/toc.js). */
+html { scroll-padding-top: var(--tlpi-scroll-pad, 90px); }
+.tlpi-toc__toggle {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  z-index: 45;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 7px;
+  padding: 14px 10px; border: 0; cursor: pointer;
+  background: var(--tlpi-toc-color, var(--cp-accent, #c8471f)); color: #fff;
+  font-family: inherit; font-size: 12.5px; font-weight: 700; line-height: 1;
+  box-shadow: 0 10px 24px rgba(38, 34, 30, .22);
+  transition: background .18s ease, transform .18s ease;
+}
+.tlpi-toc__toggle:hover { background: var(--cp-accent-dark, #a63817); }
+.tlpi-toc--right .tlpi-toc__toggle { right: 0; border-radius: 12px 0 0 12px; }
+.tlpi-toc--left .tlpi-toc__toggle { left: 0; border-radius: 0 12px 12px 0; }
+/* Chữ XOAY DỌC như demo. `white-space: nowrap` để nhãn dài không bị bẻ dòng. */
+.tlpi-toc__toggle-txt { writing-mode: vertical-rl; letter-spacing: .3px; white-space: nowrap; }
+.tlpi-toc__toggle-ic { display: inline-flex; }
+.tlpi-toc__toggle-ic svg { display: block; }
+
+/* Drawer */
+.tlpi-toc__panel {
+  position: fixed; top: 0; bottom: 0; width: min(340px, 88vw);
+  z-index: 90; display: flex; flex-direction: column;
+  background: #fff; color: var(--cp-text, #26221e);
+  font-family: var(--cp-font, inherit);
+  visibility: hidden;
+  transition: transform .24s ease, visibility .24s ease;
+}
+.tlpi-toc--right .tlpi-toc__panel {
+  right: 0; transform: translateX(103%);
+  box-shadow: -18px 0 48px rgba(38, 34, 30, .16);
+}
+.tlpi-toc--left .tlpi-toc__panel {
+  left: 0; transform: translateX(-103%);
+  box-shadow: 18px 0 48px rgba(38, 34, 30, .16);
+}
+.tlpi-toc.is-open .tlpi-toc__panel { visibility: visible; transform: none; }
+
+/* Đầu drawer */
+.tlpi-toc__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 16px 14px 14px 18px; border-bottom: 1px solid var(--cp-line, #e5e0d9);
+}
+.tlpi-toc__title {
+  font-size: 15px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase;
+  color: var(--cp-primary-dark, #c88a00);
+}
+.tlpi-toc__close {
+  display: grid; place-items: center; flex: 0 0 auto;
+  width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%;
+  background: transparent; color: var(--cp-muted, #6f6a63); cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.tlpi-toc__close:hover { background: var(--cp-surface, #f6f4f1); color: var(--cp-text, #26221e); }
+.tlpi-toc__close svg { display: block; }
+
+
+/* Danh sách mục */
+.tlpi-toc__list {
+  flex: 1 1 auto; margin: 0; padding: 10px 12px 28px; list-style: none;
+  overflow-y: auto; overscroll-behavior: contain;
+}
+.tlpi-toc__item { margin: 0; list-style: none; }
+.tlpi-toc__link {
+  display: flex; gap: 8px;
+  padding: 9px 10px; border-radius: 8px;
+  color: var(--cp-muted, #6f6a63); font-size: 13.5px; line-height: 1.45; text-decoration: none;
+  transition: background .15s ease, color .15s ease;
+}
+.tlpi-toc__link:hover { background: var(--cp-surface, #f6f4f1); color: var(--cp-text, #26221e); }
+.tlpi-toc__link:focus-visible { outline: 2px solid var(--tlpi-toc-color, var(--cp-accent, #c8471f)); outline-offset: -2px; }
+/* Số thứ tự (tắt được trong Settings): cột số rộng đều để nhãn thẳng hàng. */
+.tlpi-toc__num { flex: 0 0 auto; min-width: 1.7em; opacity: .8; font-variant-numeric: tabular-nums; }
+/* Cấp bậc: H2 đậm, H3/H4 thụt lề tăng dần (demo cũng phân cấp bằng độ đậm/màu). */
+.tlpi-toc__item--lvl2 > .tlpi-toc__link { color: var(--cp-text, #26221e); font-weight: 700; }
+.tlpi-toc__item--lvl3 > .tlpi-toc__link { padding-left: 22px; font-weight: 500; }
+.tlpi-toc__item--lvl4 > .tlpi-toc__link { padding-left: 34px; font-size: 13px; font-weight: 500; }
+
+/* Mục ĐANG XEM — demo tô nền xanh nhạt; ở đây tô bằng màu nhấn của theme.
+   Dòng `background` đầu là bản dự phòng cho trình duyệt chưa hỗ trợ `color-mix()`. */
+.tlpi-toc__item.is-active > .tlpi-toc__link { background: var(--cp-surface, #f6f4f1); }
+.tlpi-toc__item.is-active > .tlpi-toc__link {
+  background: color-mix(in srgb, var(--tlpi-toc-color, var(--cp-accent, #c8471f)) 12%, #fff);
+  color: var(--tlpi-toc-color, var(--cp-accent, #c8471f));
+}
+.tlpi-toc__item.is-active > .tlpi-toc__link .tlpi-toc__num { opacity: 1; }
+
+/* Mobile: nút gọn hơn, drawer hẹp hơn; khoá cuộn trang khi drawer mở để cuộn trong danh sách
+   không "lây" sang trang. */
+@media (max-width: 768px) {
+  .tlpi-toc__toggle { padding: 12px 8px; font-size: 12px; gap: 6px; }
+  .tlpi-toc__panel { width: min(320px, 86vw); }
+  body.tlpi-toc-open { overflow: hidden; }
+}
+/* Settings tắt "hiện trên mobile" ⇒ ẩn cả nút lẫn drawer ở ≤768px. */
+@media (max-width: 768px) {
+  .tlpi-toc--no-mobile .tlpi-toc__toggle,
+  .tlpi-toc--no-mobile .tlpi-toc__panel { display: none; }
+}
+
+/* Widget liên hệ nổi (plugin button-call-zalo-tungleads, z-index 999999) nằm CÙNG mép phải ⇒ che
+   drawer; ẩn nó khi drawer đang mở. Class lấy từ plugin kia; plugin đó tắt thì rule này vô hại. */
+body.tlpi-toc-open .wd-contact-widget { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Tôn trọng "giảm chuyển động" + không in nút/drawer ra giấy. */
+@media (prefers-reduced-motion: reduce) {
+  .tlpi-toc__panel, .tlpi-toc__toggle { transition: none; }
+}
+@media print {
+  .tlpi-toc { display: none !important; }
+}
+
+/* ==========================================================================
+   KHỐI MỤC LỤC TRONG NỘI DUNG BÀI VIẾT
+   (tuỳ chọn “Hiện KHỐI MỤC LỤC trong nội dung bài viết”)
+   Dùng `<details>/<summary>` HTML gốc ⇒ bấm mở/thu được **cả khi tắt JS** (`open` = mở sẵn).
+   Màu theo token theme; viền trái đậm bằng màu nhấn để tách khỏi đoạn văn.
+   ========================================================================== */
+.tlpi-toc-inline {
+  display: block;
+  margin: 0 0 24px; padding: 14px 18px 16px;
+  background: var(--cp-surface, #f6f4f1);
+  border: 1px solid var(--cp-line, #e5e0d9);
+  border-left: 4px solid var(--tlpi-toc-color, var(--cp-accent, #c8471f));
+  border-radius: 10px;
+}
+.tlpi-toc-inline__sum {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; list-style: none;
+  font-size: 15px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase;
+  color: var(--cp-primary-dark, #c88a00);
+}
+.tlpi-toc-inline__sum::-webkit-details-marker { display: none; }
+.tlpi-toc-inline__sum::marker { content: ''; }
+/* Mũi tên chỉ trạng thái: mở sẵn thì chúc xuống, thu gọn thì chúc sang. */
+.tlpi-toc-inline__sum::after {
+  content: ''; margin-left: auto; width: 8px; height: 8px; flex: 0 0 auto;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg); transition: transform .2s ease;
+}
+.tlpi-toc-inline:not([open]) .tlpi-toc-inline__sum::after { transform: rotate(-45deg); }
+.tlpi-toc-inline__list { margin: 12px 0 0; padding: 0; list-style: none; }
+.tlpi-toc-inline__item { margin: 0; list-style: none; }
+.tlpi-toc-inline__item + .tlpi-toc-inline__item { margin-top: 2px; }
+.tlpi-toc-inline__link {
+  display: flex; gap: 8px;
+  padding: 5px 0;
+  color: var(--cp-text, #26221e); font-size: 14px; line-height: 1.5; text-decoration: none;
+  transition: color .15s ease;
+}
+.tlpi-toc-inline__num {
+  flex: 0 0 auto; min-width: 1.7em;
+  color: var(--tlpi-toc-color, var(--cp-accent, #c8471f));
+  font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.tlpi-toc-inline__item--lvl3 > .tlpi-toc-inline__link { padding-left: 20px; }
+.tlpi-toc-inline__item--lvl4 > .tlpi-toc-inline__link { padding-left: 38px; font-size: 13.5px; }
+.tlpi-toc-inline__item--lvl3 > .tlpi-toc-inline__link,
+.tlpi-toc-inline__item--lvl4 > .tlpi-toc-inline__link { color: var(--cp-muted, #6f6a63); }
+/* :hover đặt SAU các rule cấp bậc để thắng về thứ tự (cùng độ ưu tiên). */
+.tlpi-toc-inline__link:hover { color: var(--tlpi-toc-color, var(--cp-accent, #c8471f)); }
+.tlpi-toc-inline__link:focus-visible { outline: 2px solid var(--tlpi-toc-color, var(--cp-accent, #c8471f)); outline-offset: 2px; }
+@media (max-width: 768px) {
+  .tlpi-toc-inline { padding: 12px 14px 14px; margin-bottom: 20px; }
+  .tlpi-toc-inline__sum { font-size: 14px; }
+  .tlpi-toc-inline__link { font-size: 13.5px; }
+}
+
