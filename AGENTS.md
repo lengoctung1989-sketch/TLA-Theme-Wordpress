@@ -32,4 +32,6 @@ Repo này là **1 monorepo gộp 4 phần triển khai** (trước 2026-09-18 l�
 - Không commit `.env`/file nhạy cảm · **không revert quyết định đã chốt sau khi đo**.
 - **Gốc monorepo KHÔNG phải theme** (không có `style.css`) ⇒ WordPress phải trỏ vào `child-theme-cp/`:
   local = 4 bind mount trong `docker-compose.yml`; production = rsync thư mục con (xem script deploy).
+- **`parent-theme/` là bản chuẩn TẠM THỜI, chỉ đúng khi caophat.vn là site DUY NHẤT dùng nó.** Khi có site thứ 2 dùng `tungleads-theme` ⇒ **tách `parent-theme/` thành repo riêng** (`git subtree split --prefix=parent-theme`), mỗi monorepo site `git subtree pull` bản chuẩn về — không copy tay, tránh phân kỳ âm thầm.
+- **Chỉ deploy bằng `deploy-caophat.sh` có guard mapping** (kiểm 4 file mốc trước khi rsync, thêm 2026-09-18 sau sự cố rsync sai tầng). Không tự viết/dùng script deploy khác hoặc rsync tay.
 - Hạn mức tài liệu: xem bảng trong `child-theme-cp/AGENTS.md` (mỗi phần tự pin phiên bản chuẩn của mình).
