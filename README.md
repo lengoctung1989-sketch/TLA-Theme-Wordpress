@@ -202,7 +202,10 @@ nên chỉ cần cập nhật file là site chạy y như trước, KHÔNG mất
    (hoặc tắt/bật lại plugin) nếu không WP báo plugin không tồn tại.
 3. **`wp eval-file … -- --go` KHÔNG chạy** — WP-CLI báo `unknown --go parameter`; các script trong `docs/` dùng tham số **vị trí** `go`.
 4. **Ghi option bằng CHUỖI JSON thay vì MẢNG** ⇒ plugin đọc bằng `get_option()` mong nhận **array** (Settings API lưu array); nhận chuỗi sẽ coi như “không có dữ liệu” và **quay về mặc định** (đã dính ở `docs/prod-import-plugin-options.php` bản đầu — nay ghi `tlpi_toc_sanitize(...)` dạng mảng, chuỗi JSON chỉ để IN RA).
-5. **Ký tự emoji trong chuỗi hiển thị** ⇒ lõi WP đổi thành `<img src="…/twemoji…">` (ảnh vỡ khi CDN lỗi) — plugin hiện **không còn emoji** nào trong code; nếu thêm nhãn mới thì đừng dùng emoji.
+5. **Ký tự emoji trong chuỗi hiển thị** ⇒ lõi WP đổi thành `<img src="…">` lấy từ CDN — **link vỡ** (Tùng báo 2026-09-18). Cơ chế đo được: lõi WP nạp `wp-includes/js/wp-emoji-release.min.js` (thư viện **twemoji**) rồi thay mọi emoji trong DOM thành `<img>`; site này lấy base từ `_wpemojiSettings.svgUrl` = **`false`** (theme cha `tungleads-theme` đặt `emoji_svg_url` = `false` trong `src/Features/Performance.php`) ⇒ twemoji rơi về **base mặc định của thư viện** = `https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.1/assets/` — mà đường dẫn đó **404** (đúng phải là `…/assets/svg/…svg` hoặc `…/assets/72x72/…png`) ⇒ **ảnh vỡ**.
+   - **Đã dính lần 2 (2026-09-18):** tôi (agent) thêm `⚠️` vào 2 chuỗi Settings ở `includes/login-path.php` (đúng lúc cảnh báo “Permalink đẹp” + “LƯU LẠI đường dẫn”) ⇒ trang Settings hiện ảnh vỡ. **Đã bỏ emoji, giữ nguyên câu chữ** (phần nhấn mạnh đã có màu `#b32d2e` + `font-weight:600`).
+   - ⚠️ **Nguy hiểm nhất là trong `wp-admin`:** theme cha gỡ `print_emoji_detection_script` ở `wp_head` + `admin_print_scripts` khi `init`, **nhưng** `wp-admin/includes/admin-filters.php:59` gắn lại hook đó **sau** `init` ⇒ admin **vẫn chạy** twemoji (front-end thì đã sạch). Vậy: **tuyệt đối không dùng emoji trong câu chữ nào của plugin** (kể cả trong `wp-admin`). Ký tự KHÔNG bị đổi (an toàn): `→ ⇒ ✓ ✕ ★ • – …` (★ U+2605 không nằm trong bộ twemoji).
+   - **Cách kiểm sau mỗi lần sửa chuỗi hiển thị:** `node docs/measure/emoji-check.mjs` (phải `soImgCDN: 0`, `soImgEmoji: 0`) + `node docs/measure/emoji-where.mjs` (phải `trongKhoiPlugin: []`).
 
 ## Deploy
 

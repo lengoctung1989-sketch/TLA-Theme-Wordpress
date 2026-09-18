@@ -319,7 +319,7 @@ function tlpi_login_settings_ui(): void {
 
 	<?php if ( $dep ) : ?>
 		<p style="color:#b32d2e;font-weight:600;">
-			<?php esc_html_e( '⚠️ Tính năng này CẦN “Permalink đẹp”: vào Settings → Permalinks, chọn kiểu khác “Mặc định” rồi Lưu. Hiện đang để “Mặc định” nên tính năng tự TẮT (tránh đổi link xong không vào được trang quản trị).', 'pl-tien-ich-tungleads' ); ?>
+			<?php esc_html_e( 'Tính năng này CẦN “Permalink đẹp”: vào Settings → Permalinks, chọn kiểu khác “Mặc định” rồi Lưu. Hiện đang để “Mặc định” nên tính năng tự TẮT (tránh đổi link xong không vào được trang quản trị).', 'pl-tien-ich-tungleads' ); ?>
 		</p>
 	<?php endif; ?>
 
@@ -353,7 +353,7 @@ function tlpi_login_settings_ui(): void {
 		<?php esc_html_e( 'Đường dẫn đăng nhập hiện tại:', 'pl-tien-ich-tungleads' ); ?>
 		<code><?php echo esc_url( $url ); ?></code><br>
 		<span style="color:#b32d2e;">
-			<?php esc_html_e( '⚠️ LƯU LẠI đường dẫn này (bookmark) TRƯỚC khi bật. Quên thì cứu hộ bằng wp-cli: wp option delete tlpi_login — hoặc xoá/đổi tên thư mục plugin qua FTP.', 'pl-tien-ich-tungleads' ); ?>
+			<?php esc_html_e( 'LƯU LẠI đường dẫn này (bookmark) TRƯỚC khi bật. Quên thì cứu hộ bằng wp-cli: wp option delete tlpi_login — hoặc xoá/đổi tên thư mục plugin qua FTP.', 'pl-tien-ich-tungleads' ); ?>
 		</span>
 	</p>
 	<?php
