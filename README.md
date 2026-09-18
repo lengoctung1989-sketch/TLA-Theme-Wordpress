@@ -1,7 +1,9 @@
 # TLA Theme Wordpress — caophat.vn
 
-Monorepo gộp 3 thành phần triển khai cho site **caophat.vn** (WordPress/WooCommerce, dựa trên Flatsome).
-Cả 3 phải cài đủ thì site mới chạy đúng — child theme không tự hoạt động nếu thiếu parent theme.
+License: GPL-2.0-or-later (xem [`LICENSE`](LICENSE)) — chuẩn WordPress, ai cũng được dùng/sửa/phân phối lại, kể cả thương mại, miễn giữ cùng giấy phép GPL cho bản phái sinh.
+
+Monorepo gộp 4 thành phần triển khai cho site **caophat.vn** (WordPress/WooCommerce). `parent-theme/` là theme nền tự viết (không phải child theme của theme trả phí nào), dùng chung được cho nhiều site — 3 phần còn lại là tuỳ biến riêng cho caophat.vn.
+Child theme không tự hoạt động nếu thiếu parent theme.
 
 ```
 TLA-Theme-Wordpress/
@@ -10,6 +12,19 @@ TLA-Theme-Wordpress/
 ├── plugin-tien-ich/       # Plugin tiện ích riêng site (pl-tien-ich-tungleads) — 2FA, term editor, v.v.
 └── plugin-zalo/           # Plugin widget nút liên hệ nổi (button-call-zalo-tungleads)
 ```
+
+## Yêu cầu môi trường
+
+- WordPress ≥ 6.5, PHP ≥ 8.2, WooCommerce (cho các tính năng liên quan sản phẩm/giỏ hàng).
+- Không phụ thuộc theme/plugin trả phí nào khác — `parent-theme/` tự viết từ đầu.
+
+## Dùng lại cho dự án/site khác
+
+Repo này public để tham khảo hoặc tái sử dụng theo GPL-2.0. Muốn dùng cho site khác:
+
+- **`parent-theme/`** — dùng được nguyên trạng làm nền cho site mới (đổi `Text Domain`, `Theme Name` trong `style.css` cho phù hợp).
+- **`child-theme-cp/`** — gắn cứng theo skin/nghiệp vụ caophat.vn (tên hàm, class CSS `cp-*`, nội dung tiếng Việt riêng site) — nên dùng làm **ví dụ tham khảo cấu trúc**, không copy nguyên để chạy site khác.
+- **`plugin-tien-ich/`**, **`plugin-zalo/`** — 2 plugin tương đối độc lập, dùng lại được sau khi đổi text domain/tên hiển thị.
 
 ## Cài đặt lên WordPress
 
@@ -36,7 +51,7 @@ git clone git@github.com:lengoctung1989-sketch/TLA-Theme-Wordpress.git
 
 ### 2. Deploy lên site thật (chỉ áp dụng cho caophat.vn)
 
-Repo này không có script deploy — script deploy (`deploy-caophat.sh`, rsync-based, mặc định dry-run) nằm **ngoài repo**, trong máy dev nội bộ (`/Volumes/DATA/Claude-Code/TLA Theme/`), không public. Muốn deploy: dùng máy dev đó, không chạy trực tiếp từ bản clone GitHub.
+Repo này không có script deploy — script deploy (`deploy-caophat.sh`, rsync-based, mặc định dry-run) nằm ở repo vận hành riêng (**private**, không public vì chứa quy trình/SSH của server production). Nếu đây là site của bạn: tự viết script deploy phù hợp hạ tầng của bạn (rsync/SSH, CI/CD, hoặc plugin di chuyển site).
 
 ### 3. Lấy 1 phần (VD chỉ plugin) ra dùng cho dự án khác
 
