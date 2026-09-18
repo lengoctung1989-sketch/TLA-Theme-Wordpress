@@ -1,0 +1,455 @@
+/*
+ * Button call/zalo - TungLeAds — widget liên hệ nổi (Gọi điện + Zalo).
+ *
+ * CSS giữ NGUYÊN thiết kế “TÙNG LÊ ADS — CONTACT FLOATING WIDGET v1.3” (Tùng gửi 2026-09-16):
+ * mỗi nút mở rộng ĐỘC LẬP khi hover, cả cụm luôn neo sát lề phải, mobile giữ nguyên layout desktop.
+ * KHÔNG sửa số đo ở đây trừ khi Tùng yêu cầu.
+ * (Nút pulse dùng `:first-child` — chỉ chạy khi nút ĐẦU TIÊN là loại “Gọi điện”; đổi thứ tự trong
+ *  Settings → Button Call/Zalo.)
+ */
+
+.wd-contact-widget,
+.wd-contact-widget * {
+    box-sizing: border-box;
+}
+
+.wd-contact-widget {
+    position: fixed;
+    /* 2026-09-16 (yêu cầu Tùng): 50% → 75% — hạ cụm nút xuống thấp hơn (tâm cụm ở 75% chiều cao
+       khung nhìn). `transform: translateY(-50%)` bên dưới giữ nguyên nên `top` = TÂM của cụm.
+       Đo: 1440x900 / 1280x800 / 1024x600 / 390x844 / 390x667 đều vừa màn hình, không tràn ngang.
+       Lưu ý: khung nhìn thấp hơn ~512px thì đáy cụm bị cắt (cụm cao 256px → cần 0,25×H ≥ 128px). */
+    top: 75%;
+    right: 0;
+    z-index: 999999;
+
+    /*
+     * QUAN TRỌNG:
+     * Container có chiều rộng cố định bằng kích thước lớn nhất
+     * của nút khi hover.
+     *
+     * Nhờ vậy khi 1 nút mở rộng, 3 nút còn lại KHÔNG bị
+     * thay đổi vị trí theo chiều ngang.
+     */
+    width: 210px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+
+    transform: translateY(-50%);
+
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    pointer-events: none;
+}
+
+.wd-contact-item {
+    position: relative;
+
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+
+    width: 58px;
+    height: 58px;
+
+    padding: 7px;
+
+    overflow: hidden;
+
+    color: #fff;
+    text-decoration: none;
+
+    border-radius: 14px 0 0 14px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, .16);
+
+    /*
+     * Width của từng item thay đổi độc lập.
+     * Không dùng margin / position làm ảnh hưởng item khác.
+     */
+    transition:
+        width .35s cubic-bezier(.4, 0, .2, 1),
+        transform .25s ease,
+        box-shadow .25s ease;
+
+    pointer-events: auto;
+}
+
+/*
+ * CHỈ item đang hover thay đổi.
+ * 3 item còn lại vẫn giữ width 58px và vị trí sát bên phải.
+ */
+.wd-contact-item:hover {
+    width: 210px;
+    transform: translateX(-8px);
+    z-index: 2;
+
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, .22);
+}
+
+/* =========================
+   ICON
+   ========================= */
+
+.wd-contact-icon {
+    position: relative;
+
+    flex: 0 0 44px;
+
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: rgba(255, 255, 255, .18);
+
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+
+    transition: transform .3s ease;
+}
+
+.wd-contact-item:hover .wd-contact-icon {
+    transform: scale(1.05);
+}
+
+.wd-contact-icon svg {
+    width: 22px;
+    height: 22px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* =========================
+   ZALO ICON
+   ========================= */
+
+.wd-contact-zalo-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 27px;
+    height: 27px;
+
+    border: 2px solid #fff;
+    border-radius: 50%;
+
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1;
+
+    color: #fff;
+}
+
+/* =========================
+   LABEL
+   ========================= */
+
+.wd-contact-label {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 145px;
+
+    margin-left: 10px;
+
+    opacity: 0;
+    transform: translateX(15px);
+
+    transition:
+        opacity .2s ease,
+        transform .3s ease;
+}
+
+.wd-contact-item:hover .wd-contact-label {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.wd-contact-label small {
+    margin-bottom: 2px;
+
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
+
+    opacity: .82;
+}
+
+.wd-contact-label strong {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+
+    white-space: nowrap;
+}
+
+/* =========================
+   PHONE - RED
+   ========================= */
+
+.wd-contact-phone {
+    background:
+        linear-gradient(
+            135deg,
+            #d71920 0%,
+            #ef4444 100%
+        );
+}
+
+/* =========================
+   ZALO - BLUE
+   ========================= */
+
+.wd-contact-zalo {
+    background:
+        linear-gradient(
+            135deg,
+            #0084ff 0%,
+            #006de0 100%
+        );
+}
+
+/* =========================
+   PULSE
+   ========================= */
+
+.wd-contact-phone:first-child::before {
+    content: "";
+
+    position: absolute;
+
+    top: 7px;
+    left: 7px;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 11px;
+
+    border: 1px solid rgba(255, 255, 255, .55);
+
+    animation: wd-contact-pulse 2s infinite;
+
+    pointer-events: none;
+}
+
+@keyframes wd-contact-pulse {
+    0% {
+        transform: scale(1);
+        opacity: .65;
+    }
+
+    70% {
+        transform: scale(1.45);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1.45);
+        opacity: 0;
+    }
+}
+
+/*
+ * KHÔNG có media query thay đổi style.
+ * Mobile giữ nguyên đúng layout Desktop theo yêu cầu.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+    .wd-contact-item,
+    .wd-contact-icon,
+    .wd-contact-label {
+        transition: none;
+    }
+
+    .wd-contact-phone:first-child::before {
+        animation: none;
+    }
+}
+
+/* ==========================================================================
+   v1.1.0 — KIỂU MỚI (Facebook · Link tuỳ chỉnh) + MÀU RIÊNG & ẢNH ICON TỪNG NÚT
+   Phần thiết kế gốc ở trên giữ nguyên; mấy rule dưới đây chỉ THÊM (không sửa số đo gốc).
+   ========================================================================== */
+
+/* Kiểu Facebook: nền xanh Facebook; dùng ô tròn chữ “f” giống ô “Z” của Zalo */
+.wd-contact-facebook {
+    background: linear-gradient(135deg, #1877f2 0%, #0b5ed7 100%);
+}
+
+.wd-contact-fb-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 27px;
+    height: 27px;
+
+    border: 2px solid #fff;
+    border-radius: 50%;
+
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1;
+
+    color: #fff;
+}
+
+/* Kiểu Link tuỳ chỉnh: nền xám trung tính (dễ nhận ra là link ngoài) */
+.wd-contact-custom {
+    background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%);
+}
+
+/* Màu riêng của từng nút (nhập ở Settings) — truyền qua CSS variable ở inline style */
+.wd-contact-item.wd-has-bg {
+    background: var(--wd-bg);
+}
+
+.wd-contact-item.wd-has-fg {
+    color: var(--wd-fg);
+}
+
+/* Ô tròn chữ Z/f phải đổi theo màu chữ, còn icon SVG dùng `currentColor` nên tự đổi */
+.wd-contact-item.wd-has-fg .wd-contact-zalo-text,
+.wd-contact-item.wd-has-fg .wd-contact-fb-text {
+    color: var(--wd-fg);
+    border-color: var(--wd-fg);
+}
+
+/* Ảnh icon tải lên THAY icon mặc định — lấp đầy ô 44×44, giữ tỉ lệ */
+.wd-contact-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: inherit;
+}
+
+/* ==========================================================================
+   v1.2.0 — (Tùng 2026-09-16) MOBILE = 3/4 và “NHẤP 2 LẦN”
+   Lần nhấp 1: nút DI CHUYỂN (trượt sang trái + mở rộng ra hiện nhãn) nhưng CHƯA mở link.
+   Lần nhấp 2: mới mở link. Phần JS gắn class `.is-armed` ở lần nhấp đầu (xem contact-widget.js).
+
+   1) `.is-armed` — sao chép ĐÚNG hiệu ứng `:hover` gốc, để máy CẢM ỨNG (không có hover) cũng thấy
+      nút di chuyển ở lần chạm đầu. Rule này khai SAU rule `:hover` và cùng độ ưu tiên (0,3,0) nên
+      thắng khi cả hai cùng đúng.
+   2) `@media (max-width: 768px)` — cụm nhỏ còn **3/4** so với desktop: MỌI số đo lấy
+      `calc(<số desktop> * .75)` để sau này đổi số desktop là mobile tự theo. Chữ trong nhãn có SÀN
+      ̀`max(9px, …)` để không bị nhỏ quá mức đọc được.
+   ⚠️ Đây là lần ĐẦU TIÊN phần thiết kế gốc v1.3 bị sửa (trước đó ghi rõ “mobile giữ nguyên layout
+   desktop”) — chỉ sửa khi Tùng yêu cầu: 2026-09-16 giảm còn 3/4.
+   ========================================================================== */
+
+/* ---------- 1) Trạng thái "đã nhấp lần đầu" (thay cho :hover trên máy cảm ứng) ---------- */
+.wd-contact-item.is-armed {
+    width: 210px;
+    transform: translateX(-8px);
+    z-index: 2;
+
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, .22);
+}
+
+.wd-contact-item.is-armed .wd-contact-icon {
+    transform: scale(1.05);
+}
+
+.wd-contact-item.is-armed .wd-contact-label {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ---------- 2) MOBILE ≤768px: mọi số đo × 3/4 ---------- */
+@media (max-width: 768px) {
+    /* Cụm: rộng 210 → 157,5 · khoảng cách 8 → 6 */
+    .wd-contact-widget {
+        width: calc(210px * .75);
+        gap: calc(8px * .75);
+    }
+
+    /* Nút: 58×58 → 43,5×43,5 (5,25 + icon 33 + 5,25) · bo góc 14 → 10,5 */
+    .wd-contact-item {
+        width: calc(58px * .75);
+        height: calc(58px * .75);
+        padding: calc(7px * .75);
+        border-radius: calc(14px * .75) 0 0 calc(14px * .75);
+    }
+
+    /* Nút mở rộng (hover trên desktop / đã chạm trên mobile): 210 → 157,5 · dịch trái 8 → 6 */
+    .wd-contact-item:hover,
+    .wd-contact-item.is-armed {
+        width: calc(210px * .75);
+        transform: translateX(calc(-8px * .75));
+    }
+
+    /* Ô icon: 44 → 33 · bo góc 11 → 8,25 · icon bên trong 22 → 16,5 */
+    .wd-contact-icon {
+        flex: 0 0 calc(44px * .75);
+        width: calc(44px * .75);
+        height: calc(44px * .75);
+        border-radius: calc(11px * .75);
+    }
+
+    .wd-contact-icon svg {
+        width: calc(22px * .75);
+        height: calc(22px * .75);
+    }
+
+    /* Ô tròn chữ Z / f: 27 → 20,25 · viền 2 → 1,5 · chữ 17 → 12,75 */
+    .wd-contact-zalo-text,
+    .wd-contact-fb-text {
+        width: calc(27px * .75);
+        height: calc(27px * .75);
+        border-width: calc(2px * .75);
+        font-size: calc(17px * .75);
+    }
+
+    /* Nhãn: rộng tối thiểu 145 → 108,75 · lề trái 10 → 7,5 · chữ 11/15 → 9(sàn)/11,25 */
+    .wd-contact-label {
+        min-width: calc(145px * .75);
+        margin-left: calc(10px * .75);
+    }
+
+    .wd-contact-label small {
+        margin-bottom: calc(2px * .75);
+        font-size: max(9px, calc(11px * .75));
+    }
+
+    .wd-contact-label strong {
+        font-size: calc(15px * .75);
+    }
+
+    /* Vòng pulse của nút đầu: 44 → 33 tại (7,7) → (5,25,5,25) */
+    .wd-contact-phone:first-child::before {
+        top: calc(7px * .75);
+        left: calc(7px * .75);
+        width: calc(44px * .75);
+        height: calc(44px * .75);
+        border-radius: calc(11px * .75);
+        border-width: calc(1px * .75);
+    }
+}
+
