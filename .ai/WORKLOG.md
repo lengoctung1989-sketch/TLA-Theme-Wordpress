@@ -17,13 +17,11 @@
 
 ## §1 ĐANG LÀM (bàn giao — ghi đè mỗi phiên, chỉ giữ 1 khối)
 
-- **Model:** deepseek (phiên này chạy **Cline**/VS Code — nhãn commit do Tùng chốt: `[deepseek]`)
-- **Việc:** `fix(P2.3)` — emoji/twemoji: gỡ nốt trong **wp-admin** + bỏ `emoji_svg_url` = `false` (nguyên nhân emoji trong admin thành **ảnh vỡ** trỏ `cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.1/assets/<code>.svg` — **404**). Tùng chọn phương án **A: sửa ở theme cha** (2026-09-18).
-- **File đang chạm:** `src/Features/Performance.php`, `CHANGELOG.md`, `.ai/FEATURE_MAP.md`, `.ai/WORKLOG.md` (parent) + `.ai/WORKLOG.md` của child `tungleads-theme-cp`
-- **Đã xong:** `disableEmoji()` nay chạy ở **cả `init` lẫn `admin_init`** (vì `wp-admin/includes/admin-filters.php` nạp **sau** `init` rồi gắn lại hook) + gỡ thêm `embed_head` và `admin_enqueue_scripts` → `wp_enqueue_emoji_styles`. Đo: 4 màn admin + front-end đều `_wpemojiSettings` **không còn**, `window.twemoji` = `undefined`; tiêm `⚠️ ✅ 🔴 ★` vào DOM ⇒ **0 `<img>`** (vẫn là ký tự, không còn ảnh vỡ). `php -l` + `vendor/bin/phpcs` sạch.
-- **Việc tiếp theo:** (không) — fix này áp cho **MỌI child theme** khi deploy parent. Lưu ý cho child: không cần/không nên dùng emoji trong chuỗi hiển thị nữa (nay hiện đúng ký tự, nhưng để nhất quán thì tránh — xem bẫy #5 trong README plugin `pl-tien-ich-tungleads`).
-- **Cập nhật lúc:** 2026-09-18 10:58
-
+- **Model:** deepseek (phiên này chạy **Cline**/VS Code — nhãn commit do Tùng chốt: `[deepseek]`).
+- **Việc ĐÃ XONG (2026-09-18):** (a) `fix(P2.3)` gỡ twemoji cả trong **wp-admin** (`admin_init`) + bỏ `emoji_svg_url`=`false`;
+  (b) **tối ưu tài liệu theo yêu cầu Tùng**: `AGENTS.md` rút từ 9,9 KB → ~1,6 KB (trước trùng 97,6% với `CLAUDE.md`).
+  `CLAUDE.md` của parent (9,9 KB) giữ nguyên = **luật đầy đủ + P-index** — đây là nguồn sự thật duy nhất của repo này.
+- **Đang dở:** (không). Còn 1 việc của Tùng: khi deploy thì **ship cả parent** (fix P2.3 áp cho mọi child theme).
 
 ---
 
@@ -35,3 +33,5 @@
 | 2026-09-13 19:50 | deepseek | Chốt nhãn model chỉ còn `claude`/`deepseek` (bỏ codex/copilot) | như trên + 3 file child | xong |
 | 2026-09-18 10:58 | deepseek | `fix(P2.3)` emoji: gỡ twemoji ở **wp-admin** (thêm `admin_init` vì `admin-filters.php` nạp sau `init` gắn lại hook) + bỏ `emoji_svg_url`=`false` (làm twemoji rơi về base jsdelivr **404** ⇒ ảnh vỡ). Đo: 4 màn admin + front-end `_wpemojiSettings` không còn, tiêm emoji vào DOM ⇒ 0 `<img>` | `src/Features/Performance.php`, `CHANGELOG.md`, `.ai/FEATURE_MAP.md` | xong |
 
+
+| 2026-09-18 12:32 | deepseek | Rút `AGENTS.md` 9,9 KB → 1,6 KB (trước trùng **97,6%** với `CLAUDE.md`) + thêm hạn mức tài liệu & luật “chỉ TRỎ, không chép lại”. Không mất luật nào. | `AGENTS.md`, `.ai/WORKLOG.md` | xong |
